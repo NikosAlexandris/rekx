@@ -1,14 +1,14 @@
 # Kerchunking large time series
 
-<!-- vim-markdown-toc Marked -->
+<!-- vim-markdown-toc GFM -->
 
 * [Long-Term Observations](#long-term-observations)
     * [Data models](#data-models)
-    * [Chunking ?](#chunking-?)
-* [`Kerchunk`](#`kerchunk`)
-    * [+ advantages](#+-advantages)
+    * [Chunking ?](#chunking-)
+* [`Kerchunk`](#kerchunk)
+    * [+ advantages](#-advantages)
     * [- drawbacks](#--drawbacks)
-    * [How does it work?](#how-does-it-work?)
+    * [How does it work?](#how-does-it-work)
     * [Experimental](#experimental)
     * [First time questions](#first-time-questions)
 * [Xarray](#xarray)
@@ -24,6 +24,7 @@
     * [Front- and Back-end](#front--and-back-end)
 
 <!-- vim-markdown-toc -->
+
 # Long-Term Observations
 
 - Size
