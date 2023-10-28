@@ -60,7 +60,7 @@
   one_day_data = full_array[0:24]
   ```
 
-- HDF5: Effective yet **not** cloud-optimized.
+- HDF5: ...
 
   > HDF5 supports direct reading from cloud storage, whether over HTTP or by passing [fsspec][fsspec] instances.
 
