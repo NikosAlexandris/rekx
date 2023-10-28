@@ -60,10 +60,15 @@
   one_day_data = full_array[0:24]
   ```
 
-- HDF5: ...
+- HDF5
 
-  > HDF5 supports direct reading from cloud storage, whether over HTTP or by passing [fsspec][fsspec] instances.
+  - yet not cloud optimised
+  - [H5coro][H5coro] : cloud-optimised read-only library
 
+> HDF5 supports direct reading from cloud storage, whether over HTTP or by
+> passing [fsspec][fsspec] instances.
+
+[H5coro]: https://github.com/ICESat2-SlideRule/h5coro
 [fsspec]: https://filesystem-spec.readthedocs.io
 
 
