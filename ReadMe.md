@@ -11,6 +11,8 @@
     * [How does it work?](#how-does-it-work)
     * [Experimental](#experimental)
     * [First time questions](#first-time-questions)
+* [NetCDF utilities](#netcdf-utilities)
+    * [Rechunking ?](#rechunking-)
 * [Xarray](#xarray)
     * [Chunking](#chunking)
 * [Concepts](#concepts)
@@ -85,11 +87,17 @@ Splits data for easier reading
 <!-- . -->
 **Chunked**
 
-| Hex                                                                           |                 Text                |
-|-------------------------------------------------------------------------------|:-----------------------------------:|
-| **`AA 03 01`** `01 02 03` **`AA 03 01`** `04 05 06` **`AA 03 01`** `07 08 09` | `[1, 2, 3]` `[4, 5, 6]` `[7, 8, 9]` |
+| Hex                                                                                                               |                     Text                     | Size | Number |
+|-------------------------------------------------------------------------------------------------------------------|:--------------------------------------------:|------|--------|
+| **`AA 05 01`** `01 02 03 04 05` **`AA 05 01`** `06 07 08 09 -`                               | `[1, 2, 3, 4, 5]` `[6, 7, 8, 9, -]` | 5    | 2      |
+| **`AA 04 01`** `01 02 03 04` **`AA 04 01`** `05 06 07 08` **`AA 04 01`** `09 - - -`                               | `[1, 2, 3, 4]` `[5, 6, 7, 8]` `[9, -, -, -]` | 4    | 3      |
+| **`AA 03 01`** `01 02 03` **`AA 03 01`** `04 05 06` **`AA 03 01`** `07 08 09`                                     |      `[1, 2, 3]` `[4, 5, 6]` `[7, 8, 9]`     | 3    | 3      |
+| **`AA 02 01`** `01 02` **`AA 02 01`** `03 04` **`AA 02 01`** `05 06` **`AA 02 01`** `07 08` **`AA 02 01`** `09 -` | `[1, 2]` `[3, 4]` `[5, 6]` `[7, 8]` `[9, -]` | 2    | 5      |
 
-> **`AA 03 01`** marks the start of a chunk
+> **`AA 0? 01`** sequences mark the _start_ of a chunk
+
+
+
 
 See also :
 
@@ -163,14 +171,42 @@ with specific reference to netCDF4/HDF5 files.
 - Chunking strategy?
 - Reference file customization?
 
+# NetCDF utilities
+
+## Rechunking ?
+
+Some examples at : https://docs.unidata.ucar.edu/nug/current/netcdf_utilities_guide.html#nccopy_EXAMPLES
+
+
+Reorganizing the data into chunks on disk that have all the time in each chunk
+for a few lat and lon coordinates would greatly speed up such access. To chunk
+the data in the input file slow.nc, a netCDF file of any type, to the
+output file fast.nc, you could use :
+
+``` bash
+nccopy -c time/1000,lat/40,lon/40 slow.nc fast.nc
+```
+
+to specify data chunks of 1000 times, 40 latitudes, and 40 longitudes.
+
+If you had enough memory to contain the output file, you could speed up the
+rechunking operation significantly by creating the output in memory before
+writing it to disk on close:
+
+``` bash
+nccopy -w -c time/1000,lat/40,lon/40 slow.nc fast.nc
+```
+
 
 # Xarray
 
 ## Chunking 
 
-See useful hints at [Chunking and performance][Chunking and performance],
-[Optimisation tips][Optimisation tips], [Dask array best practices][Dask array
-best practices].
+See useful hints at :
+
+- [Chunking and performance][Chunking and performance]
+- [Optimisation tips][Optimisation tips]
+- [Dask array best practices][Dask array best practices].
 
 [Chunking and performance]: https://docs.xarray.dev/en/stable/user-guide/dask.html#chunking-and-performance
 [Optimisation tips]: https://docs.xarray.dev/en/stable/user-guide/dask.html#optimization-tips
