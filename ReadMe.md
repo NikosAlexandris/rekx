@@ -261,6 +261,69 @@ See useful hints at :
 [Dask array best practices]: https://docs.dask.org/en/latest/array-best-practices.html
 
 
+# Unsorted
+
+Source [Chunking Data: Choosing Shapes][Chunking Data: Choosing Shapes]
+
+[Chunking Data: Choosing Shapes]: https://www.unidata.ucar.edu/blogs/developer/en/entry/chunking_data_choosing_shapes
+
+**Intricacies of data chunking**
+
+- Optimize read times for various ways to access data
+    - either by rows, by columns, or as a rectangular subgrid
+- The idea is to _minimize the number of disk accesses_.
+  
+  **How?** By aligning chunk borders with the most common access patterns.
+
+**Important is**
+
+- The total number of chunks
+
+** Consolidation**
+
+Metadata _consolidation_ in a Zarr context,
+is a performance optimization technique
+that reduces the number of read operations required to access metadata.
+It can be particularly beneficial when working with remote or distributed storage systems.
+
+_consolidation_ is
+the _combination of all separate metadata files_
+associated with the different arrays and groups within a Zarr hierarchy
+_into a single metadata file_.
+
+**Optimal Chunk Shapes**
+
+   - For 2D data, rectangular chunks help balance the disk access times for
+     both row-wise and column-wise access.
+
+   - For 3D data or higher, the chunking strategy may need to be adjusted based
+     on the most common access patterns.
+
+**Rechunking Performance**
+
+   - Rechunking : changing the chunk shape of existing datasets,
+     which can be time-consuming especially for large datasets.
+
+   - Tools like `nccopy` for netCDF-4 and `h5repack` for both HDF5 and netCDF-4
+     are available for rechunking. The time it takes is usually a small
+     multiple of the time to copy the data from one file to another.
+
+**SSD vs Spinning Disk**
+
+   - Solid State Drives (SSD) can significantly speed up the rechunking process
+     and data access times as compared to traditional spinning disks.
+
+**Chunking and Compression**
+
+- a chunk is the _atomic unit_ of compression as well as disk access
+- compressed data has to be/is forcedly chunked
+- rechunking compressed data involves several steps:
+
+  `read` $\rightarrow$ `uncompress` $\rightarrow$ `rechunk` $\rightarrow$ `recompress` $\rightarrow$  `write` new chunks
+
+- rechunking compressed data _can sometimes be faster_ due to savings in disk
+  I/O!
+
 **Optimal layout?**
 
 > An algorithm discussed in 
