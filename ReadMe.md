@@ -114,17 +114,19 @@ See also :
 [kerchunk][kerchunk] supports cloud-friendly access of data
 with specific reference to netCDF4/HDF5 files.
 
-- extract metadata in a single scan
-- arrange multiple chunks from multiple files
+**How?** Kerchunk
+
+- extracts metadata in a single scan
+- arranges multiple chunks from multiple files
 - with [dask][dask] and [zarr][zarr],
-  read chunks in [parallel][parallel] and/or
-  [concurrently][concurrently] within a single indexible aggregate dataset
+  reads chunks in [parallel][^parallel] and/or
+  [concurrently][^concurrently] within a single indexible aggregate dataset
 
 [kerchunk]: https://fsspec.github.io/kerchunk/
 [dask]: https://www.dask.org/
 [zarr]: https://zarr.readthedocs.io/en/stable/
-[parallel]: see [Parallel](##Parallel)
-[concurrently]: see [Concurrency](##Concurrency)
+[^parallel]: see [Parallel](##Parallel)
+[^concurrently]: see [Concurrency](##Concurrency)
 
 ## + advantages
 
