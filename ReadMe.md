@@ -244,6 +244,39 @@ See useful hints at :
 [Dask array best practices]: https://docs.dask.org/en/latest/array-best-practices.html
 
 
+**Optimal layout?**
+
+> An algorithm discussed in 
+> ["Chunking Data: Choosing Shapes", by Russ
+> Rew](https://www.unidata.ucar.edu/blogs/developer/en/entry/chunking_data_choosing_shapes) : 
+> [chunk_shape_3D.py](https://www.unidata.ucar.edu/blog_content/data/2013/chunk_shape_3D.py)
+> 
+> See also : own implementation
+> [`suggest.py`](https://gist.github.com/NikosAlexandris/1fbc82fd0578ce96a4d39cbffa4ed584)
+
+An algebraic formulation for optimal chunking bases on
+_equalizing the number of chunks accessed for a 1D time series and a 2D
+horizontal slice in a 3D dataset_.
+Let $D$ be the number of values you want in a chunk,
+$N$ be the total number of chunks used to partition the array,
+and $c$ be a scaling factor derived from $D$ and the dimensions of the array.
+The chunk shape would then be given by the formula:
+
+$$c = \left( \frac{D}{{25256 \times 37 \times 256 \times 512}} \right)^{1/4}$$
+
+The resulting chunk shape is obtained by multiplying each dimension size by $c$
+and truncating to an integer. The chunk shape will thus be:
+
+$$\text{chunk\_shape} = \left( \left\lfloor 25256 \times c \right\rfloor,
+\left\lfloor 37 \times c \right\rfloor, \left\lfloor 256 \times c
+\right\rfloor, \left\lfloor 512 \times c \right\rfloor \right)$$
+
+This formula **assumes** that the optimal chunk shape will distribute the chunks
+equally along each dimension, and the scaling factor $c$ is calculated to
+ensure the total number of values in a chunk is close to $D$, without
+exceeding it.
+
+
 # Concepts
 
 ## Parallel
