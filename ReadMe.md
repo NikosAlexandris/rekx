@@ -97,6 +97,15 @@ Splits data for easier reading
 > **`AA 0? 01`** sequences mark the _start_ of a chunk
 
 
+### Size and number
+
+The `chunks` keyword specifies the _size_ of chunks, not the number of chunks!
+Increasing the number of chunks in the _time_ dimension will consume more memory!
+
+Examples:
+
+- chunks={'time':1, 'y':768, 'x':922} --> size of each chunk is 1*768*922 ~ 7e5
+- chunks={'time':168, 'y':384, 'x':288}  --> size of each chunk is 168*384*288 ~ 2e7.
 
 
 See also :
