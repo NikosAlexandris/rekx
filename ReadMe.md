@@ -186,13 +186,12 @@ with specific reference to netCDF4/HDF5 files.
 
 ## Rechunking ?
 
-Some examples at : https://docs.unidata.ucar.edu/nug/current/netcdf_utilities_guide.html#nccopy_EXAMPLES
-
-
-Reorganizing the data into chunks on disk that have all the time in each chunk
-for a few lat and lon coordinates would greatly speed up such access. To chunk
-the data in the input file slow.nc, a netCDF file of any type, to the
-output file fast.nc, you could use :
+Reorganizing the data into chunks that include all _timestamps_ in each chunk
+for a few lat and lon coordinates
+would greatly speed up such access.
+To chunk the data in the input file `slow.nc`,
+a netCDF file of any type, to the output file `fast.nc`,
+we can use `nccopy` :
 
 ``` bash
 nccopy -c time/1000,lat/40,lon/40 slow.nc fast.nc
@@ -200,15 +199,22 @@ nccopy -c time/1000,lat/40,lon/40 slow.nc fast.nc
 
 to specify data chunks of 1000 times, 40 latitudes, and 40 longitudes.
 
-If you had enough memory to contain the output file, you could speed up the
-rechunking operation significantly by creating the output in memory before
-writing it to disk on close:
+> More : [nccopy examples](https://docs.unidata.ucar.edu/nug/current/netcdf_utilities_guide.html#nccopy_EXAMPLES)
+
+Given enough memory to contain the output file,
+the rechunking operation can be significantly speed up
+by creating the output in memory before writing it to disk on close:
 
 ``` bash
 nccopy -w -c time/1000,lat/40,lon/40 slow.nc fast.nc
 ```
 
-Timing the rechunking of SID files from the SARAH3 collection
+### Example
+
+Timing the rechunking of SID files from the SARAH3 collection using
+`nccopy` laptop-with-ssd [^laptop-with-ssd]
+
+[^laptop-with-ssd]: Laptop with SSD disk
 
 <!-- ``` bash -->
 <!-- ❯ mlr --csv --oxtab --opprint put '$Duration = (${Duration 1} + ${Duration 2} + ${Duration 3}) /3' then cut -f Time,Latitude,Longitude,Duration then sort -n Duration rechunking_timings_old.noncsv -->
