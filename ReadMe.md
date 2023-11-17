@@ -11,6 +11,7 @@
     * [- drawbacks](#--drawbacks)
     * [How does it work?](#how-does-it-work)
     * [Experimental](#experimental)
+        * [Experiment 1](#experiment-1)
     * [First time questions](#first-time-questions)
 * [NetCDF utilities](#netcdf-utilities)
     * [Rechunking ?](#rechunking-)
@@ -27,6 +28,7 @@
     * [Asynchronous](#asynchronous)
     * [Serverless](#serverless)
     * [Front- and Back-end](#front--and-back-end)
+* [References](#references)
 
 <!-- vim-markdown-toc -->
 
@@ -182,6 +184,7 @@ with specific reference to netCDF4/HDF5 files.[^funded-by-nasa]
   }
   ```
 
+
 ## Experimental
 
 - Creating SARAH3 daily netCDF reference files can take 4+ hours
@@ -256,6 +259,7 @@ more important here.
 - Data format?
 - Chunking strategy?
 - Reference file customization?
+
 
 # NetCDF utilities
 
@@ -531,3 +535,11 @@ server maintenance, scaling, updates and more.
 |-----------|-------------------------------------------------------------|
 | Backend   | Data storage, algorithms, API, processing, serving          |
 | Frontend  | User interface & experience using a browsers or application |
+
+
+# References
+
+Durant, Martin; Jones, Max; Abernathey, Ryan; Hoese, David; Bednar, James
+(2023). Pangeo-ML Augmentation - Enabling Cloud-native access to archival data
+with Kerchunk. figshare. Preprint.
+[https://doi.org/10.6084/m9.figshare.22266433.v1](https://doi.org/10.6084/m9.figshare.22266433.v1)
