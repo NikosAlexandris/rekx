@@ -13,10 +13,11 @@ from functools import partial
 from kerchunk.combine import MultiZarrToZarr
 from typing import Optional
 from typing_extensions import Annotated
-from rekx.typer_parameters import typer_option_verbose
-from rekx.constants import VERBOSE_LEVEL_DEFAULT
-from rekx.typer_parameters import typer_argument_source_directory
-from rekx.typer_parameters import typer_option_filename_pattern
+from .typer_parameters import typer_option_verbose
+from .constants import VERBOSE_LEVEL_DEFAULT
+from .typer_parameters import typer_argument_source_directory
+from .typer_parameters import typer_option_filename_pattern
+from .typer_parameters import typer_option_dry_run
 from .typer_parameters import typer_argument_kerchunk_combined_reference
 from .progress import DisplayMode
 from .progress import display_context
@@ -49,8 +50,7 @@ from rekx.statistics import print_series_statistics
 from .csv import to_csv
 from typing import Any
 from datetime import datetime
-
-
+from rich import print
 
 
 # app = typer.Typer(
@@ -209,7 +209,7 @@ def parquet_reference(
     input_file: Path,
     output_directory: Optional[Path] = '.',
     record_size: int = DEFAULT_RECORD_SIZE,
-    dry_run: bool = False,
+    dry_run: Annotated[bool, typer_option_dry_run] = False,
     verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
 ):
     """Create Parquet references from an HDF5/NetCDF file"""
@@ -243,7 +243,7 @@ def parquet_multi_reference(
     pattern: str = "*.nc",
     record_size: int = DEFAULT_RECORD_SIZE,
     workers: int = 4,
-    dry_run: bool = False,
+    dry_run: Annotated[bool, typer_option_dry_run] = False,
     verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
 ):
     """Create Parquet references from an HDF5/NetCDF file"""
@@ -370,7 +370,7 @@ def combine_parquet_stores_to_parquet(
 #     help=f" Select data from a Parquet references store",
 #     # rich_help_panel='Select data',
 # )
-def select(
+def select_from_parquet(
     parquet_store: Annotated[Path, typer.Argument(..., help="Path to Parquet store")],
     variable: Annotated[str, typer.Argument(..., help='Variable name to select from')],
     longitude: Annotated[float, typer_argument_longitude_in_degrees],
@@ -567,7 +567,7 @@ def select(
 #     help=f" Read data from a Parquet references store [reverse]:timer_clock: Performance Test[/reverse]",
 #     rich_help_panel=rich_help_panel_select,
 # )
-def read(
+def read_from_parquet(
     parquet_store: Annotated[Path, typer.Argument(..., help="Path to Parquet store")],
     variable: Annotated[str, typer.Argument(..., help='Variable name to select from')],
     longitude: Annotated[float, typer_argument_longitude_in_degrees],
