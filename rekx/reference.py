@@ -3,13 +3,37 @@ logger.remove()
 def filter_function(record):
     return verbose
 logger.add("kerchunking_{time}.log", filter=filter_function)#, compression="tar.gz")
+import typer
+from rekx.typer_parameters import OrderCommands
+from typing_extensions import Annotated
 from pathlib import Path
+from .rich_help_panel_names import rich_help_panel_reference
+from .typer_parameters import typer_argument_source_directory
+from .typer_parameters import typer_argument_output_directory
+from .typer_parameters import typer_option_filename_pattern
+from .typer_parameters import typer_option_dry_run
+from .typer_parameters import typer_option_number_of_workers
+from .typer_parameters import typer_option_verbose
+from .constants import VERBOSE_LEVEL_DEFAULT
+from .progress import DisplayMode
+from .progress import display_context
+import multiprocessing
 import kerchunk
 import fsspec
 import ujson
 from kerchunk.hdf import SingleHdf5ToZarr
-# from rich import print
+from rich import print
 import hashlib
+
+
+# app = typer.Typer(
+#     cls=OrderCommands,
+#     add_completion=True,
+#     add_help_option=True,
+#     no_args_is_help=True,
+#     rich_markup_mode="rich",
+#     help=f"Rekx command line interface [bold][magenta]prototype[/magenta][/bold]",
+# )
 
 
 def generate_file_md5(file_path):
@@ -37,7 +61,7 @@ def create_single_reference(
     output_directory: Path,
     verbose: int = 0
 ):
-    """ """
+    """Helper function for create_kerchunk_reference()"""
     filename = file_path.stem
     output_file = f"{output_directory}/{filename}.json"
     hash_file = f"{output_directory}/{filename}.json.hash"
@@ -60,6 +84,56 @@ def create_single_reference(
                 f.write(json)
             with local_fs.open(hash_file, 'w') as hf:
                 hf.write(generated_hash)
+
+
+# @app.command(
+#     'reference',
+#     no_args_is_help=True,
+#     help='Create Kerchunk JSON reference files',
+#     rich_help_panel=rich_help_panel_reference,
+# )
+def create_kerchunk_reference(
+    source_directory: Annotated[Path, typer_argument_source_directory],
+    output_directory: Annotated[Path, typer_argument_output_directory],
+    pattern: Annotated[str, typer_option_filename_pattern] = '*.nc',
+    workers: Annotated[int, typer_option_number_of_workers] = 4,
+    dry_run: Annotated[bool, typer_option_dry_run] = False,
+    verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
+):
+    """Reference local NetCDF files using Kerchunk"""
+    # import cProfile
+    # import pstats
+    # profiler = cProfile.Profile()
+    # profiler.enable()
+
+    file_paths = list(source_directory.glob(pattern))
+    if not file_paths:
+        logger.info(
+            "No files found in the source directory matching the pattern."
+        )
+        return
+    if dry_run:
+        print(f"[bold]Dry run[/bold] of [bold]operations that would be performed[/bold]:")
+        print(f"> Reading files in [code]{source_directory}[/code] matching the pattern [code]{pattern}[/code]")
+        print(f"> Number of files matched: {len(file_paths)}")
+        print(f"> Creating single reference files to [code]{output_directory}[/code]")
+        return  # Exit for a dry run
+    output_directory.mkdir(parents=True, exist_ok=True)
+    
+    # Map verbosity level to display mode
+    mode = DisplayMode(verbose)
+    with display_context[mode]:
+        with multiprocessing.Pool(processes=workers) as pool:
+            from functools import partial
+
+            partial_create_single_reference = partial(
+                create_single_reference, output_directory=output_directory
+            )
+            results = pool.map(partial_create_single_reference, file_paths)
+        
+    # profiler.disable()
+    # stats = pstats.Stats(profiler).sort_stats('cumulative')
+    # stats.print_stats(10)  # Print the top 10 time-consuming functions
 
 
 if __name__ == "__main__":
