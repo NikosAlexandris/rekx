@@ -14,6 +14,7 @@ from rekx.constants import VERBOSE_LEVEL_DEFAULT
 import fsspec
 import ujson
 import kerchunk
+from rich import print
 
 
 # app = typer.Typer(
