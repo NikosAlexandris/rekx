@@ -32,6 +32,7 @@ from .typer_parameters import typer_option_number_of_workers
 from .typer_parameters import typer_argument_longitude_in_degrees
 from .typer_parameters import typer_argument_latitude_in_degrees
 from .typer_parameters import typer_option_time_series
+from .typer_parameters import typer_option_list_variables
 from .typer_parameters import typer_argument_timestamps
 from .typer_parameters import typer_option_start_time
 from .typer_parameters import typer_option_end_time
@@ -179,11 +180,12 @@ def select_time_series(
 #     help='  Select time series over a location',
 #     rich_help_panel='Select data',
 # )
-def select(
+def select_from_json(
     reference_file: Annotated[Path, typer.Argument(..., help="Path to the kerchunk reference file")],
     variable: Annotated[str, typer.Argument(..., help='Variable name to select from')],
     longitude: Annotated[float, typer_argument_longitude_in_degrees],
     latitude: Annotated[float, typer_argument_latitude_in_degrees],
+    list_variables: Annotated[bool, typer_option_list_variables] = False,
     timestamps: Annotated[Optional[Any], typer_argument_timestamps] = None,
     start_time: Annotated[Optional[datetime], typer_option_start_time] = None,
     end_time: Annotated[Optional[datetime], typer_option_end_time] = None,
@@ -237,7 +239,11 @@ def select(
     timer_end = timer.time()
     logger.debug(f"Dataset opening via Xarray took {timer_end - timer_start:.2f} seconds")
 
-    available_variables = list(dataset.data_vars)
+    available_variables = list(dataset.data_vars)  # Is there a faster way ?
+    if list_variables:
+        print(f'The dataset contains the following variables : `{available_variables}`.')
+        return
+
     if not variable in available_variables:
         print(f'The requested variable `{variable}` does not exist! Plese select one among the available variables : {available_variables}.')
         raise typer.Exit(code=0)
@@ -337,15 +343,16 @@ def select(
     data_retrieval_end_time = timer.time()
     logger.debug(f"Data retrieval took {data_retrieval_end_time - data_retrieval_start_time:.2f} seconds")
 
-    results = {
-        location_time_series.name: location_time_series.to_numpy(),
-    }
-
-    title = 'Location time series'
+    if verbose:
+        print(location_time_series)
+    # results = {
+    #     location_time_series.name: location_time_series.to_numpy(),
+    # }
+    # title = 'Location time series'
     
-    # special case!
-    if location_time_series is not None and timestamps is None:
-        timestamps = location_time_series.time.to_numpy()
+    # # special case!
+    # if location_time_series is not None and timestamps is None:
+    #     timestamps = location_time_series.time.to_numpy()
 
     # print_irradiance_table_2(
     #     longitude=longitude,
@@ -376,7 +383,7 @@ def select(
 #     help='  Select time series over a location',
 #     rich_help_panel='Select data',
 # )
-def select_from_memory(
+def select_from_json_in_memory(
     reference_file: Annotated[Path, typer.Argument(..., help="Path to the kerchunk reference file")],
     variable: Annotated[str, typer.Argument(..., help='Variable name to select from')],
     longitude: Annotated[float, typer_argument_longitude_in_degrees],
@@ -384,6 +391,7 @@ def select_from_memory(
     timestamps: Annotated[Optional[Any], typer_argument_timestamps] = None,
     start_time: Annotated[Optional[datetime], typer_option_start_time] = None,
     end_time: Annotated[Optional[datetime], typer_option_end_time] = None,
+    list_variables: Annotated[bool, typer_option_list_variables] = False,
     time: Annotated[Optional[int], typer.Option(help="New chunk size for the 'time' dimension")] = None,
     lat: Annotated[Optional[int], typer.Option(help="New chunk size for the 'lat' dimension")] = None,
     lon: Annotated[Optional[int], typer.Option(help="New chunk size for the 'lon' dimension")]= None,
