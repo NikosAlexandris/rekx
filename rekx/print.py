@@ -24,6 +24,20 @@ def print_chunk_shapes_table(chunk_shapes):
     console.print(table)
 
 
+def print_chunking_shapes(chunking_shapes):
+    table = Table(show_header=True, header_style="bold magenta", box=SIMPLE_HEAD)
+    table.add_column("Variable", style="dim", no_wrap=True)
+    table.add_column("Shape", no_wrap=True)
+
+    # populate the table
+    for variable, shape in chunking_shapes.items():
+        shape_string = ' x '.join(map(str, shape))
+        table.add_row(variable, shape_string)
+
+    console = Console()
+    console.print(table)
+
+
 def print_common_chunk_layouts(common_chunk_layouts):
     # Create a table for 'variable' and the 'common shape'
     table = Table(show_header=True, header_style="bold magenta", box=SIMPLE_HEAD)
