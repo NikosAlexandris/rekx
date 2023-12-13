@@ -120,49 +120,6 @@ def compare_chunk_sizes_json(
 #     no_args_is_help=True,
 #     help='Check for chunk size consistency along series of kerchunk reference files',
 # )
-# def check_chunk_consistency_json(
-#     source_directory: Annotated[Path, typer_argument_source_directory],
-#     variable: Annotated[str, typer.Argument(help='Variable name to select from')],
-#     pattern: Annotated[str, typer_option_filename_pattern] = "*.json",
-#     verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
-# ):
-#     source_directory = Path(source_directory)
-#     file_paths = list(source_directory.glob(pattern))
-#     files = list(map(str, file_paths))
-#     # logger.info(f"Files found in {source_directory}: {files}")
-
-#     # Use as a comparison reference the chunk sizes from the first file
-#     initial_chunk_sizes = get_chunk_sizes_from_json(files[0], variable)
-#     if not initial_chunk_sizes:
-#         # logger.error(f"Cannot read chunk sizes from initial file {files[0]}. Exiting...")
-#         print(f"Cannot read chunk sizes from initial file {files[0]}. Exiting...")
-#         return
-
-#     all_match = True
-#     mode = DisplayMode(verbose)
-#     with display_context[mode]:
-#         for file in files[1:]:
-#             if not compare_chunk_sizes_json(
-#                     file=file,
-#                     variable=variable,
-#                     initial_chunk_sizes=initial_chunk_sizes,
-#                 ):
-#                 all_match = False
-
-#     if all_match:
-#         # logger.info(f"[green]All files are consistently shaped in[/green] {initial_chunk_sizes[variable]} chunks")
-#         print(f"{check_mark} [green]All files are consistently shaped in[/green] {initial_chunk_sizes[variable]} chunks")
-
-#     else:
-#         # logger.warning("Not all files are chunked identically! Check the logs for details.")
-#         print(f"[red]Not all files are chunked identically![/red] [bold]Check the logs for details.[/bold]")
-
-
-# @app.command(
-#     'consistency-json',
-#     no_args_is_help=True,
-#     help='Check for chunk size consistency along series of kerchunk reference files',
-# )
 def check_chunk_consistency_json(
     source_directory: Annotated[Path, typer_argument_source_directory],
     variable: Annotated[str, typer.Argument(help='Variable name to select from')],
