@@ -11,17 +11,51 @@ from pathlib import Path
 import xarray as xr
 import netCDF4 as nc
 from enum import Enum
+from .typer_parameters import typer_option_dry_run
 from rekx.typer_parameters import typer_option_verbose
 from rekx.constants import VERBOSE_LEVEL_DEFAULT
+from .rich_help_panel_names import rich_help_panel_rechunking
+from .models import RechunkingBackend
+from rich import print
+# from rekx.messages import NOT_IMPLEMENTED_CLI
 
 
-app = typer.Typer(
-    cls=OrderCommands,
-    add_completion=True,
-    add_help_option=True,
-    rich_markup_mode="rich",
-    help=f'Rechunk data',
-)
+# app = typer.Typer(
+#     cls=OrderCommands,
+#     add_completion=True,
+#     add_help_option=True,
+#     rich_markup_mode="rich",
+#     help=f'Rechunk data',
+# )
+
+
+# @app.command(
+#     'modify-chunk-size',
+#     no_args_is_help=True,
+#     help=f'Modify chunk size in NetCDF files {NOT_IMPLEMENTED_CLI}',
+# )
+def modify_chunk_size(
+    netcdf_file,
+    variable,
+    chunk_size,
+):
+    """
+    Modify the chunk size of a variable in a NetCDF file.
+    
+    Parameters:
+    - nc_file: path to the NetCDF file
+    - variable_name: name of the variable to modify
+    - new_chunk_size: tuple specifying the new chunk size, e.g., (2600, 2600)
+    """
+    with nc.Dataset(netcdf_file, 'r+') as ds:
+        var = ds.variables[variable]
+        
+        if var.chunking() != [None]:
+            var.set_auto_chunking(chunk_size)
+            print(f"Modified chunk size for variable '{variable}' in file '{netcdf_file}' to {chunk_size}.")
+
+        else:
+            print(f"Variable '{variable}' in file '{netcdf_file}' is not chunked. Skipping.")
 
 
 def rechunk_netcdf_via_netCDF4(
@@ -138,6 +172,54 @@ def rechunk_netcdf_via_xarray(
     dataset_rechunked = dataset.chunk(chunks)
     dataset_rechunked.to_netcdf(output_filepath)
 
+
+# @app.command(
+#     "rechunk",
+#     no_args_is_help=True,
+#     help="Rechunk a NetCDF file and save it to a new file.",
+#     rich_help_panel=rich_help_panel_rechunking,
+# )
+def rechunk(
+    input: Annotated[Optional[Path], typer.Argument(help="Input NetCDF file.")] = None,
+    output: Annotated[Optional[Path], typer.Argument(help="Path to the output NetCDF file.")] = None,
+    time: Annotated[int, typer.Option(help="New chunk size for the `time` dimension.")] = None,
+    lat: Annotated[int, typer.Option(help="New chunk size for the `lat` dimension.")] = None,
+    lon: Annotated[int, typer.Option(help="New chunk size for the `lon` dimension.")] = None,
+    backend: Annotated[RechunkingBackend, typer.Option(help="Backend to use for rechunking. [code]nccopy[/code] [red]Not Implemented Yet![/red]")] = RechunkingBackend.nccopy,
+    dask_scheduler: Annotated[str, typer.Option(help="The port:ip of the dask scheduler")] = None,
+    dry_run: Annotated[bool, typer_option_dry_run] = False,
+    verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
+):
+    """ """
+    if verbose:
+        import time as timer
+        rechunking_timer_start = timer.time()
+
+    if dask_scheduler:
+        from dask.distributed import Client
+        client = Client(dask_scheduler)
+        typer.echo(f"Using Dask scheduler at {dask_scheduler}")
+
+    if dry_run:
+        print(f"[bold]Dry run[/bold] of [bold]operations that would be performed[/bold]:")
+        print(f"> Input file [code]{input}[/code]")
+        print(f"> Target chunking shape : {time}, {lat}, {lon}")
+        print(f"> Output file [code]{output}[/code]")
+        print(f"> Rechunking via {backend}")
+        return  # Exit for a dry run
+
+    if backend == 'xarray':
+        rechunk_netcdf_via_xarray(Path(input), Path(output), time, lat, lon)
+    elif backend == 'netCDF4':
+        rechunk_netcdf_via_netCDF4(Path(input), Path(output), time, lat, lon)
+    else:
+        raise ValueError(f"Unsupported backend: {backend}")
+
+    if verbose:
+        rechunking_timer_end = timer.time()
+        elapsed_time = rechunking_timer_end - rechunking_timer_start
+        logger.debug(f"Rechunking via {backend} took {timer_end - timer_start:.2f} seconds")
+        print(f"Rechunking took {elapsed_time:.2f} seconds.")
 
 
 if __name__ == "__main__":
