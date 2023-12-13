@@ -6,20 +6,36 @@ from .progress import display_context
 from pathlib import Path
 from .typer_parameters import typer_argument_source_directory
 from .typer_parameters import typer_option_filename_pattern
+from .typer_parameters import typer_option_dry_run
 from .typer_parameters import typer_argument_kerchunk_combined_reference
+from .rich_help_panel_names import rich_help_panel_combine
+from rekx.typer_parameters import typer_option_verbose
+from rekx.constants import VERBOSE_LEVEL_DEFAULT
+import fsspec
+import ujson
+import kerchunk
 
 
-@app.command(
-    'combine',
-    no_args_is_help=True,
-    help='Combine multiple JSON references using',
-    rich_help_panel='Combine reference sets',
-)
+# app = typer.Typer(
+#     cls=OrderCommands,
+#     add_completion=True,
+#     add_help_option=True,
+#     rich_markup_mode="rich",
+#     help=f'Create kerchunk reference',
+# )
+
+
+# @app.command(
+#     'combine',
+#     no_args_is_help=True,
+#     help='Combine Kerchunk reference sets',
+#     rich_help_panel=rich_help_panel_combine,
+# )
 def combine_kerchunk_references(
     source_directory: Annotated[Path, typer_argument_source_directory],
     pattern: Annotated[str, typer_option_filename_pattern] = "*.json",
     combined_reference: Annotated[Path, typer_argument_kerchunk_combined_reference] = "combined_kerchunk.json",
-    dry_run: Annotated[bool, typer.Option("--dry-run", help="Run the command without making any changes.")] = False,
+    dry_run: Annotated[bool, typer_option_dry_run] = False,
     verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
 ):
     """Combine multiple JSON references into a single logical aggregate
@@ -53,20 +69,20 @@ def combine_kerchunk_references(
             f.write(ujson.dumps(multifile_kerchunk).encode())
 
 
-@app.command(
-    'combine-parquet',
-    no_args_is_help=True,
-    help='Combine multiple Parquet stores',
-    rich_help_panel='Combine reference sets',
-)
+# @app.command(
+#     'combine-parquet',
+#     no_args_is_help=True,
+#     help='Combine multiple Parquet stores',
+#     rich_help_panel='Combine reference sets',
+# )
 def combine_kerchunk_references_to_parquet(
     source_directory: Annotated[Path, typer_argument_source_directory],
     pattern: Annotated[str, typer_option_filename_pattern] = "*.json",
     combined_reference: Annotated[Path, typer_argument_kerchunk_combined_reference] = "combined_kerchunk.parq",
-    dry_run: Annotated[bool, typer.Option("--dry-run", help="Run the command without making any changes.")] = False,
+    dry_run: Annotated[bool, typer_option_dry_run] = False,
     verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
 ):
-    """Combine multiple Parquet stores into a single aggregate dataset using Kerchunk's `MultiZarrToZarr` function"""
+    """Combine multiple JSON references into a single Parquet store using Kerchunk's `MultiZarrToZarr` function"""
 
     mode = DisplayMode(verbose)
     with display_context[mode]:
