@@ -22,7 +22,6 @@ from rekx.typer_parameters import typer_option_start_time
 from rekx.typer_parameters import typer_option_end_time
 from rekx.typer_parameters import typer_option_convert_longitude_360
 from rekx.typer_parameters import typer_option_mask_and_scale
-from rekx.typer_parameters import typer_option_nearest_neighbor_lookup
 from rekx.typer_parameters import typer_option_tolerance
 from rekx.typer_parameters import typer_option_in_memory
 from rekx.typer_parameters import typer_option_statistics
@@ -31,7 +30,6 @@ from rekx.typer_parameters import typer_option_csv
 from rekx.typer_parameters import typer_option_variable_name_as_suffix
 from rekx.typer_parameters import typer_option_verbose
 from rekx.select import select_time_series
-from rekx.constants import ROUNDING_PLACES_DEFAULT
 from rekx.constants import VERBOSE_LEVEL_DEFAULT
 from rekx.utilities import set_location_indexers
 from rekx.models import MethodsForInexactMatches

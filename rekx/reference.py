@@ -3,84 +3,13 @@ logger.remove()
 def filter_function(record):
     return verbose
 logger.add("kerchunking_{time}.log", filter=filter_function)#, compression="tar.gz")
-
-
-from typing_extensions import Annotated
-from typing import Any
-from typing import Optional
-from datetime import datetime
-from threading import Lock
-import typer
 from pathlib import Path
-from typing_extensions import Annotated
-from .typer_parameters import OrderCommands
-from .typer_parameters import typer_argument_source_directory
-from .typer_parameters import typer_argument_output_directory
-from .typer_parameters import typer_argument_kerchunk_combined_reference
-from .typer_parameters import typer_option_filename_pattern
-from .typer_parameters import typer_option_number_of_workers
-from .typer_parameters import typer_argument_longitude_in_degrees
-from .typer_parameters import typer_argument_latitude_in_degrees
-from .typer_parameters import typer_option_time_series
-from .typer_parameters import typer_argument_timestamps
-from .typer_parameters import typer_option_start_time
-from .typer_parameters import typer_option_end_time
-from .typer_parameters import typer_option_convert_longitude_360
-from .typer_parameters import typer_option_mask_and_scale
-from .typer_parameters import typer_option_nearest_neighbor_lookup
-from .typer_parameters import typer_option_tolerance
-from .typer_parameters import typer_option_in_memory
-from .typer_parameters import typer_option_statistics
-from .typer_parameters import typer_option_rounding_places
-from .typer_parameters import typer_option_csv
-from .typer_parameters import typer_option_variable_name_as_suffix
-from .typer_parameters import typer_option_verbose
-from .constants import ROUNDING_PLACES_DEFAULT
-from .constants import VERBOSE_LEVEL_DEFAULT
-from .select import select_time_series
-from .utilities import set_location_indexers
-from .statistics import print_series_statistics
-from .csv import to_csv
 import kerchunk
 import fsspec
-import multiprocessing
 import ujson
 from kerchunk.hdf import SingleHdf5ToZarr
-from rich.progress import (
-    BarColumn,
-    Progress,
-    TaskID,
-    TextColumn,
-    TimeRemainingColumn,
-)
-from rich import print
-from .hardcodings import exclamation_mark
-from .hardcodings import check_mark
-from .hardcodings import x_mark
-from .messages import ERROR_IN_SELECTING_DATA
-import xarray as xr
-from .progress import DisplayMode
-from .progress import display_context
-from .parquet import app as parquet
-import time as timer
-from enum import Enum
+# from rich import print
 import hashlib
-
-
-class MethodsForInexactMatches(str, Enum):
-    none = None # only exact matches
-    pad = 'pad' # ffill: propagate last valid index value forward
-    backfill = 'backfill' # bfill: propagate next valid index value backward
-    nearest = 'nearest' # use nearest valid index value
-
-
-app = typer.Typer(
-    cls=OrderCommands,
-    add_completion=True,
-    add_help_option=True,
-    rich_markup_mode="rich",
-    help=f'Create kerchunk reference',
-)
 
 
 def generate_file_md5(file_path):

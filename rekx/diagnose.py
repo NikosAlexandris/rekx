@@ -24,7 +24,6 @@ from rekx.typer_parameters import typer_option_start_time
 from rekx.typer_parameters import typer_option_end_time
 from rekx.typer_parameters import typer_option_convert_longitude_360
 from rekx.typer_parameters import typer_option_mask_and_scale
-from rekx.typer_parameters import typer_option_nearest_neighbor_lookup
 from rekx.typer_parameters import typer_option_tolerance
 from rekx.typer_parameters import typer_option_in_memory
 from rekx.typer_parameters import typer_option_statistics
