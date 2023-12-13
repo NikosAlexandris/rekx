@@ -1,11 +1,6 @@
 """
 Rekx is a command line interface to Kerchunk
 """
-# from loguru import logger
-# logger.remove()
-# def filter_function(record):
-#     return verbose
-# logger.add("kerchunking_{time}.log", filter=filter_function)#, compression="tar.gz")
 from rich.panel import Panel
 import typer
 from .typer_parameters import OrderCommands
@@ -24,10 +19,10 @@ from .parquet import parquet_multi_reference
 from .combine import combine_kerchunk_references
 from .combine import combine_kerchunk_references_to_parquet
 from .parquet import combine_parquet_stores_to_parquet
-from .select import select
-from .select import select_from_memory
-from .parquet import select
-from .parquet import read
+from .select import select_from_json
+from .select import select_from_json_in_memory
+from .parquet import select_from_parquet
+from .parquet import read_from_parquet
 from .rich_help_panel_names import rich_help_panel_diagnose
 from .rich_help_panel_names import rich_help_panel_suggest
 from .rich_help_panel_names import rich_help_panel_rechunking
@@ -162,25 +157,25 @@ app.command(
     help='  Select time series over a location',
     no_args_is_help=True,
     rich_help_panel=rich_help_panel_select,
-)(select)
+)(select_from_json)
 app.command(
     name="select-from-memory",
     help='  Select time series over a location from data loaded in memory',
     no_args_is_help=True,
     rich_help_panel=rich_help_panel_select,
-)(select_from_memory)
+)(select_from_json_in_memory)
 app.command(
     name='select-parquet',
     help=f" Select data from a Parquet references store",
     no_args_is_help=True,
     rich_help_panel=rich_help_panel_select,
-)(select)
+)(select_from_parquet)
 app.command(
     name='read-parquet',
     help=f" Read data from a Parquet references store [reverse] :timer_clock: Performance Test [/reverse]",
     no_args_is_help=True,
     rich_help_panel=rich_help_panel_select,
-)(read)
+)(read_from_parquet)
 
 
 if __name__ == "__main__":
