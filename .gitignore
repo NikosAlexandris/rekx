@@ -1,3 +1,5 @@
+examples/
+notebooks/
 gitignore/
 version.py
 
