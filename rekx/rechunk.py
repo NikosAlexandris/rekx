@@ -117,7 +117,7 @@ class nccopyBackend(RechunkingBackendBase):
         infile
         outfile
         """
-        variable_option = f"-v {','.join(variables)}"
+        variable_option = f"-v {','.join(variables + [XarrayVariableSet.time])}" # 'time' required 
         chunking_shape = (
             f"-c time/{time},lat/{latitude},lon/{longitude}"
             if all([time, latitude, longitude])
