@@ -43,7 +43,8 @@ app = typer.Typer(
     add_help_option=True,
     no_args_is_help=True,
     rich_markup_mode="rich",
-    help=f"Rekx command line interface [bold][magenta]prototype[/magenta][/bold]",
+    help=f"🙾  🦖 Rekx command line interface [bold][magenta]prototype[/magenta][/bold]",
+
 )
 
 # diagnose
@@ -119,7 +120,7 @@ app.command(
 )(modify_chunk_size)
 app.command(
     name="rechunk",
-    help=f'Rechunk data [red bold]Incomplete[/red bold]',
+    help=f'Rechunk data [green bold]Functional[/green bold] [red bold]Untested[/red bold]',
     no_args_is_help=True,
     rich_help_panel=rich_help_panel_rechunking,
 )(rechunk)
@@ -200,7 +201,7 @@ app.command(
 )(select_from_parquet)
 app.command(
     name='read-parquet',
-    help=f" Read data from a Parquet references store [reverse] :timer_clock: Performance Test [/reverse]",
+    help=f" Read data from a Parquet references store [magenta reverse] :timer_clock: Performance Test [/magenta reverse]",
     no_args_is_help=True,
     rich_help_panel=rich_help_panel_select,
 )(read_from_parquet)
