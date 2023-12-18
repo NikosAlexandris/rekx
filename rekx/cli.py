@@ -4,6 +4,8 @@ Rekx is a command line interface to Kerchunk
 from rich.panel import Panel
 import typer
 from .typer_parameters import OrderCommands
+from .diagnose import get_netcdf_metadata
+from .diagnose import collect_netcdf_metadata
 from .diagnose import diagnose_chunking_shapes
 from .diagnose import determine_common_chunking_layout
 from .consistency import check_chunk_consistency
@@ -44,6 +46,18 @@ app = typer.Typer(
 
 # diagnose
 
+app.command(
+    name='inspect',
+    help='Inspect an Xarray-supported dataset',
+    no_args_is_help=True,
+    rich_help_panel=rich_help_panel_diagnose,
+)(get_netcdf_metadata)
+app.command(
+    name='inspect-multiple',
+    help='Inspect multiple Xarray-supported datasets',
+    no_args_is_help=True,
+    rich_help_panel=rich_help_panel_diagnose,
+)(collect_netcdf_metadata)
 app.command(
     name='shapes',
     help='Diagnose chunking shapes along series of files in a format supported by Xarray',
