@@ -51,3 +51,86 @@ def print_common_chunk_layouts(common_chunk_layouts):
 
     console = Console()
     console.print(table)
+
+
+from rich.console import Console
+from rich.table import Table
+
+
+def format_compression(compression_dictionary):
+    if isinstance(compression_dictionary, dict):
+        filters = [key for key, value in compression_dictionary.items() if value and key != 'complevel']
+        compression_level = compression_dictionary.get('complevel', '')  # old naming habits!
+        if compression_level:
+            return f"{', '.join(filters)}: {compression_level}"
+        return ', '.join(filters)
+    return compression_dictionary
+
+
+def print_metadata_table(metadata):
+    """
+    """
+    filename = metadata.get('File name', 'N/A')
+    file_size = metadata.get('File size', 'N/A')
+    dimensions = metadata.get('Dimensions', {})
+    dimensions_str = ', '.join([f"{dimension}: {size}" for dimension, size in dimensions.items()])
+    caption = f"File size: {file_size} bytes, Dimensions: {dimensions_str}"
+    caption += f"\n* Cache: Size in bytes, Number of elements, Preemption ranging in [0, 1]"
+
+    variables_metadata = metadata.get('Variables')
+    if variables_metadata:
+        table = Table(title=filename, caption=caption, show_header=True, header_style="bold magenta", box=SIMPLE_HEAD)
+        table.add_column("Variable", style="dim", no_wrap=True)
+
+        # Dynamically add columns based on the keys of the nested dictionaries
+        # Assuming all variables have the same set of keys
+        for key in next(iter(variables_metadata.values())).keys():
+            table.add_column(key.replace('_', ' ').title(), no_wrap=True)
+
+        for variable, details in variables_metadata.items():
+            # Format compression dictionary into a readable string
+            if 'Compression' in details:
+                details['Compression'] = format_compression(details['Compression'])
+
+            row = [variable] + [str(details.get(key, '')) for key in next(iter(variables_metadata.values())).keys()]
+            table.add_row(*row)
+
+        console = Console()
+        console.print(table)
+
+
+def print_metadata_series_table(
+    metadata_series: dict,
+    group_metadata=False,
+):
+    """
+    """
+    for filename, metadata in metadata_series.items():
+        filename = metadata.get('File name', 'N/A')
+        file_size = metadata.get('File size', 'N/A')
+        dimensions = metadata.get('Dimensions', {})
+        dimensions_str = ', '.join([f"{dimension}: {size}" for dimension, size in dimensions.items()])
+        caption = f"File size: {file_size} bytes, Dimensions: {dimensions_str}"
+        caption += f"\n* Cache: Size in bytes, Number of elements, Preemption ranging in [0, 1]"
+        variables_metadata = metadata.get('Variables')
+        if variables_metadata:
+            table = Table(title=f"[bold]{filename}[/bold]", caption=caption, show_header=True, header_style="bold magenta", box=SIMPLE_HEAD)
+            # table = Table(caption=caption, show_header=True, header_style="bold magenta", box=SIMPLE_HEAD)
+            table.add_column("Variable", style="dim", no_wrap=True)
+
+            # Expectedly all variables feature the same keys
+            for key in next(iter(variables_metadata.values())).keys():
+                table.add_column(key.replace('_', ' ').title(), no_wrap=True)
+
+            for variable, details in variables_metadata.items():
+                if 'Compression' in details:
+                    details['Compression'] = format_compression(details['Compression'])
+
+                row = [variable] + [str(details.get(key, '')) for key in next(iter(variables_metadata.values())).keys()]
+                table.add_row(*row)
+
+            console = Console()
+            console.print(table)
+            if group_metadata:
+                console.print("\n")  # Add an empty line between groups for clarity
+
