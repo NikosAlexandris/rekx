@@ -187,35 +187,39 @@ with specific reference to netCDF4/HDF5 files.[^funded-by-nasa]
 
 ## Experimental
 
-- Creating SARAH3 daily netCDF reference files can take 4+ hours
+- Creating SARAH3 daily netCDF reference files can take $4+$ hours
 - optimizing chunking can reduce this
 
 ### Experiment 1
 
 Following an incomplete experiment, eventually worth revisiting.
 
-
 **Input**
 
 - Daily NetCDF files from 1999 to 2021 (actually, I miss a year, so up to 2022) that make up about about 1.2T
   - Each daily NetCDF file contains 48 half-hourly maps of 2600 x 2600 pixels
   - Noted here : mixed chunking shapes between years (e.g. time, lat, lon : 1 x 2600 x 2600, 1 x 1300 x 1300, and maybe more)
+
 - The daily NetCDF files are rechunked 1 x 32 x 32, these are now 1.25T
+
 - A first set of JSON reference files (one reference file per rechunked input NetCDF file) is about ~377G.
+
 - A second step of (24 should be in total) yearly JSON reference files (based on the first reference set) is ~300G
+
 - Finally, the goal is to create a single reference file to cover the complete time series
 
 **Hardware**
 
-MeluXina
-
+``` bash
 ❯ free -hm
               total        used        free      shared  buff/cache   available
 Mem:          503Gi       4.7Gi       495Gi       2.8Gi       3.1Gi       494Gi
 Swap:            0B          0B          0B
+```
 
 **Trials**
 
+``` bash
 13G Nov  2 10:07 sarah3_sid_reference_1999.json
 13G Nov  2 09:58 sarah3_sid_reference_2000.json
 13G Nov  2 11:00 sarah3_sid_reference_2001.json
@@ -239,6 +243,7 @@ Swap:            0B          0B          0B
 13G Nov  3 05:21 sarah3_sid_reference_2019.json
 13G Nov  3 06:48 sarah3_sid_reference_2020.json
 13G Nov  3 07:41 sarah3_sid_reference_2021.json
+```
 
 Trying to combine the above to a single reference set, fails with the following
 error message :
@@ -249,10 +254,10 @@ JSONDecodeError: Could not reserve memory block
 
 **Take away message**
 
-The limiting factor for the size of the reference sets is not the total number
-of bytes but the total number of references, so the chunking scheme is perhaps
-more important here.
-
+The limiting factor for the size of the reference sets
+is not the total number of bytes
+but the total number of references,
+so the chunking scheme is perhaps more important here.
 
 ## First time questions
 
