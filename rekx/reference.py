@@ -1,8 +1,8 @@
-from loguru import logger
-logger.remove()
-def filter_function(record):
-    return verbose
-logger.add("kerchunking_{time}.log", filter=filter_function)#, compression="tar.gz")
+# from loguru import logger
+# logger.remove()
+# def filter_function(record):
+#     return verbose
+# logger.add("kerchunking_{time}.log", filter=filter_function)#, compression="tar.gz")
 import typer
 from rekx.typer_parameters import OrderCommands
 from typing_extensions import Annotated
