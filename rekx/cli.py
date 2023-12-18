@@ -15,6 +15,8 @@ from .suggest import suggest_chunking_shape_alternative
 from .suggest import suggest_chunking_shape_alternative_symmetrical
 from .rechunk import modify_chunk_size
 from .rechunk import rechunk
+from .rechunk import generate_rechunk_commands
+from .rechunk import generate_rechunk_commands_for_multiple_netcdf
 from .reference import create_kerchunk_reference
 from .parquet import parquet_reference
 from .parquet import parquet_multi_reference
@@ -121,6 +123,18 @@ app.command(
     no_args_is_help=True,
     rich_help_panel=rich_help_panel_rechunking,
 )(rechunk)
+# app.command(
+#     name="rechunk-generator",
+#     help=f'Generate variations of rechunking commands [green bold]Work-In-Progress[/green bold]',
+#     no_args_is_help=True,
+#     rich_help_panel=rich_help_panel_rechunking,
+# )(generate_rechunk_commands)
+app.command(
+    name="rechunk-generator",
+    help=f'Generate variations of rechunking commands for multiple files [green bold]Functional[/green bold] [red bold]Untested[/red bold]',
+    no_args_is_help=True,
+    rich_help_panel=rich_help_panel_rechunking,
+)(generate_rechunk_commands_for_multiple_netcdf)
 
 # create reference sets
 
