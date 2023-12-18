@@ -19,6 +19,7 @@ class XarrayVariableSet(str, enum.Enum):
     coordinates_without_data = 'coordinates-without-data'
     data = 'data'
     metadata = 'metadata'
+    time = 'time'
 
 
 def select_xarray_variable_set_from_dataset(
@@ -26,9 +27,39 @@ def select_xarray_variable_set_from_dataset(
     variable_set: List[enum.Enum],
     dataset: xr.Dataset,
 ):
+    """
+    Select user-requested set of variables from an Xarray dataset.
+
+    Parameters
+    ----------
+    xarray_variable_set: enum.Enum
+        The Enum model to use for selection
+
+    variable_set: List[enum.Enum]
+        The user-requested sets of variables to select based on the Enum model
+
+    dataset: xr.Dataset
+        The input Xarray dataset from which to extract the user-requested
+        variables
+
+    Returns
+    -------
+
+
+    Examples
+    --------
+
+
+    Notes
+    -----
+    Is quasi-identical to the function
+    select_netcdf_variable_set_from_dataset() with differences in terms of the
+    names of attributes. See also docstring of other function.
+    """
     # Hardcoded ! ---------------------------------------------
     metadata_attributes = {'record_status'}
     coordinates_data_attributes = {'lat_bnds', 'lon_bnds'}
+    time_coordinate = {'time'}
     variables_attributes = set(dataset.variables)
     coordinates_attributes = set(dataset.coords)
     data_attributes = set(dataset.data_vars) - coordinates_data_attributes - metadata_attributes
@@ -50,6 +81,9 @@ def select_xarray_variable_set_from_dataset(
     elif variable_set == xarray_variable_set.metadata:
         return metadata_attributes.intersection(variables_attributes)
     
+    elif variable_set == xarray_variable_set.time:
+        return time_coordinate
+    
     else:
         raise ValueError("Invalid category")
 
@@ -64,6 +98,7 @@ def select_netcdf_variable_set_from_dataset(
     """
     metadata_attributes = {'record_status', 'bnds'}
     coordinates_data_attributes = {'lat_bnds', 'lon_bnds'}
+    time_coordinate = {'time'}
     dimensions_attributes = set(dataset.dimensions)  # no `coordinates` via netCDF4
     variables_attributes = set(dataset.variables)
     data_attributes = variables_attributes - dimensions_attributes - coordinates_data_attributes - metadata_attributes
@@ -82,6 +117,9 @@ def select_netcdf_variable_set_from_dataset(
     
     elif variable_set == netcdf4_variable_set.metadata:
         return metadata_attributes.intersection(variables_attributes)
+    
+    elif variable_set == netcdf4_variable_set.time:
+        return time_coordinate
 
     else:
         raise ValueError("Invalid category")
