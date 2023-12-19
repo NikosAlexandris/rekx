@@ -12,29 +12,11 @@ from pathlib import Path
 from dask.base import tokenize
 from dask.delayed import Delayed
 from dask.highlevelgraph import HighLevelGraph
-
+import csv
 from xarray_extras.kernels import csv as kernels
+from rich import print
 
 __all__ = ("to_csv",)
-
-
-def write_nested_dictionary_to_csv(
-    nested_dictionary: dict,
-    output_filename: Path,
-) -> None:
-    """
-    """
-    if not nested_dictionary:
-        raise ValueError(f"[red]The dictionary is empty![/red]")
-
-    with open(output_filename, 'w', newline='', encoding='utf-8') as file:
-        writer = csv.writer(file)
-        writer.writerow(['Variable', 'Shape', 'Filename'])  # Header
-
-        for key, sub_dict in nested_dictionary.items():
-            for tuple_key, filenames in sub_dict.items():
-                for filename in filenames:
-                    writer.writerow([key, tuple_key, filename])
 
 
 def to_csv(x: xarray.DataArray, path: str | Path, *, nogil: bool = True, **kwargs):
@@ -210,3 +192,46 @@ def _compress_func(
         raise NotImplementedError("zip compression is not supported")
     else:
         raise ValueError("Unrecognized compression: %s" % compression)
+def write_nested_dictionary_to_csv(
+    nested_dictionary: dict,
+    output_filename: Path,
+) -> None:
+    """
+    """
+    if not nested_dictionary:
+        raise ValueError("The given dictionary is empty!")
+
+    with open(output_filename, 'w', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file)
+        writer.writerow(
+            [
+                "File Name",
+                "Variable",
+                "Shape",
+                "Chunks",
+                "Cache",
+                "Type",
+                "Scale",
+                "Offset",
+                "Compression",
+                "Shuffling",
+                "Read Time",
+            ]
+        )
+
+        for file_name, file_data in nested_dictionary.items():
+            for variable, metadata in file_data.get('Variables', {}).items():
+                row = [
+                    file_data.get('File name', ''),
+                    variable,
+                    metadata.get('Shape', ''),
+                    metadata.get('Chunks', ''),
+                    metadata.get('Cache*', ''),
+                    metadata.get('Type', ''),
+                    metadata.get('Scale', ''),
+                    metadata.get('Offset', ''),
+                    metadata.get('Compression', ''),
+                    metadata.get('Shuffling', ''),
+                    metadata.get('Read time', '')
+                ]
+                writer.writerow(row)
