@@ -23,8 +23,10 @@ from .parquet import parquet_multi_reference
 from .combine import combine_kerchunk_references
 from .combine import combine_kerchunk_references_to_parquet
 from .parquet import combine_parquet_stores_to_parquet
-from .select import select_from_json
-from .select import select_from_json_in_memory
+from .select import select_fast
+from .select import select_time_series
+from .select import select_time_series_from_json
+from .select import select_time_series_from_json_in_memory
 from .parquet import select_from_parquet
 from .parquet import read_from_parquet
 from .rich_help_panel_names import rich_help_panel_diagnose
@@ -182,11 +184,17 @@ app.command(
 # select / read
 
 app.command(
+    name="select-fast",
+    help='  Bare read time series from a NetCDF file and optionally write to CSV [magenta reverse] :timer_clock: Performance Test [/magenta reverse]',
+    no_args_is_help=True,
+    rich_help_panel=rich_help_panel_select,
+)(select_fast)
+app.command(
     name="select",
     help='  Select time series over a location',
     no_args_is_help=True,
     rich_help_panel=rich_help_panel_select,
-)(select_from_json)
+)(select_time_series)
 app.command(
     name="select-json",
     help='  Select time series over a location from a JSON Kerchunk reference set',
