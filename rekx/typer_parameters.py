@@ -122,11 +122,11 @@ typer_option_number_of_workers = typer.Option(
 # # Time series
 
 time_series_typer_help='A time series dataset (any format supported by Xarray)'
-# typer_argument_time_series = typer.Argument(
-#     show_default=True,
-#     help=time_series_typer_help,
-#     # rich_help_panel=rich_help_panel_time_series,
-# )
+typer_argument_time_series = typer.Argument(
+    show_default=True,
+    help=time_series_typer_help,
+    # rich_help_panel=rich_help_panel_time_series,
+)
 typer_option_time_series = typer.Option(
     show_default=True,
     help=time_series_typer_help,
