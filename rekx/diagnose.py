@@ -26,6 +26,7 @@ from .print import print_chunk_shapes_table
 from .csv import write_nested_dictionary_to_csv
 from .rich_help_panel_names import rich_help_panel_diagnose
 from .print import print_common_chunk_layouts
+from .select import select_fast
 
 
 def format_compression(compression_dict):

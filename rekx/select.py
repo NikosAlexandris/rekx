@@ -130,6 +130,7 @@ def select_fast(
         print(f"An error occurred: {e}")
 
 
+
 def select_time_series(
     time_series: Path,
     variable: Annotated[str, typer.Argument(..., help='Variable name to select from')],
