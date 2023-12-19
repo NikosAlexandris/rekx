@@ -155,6 +155,7 @@ class nccopyBackend(RechunkingBackendBase):
             return command
 
         else:
+            output_directory.mkdir(parents=True, exist_ok=True)
             args = shlex.split(command)
             subprocess.run(args)
 
