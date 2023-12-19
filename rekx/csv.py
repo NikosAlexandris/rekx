@@ -1,12 +1,9 @@
-
 """Multi-threaded CSV writer, much faster than :meth:`pandas.DataFrame.to_csv`,
 with full support for `dask <http://dask.org/>`_ and `dask distributed
 <http://distributed.dask.org/>`_.
 """
 from __future__ import annotations
-
 from collections.abc import Callable
-
 import xarray
 from pathlib import Path
 from dask.base import tokenize
@@ -19,7 +16,13 @@ from rich import print
 __all__ = ("to_csv",)
 
 
-def to_csv(x: xarray.DataArray, path: str | Path, *, nogil: bool = True, **kwargs):
+def to_csv(
+    x: xarray.DataArray,
+    path: str | Path,
+    *,
+    nogil: bool = True,
+    **kwargs,
+):
     """Print DataArray to CSV.
 
     When x has numpy backend, this function is functionally equivalent to (but
@@ -192,6 +195,8 @@ def _compress_func(
         raise NotImplementedError("zip compression is not supported")
     else:
         raise ValueError("Unrecognized compression: %s" % compression)
+
+
 def write_nested_dictionary_to_csv(
     nested_dictionary: dict,
     output_filename: Path,
