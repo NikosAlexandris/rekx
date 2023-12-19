@@ -1,6 +1,6 @@
-from loguru import logger
-logger.remove()
-logger.add("debug.log", format="{time} {level} {message}", level="DEBUG")
+# from loguru import logger
+# logger.remove()
+# logger.add("debug.log", format="{time} {level} {message}", level="DEBUG")
 import typer
 from rekx.typer_parameters import OrderCommands
 from pathlib import Path

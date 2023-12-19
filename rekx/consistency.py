@@ -1,4 +1,4 @@
-from loguru import logger
+# from loguru import logger
 import typer
 from rekx.typer_parameters import OrderCommands
 from typing_extensions import Annotated
