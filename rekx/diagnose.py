@@ -61,6 +61,12 @@ def get_netcdf_metadata(
         )
         for variable_name in selected_variables:
             variable = dataset[variable_name]  # variable is not a simple string anymore!
+            data_retrieval_time = select_fast(
+                    time_series=input_netcdf_path,
+                    variable=variable_name,
+                    longitude=8,
+                    latitude=45,
+                    )
             variable_metadata[variable_name] = {
                 'Shape': ' x '.join(map(str, variable.shape)),
                 'Chunks': ' x '.join(map(str, variable.chunking())),
@@ -69,7 +75,8 @@ def get_netcdf_metadata(
                 'Scale': getattr(variable, 'scale_factor', '-'),
                 'Offset': getattr(variable, 'add_offset', '-'),
                 'Compression': variable.filters() if 'filters' in dir(variable) else '-',
-                'Shuffling': getattr(variable, 'shuffle', '-')
+                'Shuffling': getattr(variable, 'shuffle', '-'),
+                'Read time': data_retrieval_time
             }
         metadata['Variables'] = variable_metadata
 
