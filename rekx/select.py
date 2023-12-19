@@ -323,7 +323,7 @@ def select_time_series(
 #     help='  Select time series over a location',
 #     rich_help_panel='Select data',
 # )
-def select_from_json(
+def select_time_series_from_json(
     reference_file: Annotated[Path, typer.Argument(..., help="Path to the kerchunk reference file")],
     variable: Annotated[str, typer.Argument(..., help='Variable name to select from')],
     longitude: Annotated[float, typer_argument_longitude_in_degrees],
@@ -526,7 +526,7 @@ def select_from_json(
 #     help='  Select time series over a location',
 #     rich_help_panel='Select data',
 # )
-def select_from_json_in_memory(
+def select_time_series_from_json_in_memory(
     reference_file: Annotated[Path, typer.Argument(..., help="Path to the kerchunk reference file")],
     variable: Annotated[str, typer.Argument(..., help='Variable name to select from')],
     longitude: Annotated[float, typer_argument_longitude_in_degrees],

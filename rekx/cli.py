@@ -188,11 +188,17 @@ app.command(
     rich_help_panel=rich_help_panel_select,
 )(select_from_json)
 app.command(
-    name="select-from-memory",
-    help='  Select time series over a location from data loaded in memory',
+    name="select-json",
+    help='  Select time series over a location from a JSON Kerchunk reference set',
     no_args_is_help=True,
     rich_help_panel=rich_help_panel_select,
-)(select_from_json_in_memory)
+)(select_time_series_from_json)
+app.command(
+    name="select-json-from-memory",
+    help='  Select time series over a location from a JSON Kerchunk reference set in memory',
+    no_args_is_help=True,
+    rich_help_panel=rich_help_panel_select,
+)(select_time_series_from_json_in_memory)
 app.command(
     name='select-parquet',
     help=f" Select data from a Parquet references store",
