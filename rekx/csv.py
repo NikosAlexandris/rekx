@@ -210,7 +210,7 @@ def write_nested_dictionary_to_csv(
         writer = csv.writer(file)
         writer.writerow(
             [
-                "File Name",
+                "File",
                 "Variable",
                 "Shape",
                 "Chunks",
@@ -220,7 +220,7 @@ def write_nested_dictionary_to_csv(
                 "Offset",
                 "Compression",
                 "Shuffling",
-                "Read Time",
+                "Read time",
             ]
         )
 
