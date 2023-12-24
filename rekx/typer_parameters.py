@@ -35,6 +35,12 @@ typer_option_dry_run = typer.Option(
     # default_factory = False,
 )
 
+typer_option_humanize = typer.Option(
+    '--humanize',
+    '-h',
+    help='Convert byte sizes into human-readable formats',
+    # default = False,
+)
 
 # Where?
 
