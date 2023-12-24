@@ -95,27 +95,27 @@ class nccopyBackend(RechunkingBackendBase):
         cache_preemption: Optional[float] = 0.75,
         compression: str = "zlib",
         compression_level: int = 4,
-        shuffling: str = None,
+        shuffling: bool = None,
         memory: bool = False,
         dry_run: bool = False,  # return command as a string ?
     ):#**kwargs):
         """
-        nccopy
-        [-k kind_name]
-        [-kind_code]
-        [-d n]  # deflate
-        [-s]  # shuffling
-        [-c chunkspec]  # chunking sizes
-        [-u]
-        [-w]  # read and process data in-memory, write out in the end
-        [-[v|V] var1,...]
-        [-[g|G] grp1,...]
-        [-m bufsize]
-        [-h chunk_cache]  # 
-        [-e cache_elems]  # Number of elements in cache
-        [-r]
-        infile
-        outfile
+        Options considered for ``nccopy`` :
+        [ ] [-k kind_name]
+        [ ] [-kind_code]
+        [x] [-d n]  # deflate
+        [x] [-s]  # shuffling
+        [x] [-c chunkspec]  # chunking sizes
+        [ ] [-u]
+        [x] [-w]  # read and process data in-memory, write out in the end
+        [x] [-[v|V] var1,...]
+        [ ] [-[g|G] grp1,...]
+        [ ] [-m bufsize]
+        [x] [-h chunk_cache]  # 
+        [x] [-e cache_elems]  # Number of elements in cache
+        [ ] [-r]
+        [x] infile
+        [x] outfile
         """
         variable_option = f"-v {','.join(variables + [XarrayVariableSet.time])}" # 'time' required 
         chunking_shape = (
@@ -124,7 +124,7 @@ class nccopyBackend(RechunkingBackendBase):
             else ""
         )
         compression_options = f"-d {compression_level}" if compression == "zlib" else ""
-        shuffling_option = f"-s" if shuffling == "-s" else ""
+        shuffling_option = f"-s" if shuffling else ""
         cache_size = f"-h {cache_size} " if cache_size else ""  # cache size in bytes
         cache_elements = f"-e {cache_elements}" if cache_elements else ""
         # cache_preemption = f"-e {cache_preemption}" if cache_preemption else ""
@@ -135,10 +135,10 @@ class nccopyBackend(RechunkingBackendBase):
         command = "nccopy "
         command += f"{variable_option} "
         command += f"{chunking_shape} "
-        command += f"{compression_options}"
+        command += f"{compression_options} "
         command += f"{shuffling_option} "
         command += f"{cache_options} "
-        command += f"{memory_option}"
+        command += f"{memory_option} "
         command += f"{input} "
         output_filename = f"{input.stem}"
         output_filename += f"_{time}"
@@ -432,8 +432,8 @@ def generate_rechunk_commands(
     cache_preemption: Annotated[float, typer.Option(help=f'Cache preemption strategy {NOT_IMPLEMENTED_CLI}', parser=parse_float_option)] = CACHE_PREEMPTION_DEFAULT,
     compression: Annotated[str, typer.Option(help='Compression filter', parser=parse_compression_filters)] = COMPRESSION_FILTER_DEFAULT,
     compression_level: Annotated[int, typer.Option(help='Compression level', parser=parse_numerical_option)] = COMPRESSION_LEVEL_DEFAULT,
-    shuffling: Annotated[str, typer.Option(help=f"Shuffle... {NOT_IMPLEMENTED_CLI}")] = SHUFFLING_DEFAULT,
-    memory: bool = RECHUNK_IN_MEMORY_DEFAULT,
+    shuffling: Annotated[bool, typer.Option(help=f"Shuffle... ")] = SHUFFLING_DEFAULT,
+    memory: Annotated[bool, typer.Option(help='Use the -w flag to nccopy')] = RECHUNK_IN_MEMORY_DEFAULT,
     # backend: Annotated[RechunkingBackend, typer.Option(help="Backend to use for rechunking. [code]nccopy[/code] [red]Not Implemented Yet![/red]")] = RechunkingBackend.nccopy,
     dask_scheduler: Annotated[str, typer.Option(help="The port:ip of the dask scheduler")] = None,
     commands_file: Path = 'rechunk_commands.txt',
@@ -443,6 +443,10 @@ def generate_rechunk_commands(
     """
     Generate variations of rechunking commands based on `nccopy`.
     """
+    if shuffling:
+        shuffling = [shuffling, False]
+    else:
+        shuffling = [shuffling]
     with xr.open_dataset(input, engine="netcdf4") as dataset:
         selected_variables = select_xarray_variable_set_from_dataset(
             XarrayVariableSet, variable_set, dataset
@@ -459,6 +463,7 @@ def generate_rechunk_commands(
             caching_preemption,
             compressing_filter,
             compressing_level,
+            shuffling,
         ) in itertools.product(
             selected_variables,
             time,
@@ -469,7 +474,7 @@ def generate_rechunk_commands(
             cache_preemption,
             compression,
             compression_level,
-            # shuffling,
+            shuffling,
         ):
             backend = RechunkingBackend.nccopy.get_backend()  # hard-coded!
             if spatial_symmetry and chunking_latitude != chunking_longitude:
@@ -487,7 +492,7 @@ def generate_rechunk_commands(
                     cache_preemption=caching_preemption,
                     compression=compressing_filter,
                     compression_level=compressing_level,
-                    # shuffling=shuffling,
+                    shuffling=shuffling,
                     memory=memory,
                     dry_run=True,  # just return the command!
                 )
@@ -524,7 +529,7 @@ def generate_rechunk_commands_for_multiple_netcdf(
     cache_preemption: Annotated[float, typer.Option(help=f'Cache preemption strategy {NOT_IMPLEMENTED_CLI}', parser=parse_float_option)] = CACHE_PREEMPTION_DEFAULT,
     compression: Annotated[str, typer.Option(help='Compression filter', parser=parse_compression_filters)] = COMPRESSION_FILTER_DEFAULT,
     compression_level: Annotated[int, typer.Option(help='Compression level', parser=parse_numerical_option)] = COMPRESSION_LEVEL_DEFAULT,
-    shuffling: Annotated[str, typer.Option(help=f"Shuffle... {NOT_IMPLEMENTED_CLI}")] = SHUFFLING_DEFAULT,
+    shuffling: Annotated[bool, typer.Option(help=f'Shuffle... [reverse bold orange] Testing [/reverse bold orange]')] = SHUFFLING_DEFAULT,
     memory: bool = RECHUNK_IN_MEMORY_DEFAULT,
     # backend: Annotated[RechunkingBackend, typer.Option(help="Backend to use for rechunking. [code]nccopy[/code] [red]Not Implemented Yet![/red]")] = RechunkingBackend.nccopy,
     dask_scheduler: Annotated[str, typer.Option(help="The port:ip of the dask scheduler")] = None,
