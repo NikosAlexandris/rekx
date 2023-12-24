@@ -9,6 +9,7 @@ from typing import List
 from pathlib import Path
 from concurrent.futures import ProcessPoolExecutor
 from concurrent.futures import as_completed
+from humanize import naturalsize
 from rich import print
 import typer
 from .typer_parameters import OrderCommands
@@ -16,6 +17,7 @@ from .typer_parameters import typer_argument_source_directory
 from .typer_parameters import typer_option_filename_pattern
 from .typer_parameters import typer_argument_longitude_in_degrees
 from .typer_parameters import typer_argument_latitude_in_degrees
+from .typer_parameters import typer_option_humanize
 from .typer_parameters import typer_option_csv
 from .typer_parameters import typer_option_verbose
 from .models import XarrayVariableSet
@@ -45,6 +47,7 @@ def get_netcdf_metadata(
     variable_set: Annotated[XarrayVariableSet, typer.Option(help="Set of Xarray variables to diagnose")] = XarrayVariableSet.all,
     longitude: Annotated[float, typer_argument_longitude_in_degrees] = 8,
     latitude: Annotated[float, typer_argument_latitude_in_degrees] = 45,
+    humanize: Annotated[bool, typer_option_humanize] = False,
     csv: Annotated[Path, typer_option_csv] = None,
     verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
 ):
@@ -54,9 +57,12 @@ def get_netcdf_metadata(
         return "File not found: " + input_netcdf_path
 
     with Dataset(input_netcdf_path, 'r') as dataset:
+        filesize = os.path.getsize(input_netcdf_path)  # in Bytes
+        if humanize:
+            filesize = naturalsize(filesize, binary=True)
         metadata = {
             "File name": input_netcdf_path.name,
-            "File size": os.path.getsize(input_netcdf_path),  # in Bytes
+            "File size": filesize,
             "Dimensions": {
                 dim: len(dataset.dimensions[dim]) for dim in dataset.dimensions
             },
@@ -106,6 +112,9 @@ def get_multiple_netcdf_metadata(
     file_paths: List[Path],
     variable: str = None,
     variable_set: XarrayVariableSet = XarrayVariableSet.all,
+    longitude: Annotated[float, typer_argument_longitude_in_degrees] = 8,
+    latitude: Annotated[float, typer_argument_latitude_in_degrees] = 45,
+    humanize: Annotated[bool, typer_option_humanize] = False,
     csv: Path = None,
     verbose: int = VERBOSE_LEVEL_DEFAULT,
 ):
@@ -119,6 +128,9 @@ def get_multiple_netcdf_metadata(
                 file_path,
                 variable,
                 variable_set.value,
+                longitude,
+                latitude,
+                humanize,
             )
             for file_path in file_paths
         ]
@@ -140,6 +152,9 @@ def collect_netcdf_metadata(
     variable_set: Annotated[XarrayVariableSet, typer.Option(help="Set of Xarray variables to diagnose")] = XarrayVariableSet.all,
     long_table: Annotated[Optional[bool], 'Group rows of metadata per input NetCDF file and variable in a long table'] = False,
     group_metadata: Annotated[Optional[bool], 'Visually cluster rows of metadata per input NetCDF file and variable'] = False,
+    longitude: Annotated[float, typer_argument_longitude_in_degrees] = 8,
+    latitude: Annotated[float, typer_argument_latitude_in_degrees] = 45,
+    humanize: Annotated[bool, typer_option_humanize] = False,
     csv: Annotated[Path, typer_option_csv] = None,
     verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
 ):
@@ -152,6 +167,9 @@ def collect_netcdf_metadata(
             metadata_series = get_multiple_netcdf_metadata(
                     file_paths=file_paths,
                     variable_set=variable_set,
+                    longitude=longitude,
+                    latitude=latitude,
+                    humanize=humanize,
             )
         except TypeError as e:
             raise ValueError("Error occurred:", e)
