@@ -111,7 +111,7 @@ def get_multiple_netcdf_metadata(
         for future in as_completed(futures):
             try:
                 metadata, input_netcdf_path = future.result()
-                # logger.info(f"Scanned file: {input_netcdf_path}")
+                # logger.info(f'Metadata : {metadata}')
                 metadata_series[input_netcdf_path.name] = metadata
             except Exception as e:
                 logger.error(f"Error processing file: {e}")
@@ -124,6 +124,7 @@ def collect_netcdf_metadata(
     source_directory: Annotated[Path, typer_argument_source_directory],
     pattern: Annotated[str, typer_option_filename_pattern] = "*.nc",
     variable_set: Annotated[XarrayVariableSet, typer.Option(help="Set of Xarray variables to diagnose")] = XarrayVariableSet.all,
+    long_table: Annotated[Optional[bool], 'Group rows of metadata per input NetCDF file and variable in a long table'] = False,
     group_metadata: Annotated[Optional[bool], 'Visually cluster rows of metadata per input NetCDF file and variable'] = False,
     csv: Annotated[Path, typer_option_csv] = None,
     verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
@@ -138,18 +139,21 @@ def collect_netcdf_metadata(
                     file_paths=file_paths,
                     variable_set=variable_set,
             )
-            # print(f'Metadata series : {metadata_series}')
         except TypeError as e:
             raise ValueError("Error occurred:", e)
 
-    # from .print import print_metadata_table
-    # for metadata in metadata_series:
-        # print_metadata_table(metadata_series)
-    from .print import print_metadata_series_table
-    print_metadata_series_table(
+    if not long_table:
+        from .print import print_metadata_series_table
+        print_metadata_series_table(
             metadata_series=metadata_series,
             group_metadata=group_metadata,
-    )
+        )
+    else:
+        from .print import print_metadata_series_long_table
+        print_metadata_series_long_table(
+            metadata_series=metadata_series,
+            group_metadata=group_metadata,
+        )
 
     if csv:
         write_nested_dictionary_to_csv(
