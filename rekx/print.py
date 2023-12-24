@@ -3,6 +3,7 @@ from rich import print
 from rich.console import Console
 from rich.table import Table
 from rich.box import SIMPLE_HEAD
+from .constants import NOT_AVAILABLE
 
 
 def print_chunk_shapes_table(chunk_shapes):
@@ -73,8 +74,8 @@ def print_metadata_table(metadata):
     filename = metadata.get('File name', 'N/A')
     file_size = metadata.get('File size', 'N/A')
     dimensions = metadata.get('Dimensions', {})
-    dimensions_str = ', '.join([f"{dimension}: {size}" for dimension, size in dimensions.items()])
-    caption = f"File size: {file_size} bytes, Dimensions: {dimensions_str}"
+    dimensions_string = ', '.join([f"{dimension}: {size}" for dimension, size in dimensions.items()])
+    caption = f"File size: {file_size} bytes, Dimensions: {dimensions_string}"
     caption += f"\n* Cache: Size in bytes, Number of elements, Preemption ranging in [0, 1]"
 
     variables_metadata = metadata.get('Variables')
@@ -109,8 +110,8 @@ def print_metadata_series_table(
         filename = metadata.get('File name', 'N/A')
         file_size = metadata.get('File size', 'N/A')
         dimensions = metadata.get('Dimensions', {})
-        dimensions_str = ', '.join([f"{dimension}: {size}" for dimension, size in dimensions.items()])
-        caption = f"File size: {file_size} bytes, Dimensions: {dimensions_str}"
+        dimensions_string = ', '.join([f"{dimension}: {size}" for dimension, size in dimensions.items()])
+        caption = f"File size: {file_size} bytes, Dimensions: {dimensions_string}"
         caption += f"\n* Cache: Size in bytes, Number of elements, Preemption ranging in [0, 1]"
         variables_metadata = metadata.get('Variables')
         if variables_metadata:
@@ -134,3 +135,64 @@ def print_metadata_series_table(
             if group_metadata:
                 console.print("\n")  # Add an empty line between groups for clarity
 
+
+def print_metadata_series_long_table(
+    metadata_series: dict,
+    group_metadata=False,
+):
+    """
+    """
+    console = Console()
+    columns = []
+    columns.append("Name")
+    columns.append("Size")
+    columns.append("Dimensions")
+    metadata_series_level_one = next(iter(metadata_series.values()))
+    variables_metadata = metadata_series_level_one.get("Variables", {})
+    columns.append("Variable")
+    # Add columns from the first variable's metadata dictionary
+    for key in next(iter(variables_metadata.values())).keys():
+        columns.append(key.replace("_", " ").title())
+    dimensions = metadata_series_level_one.get("Dimensions", {})
+    dimensions_sort_order = ["bnds", "time", "lon", "lat"]
+    dimension_attributes_sorted = {
+        key for key in dimensions_sort_order if key in dimensions
+    }
+    dimension_attributes = " x ".join(
+        [f"[bold]{dimension}[/bold]" for dimension in dimension_attributes_sorted]
+    )
+    caption = f"^ Dimensions: {dimension_attributes} "
+    caption += (
+        f"* Cache: [bold]Size[/bold] in bytes, [bold]Number of elements[/bold], [bold]Preemption strategy[/bold] ranging in [0, 1]"
+    )
+    table = Table(
+        *columns,
+        caption=caption,
+        show_header=True,
+        header_style="bold magenta",
+        box=SIMPLE_HEAD,
+    )
+
+    # Process each file's metadata
+    for filename, metadata in metadata_series.items():
+        filename = metadata.get('File name', NOT_AVAILABLE)
+        file_size = metadata.get('File size', NOT_AVAILABLE)
+
+        dimensions = metadata.get('Dimensions', {})
+        dimensions_sorted = {key: dimensions[key] for key in dimensions_sort_order if key in dimensions}
+        dimension_shape = ' x '.join([f"{size}" for dimension, size in dimensions_sorted.items()])
+
+        variables_metadata = metadata.get('Variables', {})
+        # row = []
+        for variable, details in variables_metadata.items():
+            if 'Compression' in details:
+                details['Compression'] = format_compression(details['Compression'])
+
+            row = [filename, str(file_size), dimension_shape, variable]
+            row += [str(details.get(key, NOT_AVAILABLE)) for key in details.keys()]
+            table.add_row(*row)
+
+        if group_metadata:
+            table.add_row("")  # Add an empty line between 'files' for clarity
+
+    console.print(table)
