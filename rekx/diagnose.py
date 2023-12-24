@@ -1,10 +1,10 @@
-# from loguru import logger
+from loguru import logger
 import os
 from netCDF4 import Dataset
 import pandas as pd
 import numpy as np
 import xarray as xr
-from typing_extensions import Annotated
+from typing import Annotated
 from typing import List
 from pathlib import Path
 from concurrent.futures import ProcessPoolExecutor
@@ -14,19 +14,22 @@ import typer
 from .typer_parameters import OrderCommands
 from .typer_parameters import typer_argument_source_directory
 from .typer_parameters import typer_option_filename_pattern
+from .typer_parameters import typer_argument_longitude_in_degrees
+from .typer_parameters import typer_argument_latitude_in_degrees
+from .typer_parameters import typer_option_csv
+from .typer_parameters import typer_option_verbose
 from .models import XarrayVariableSet
 from .models import select_xarray_variable_set_from_dataset
 from .models import select_netcdf_variable_set_from_dataset
-from .typer_parameters import typer_option_csv
-from .typer_parameters import typer_option_verbose
 from .constants import VERBOSE_LEVEL_DEFAULT
+from .constants import NOT_AVAILABLE
 from .progress import DisplayMode
 from .progress import display_context
 from .print import print_chunk_shapes_table
-from .csv import write_nested_dictionary_to_csv
-from .rich_help_panel_names import rich_help_panel_diagnose
 from .print import print_common_chunk_layouts
 from .select import select_fast
+from .csv import write_nested_dictionary_to_csv
+# from .rich_help_panel_names import rich_help_panel_diagnose
 
 
 def format_compression(compression_dict):
@@ -40,6 +43,8 @@ def get_netcdf_metadata(
     input_netcdf_path: Path,
     variable: str = None,
     variable_set: Annotated[XarrayVariableSet, typer.Option(help="Set of Xarray variables to diagnose")] = XarrayVariableSet.all,
+    longitude: Annotated[float, typer_argument_longitude_in_degrees] = 8,
+    latitude: Annotated[float, typer_argument_latitude_in_degrees] = 45,
     csv: Annotated[Path, typer_option_csv] = None,
     verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
 ):
