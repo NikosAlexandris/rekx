@@ -56,7 +56,7 @@ def generate_datetime_series(
 def callback_generate_datetime_series(
     ctx: typer.Context,
     timestamps: str,
-    param: typer.CallbackParam,
+    # param: typer.CallbackParam,
 ):
     # print(f'[yellow]i[/yellow] Context: {ctx.params}')
     # print(f'[yellow]i[/yellow] typer.CallbackParam: {param}')
