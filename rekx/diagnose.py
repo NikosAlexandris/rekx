@@ -56,10 +56,13 @@ def get_netcdf_metadata(
                 dim: len(dataset.dimensions[dim]) for dim in dataset.dimensions
             },
         }
-        variable_metadata = {}
         selected_variables = select_netcdf_variable_set_from_dataset(
             XarrayVariableSet, variable_set, dataset
         )
+        data_variables = select_netcdf_variable_set_from_dataset(
+            XarrayVariableSet, 'data', dataset
+        )
+        variables_metadata = {}
         for variable_name in selected_variables:
             variable = dataset[variable_name]  # variable is not a simple string anymore!
             variable_metadata = {
@@ -74,6 +77,17 @@ def get_netcdf_metadata(
                 'Read time': NOT_AVAILABLE,
             }
             variables_metadata[variable_name] = variable_metadata  # Add info to variable_metadata
+            if variable_name in data_variables:
+                data_retrieval_time = select_fast(
+                    time_series=input_netcdf_path,
+                    variable=variable_name,
+                    longitude=longitude,
+                    latitude=latitude,
+                )
+            else:
+                data_retrieval_time = NOT_AVAILABLE
+            variables_metadata[variable_name]['Read time'] = data_retrieval_time
+
     metadata['Variables'] = variables_metadata
 
     if verbose:
