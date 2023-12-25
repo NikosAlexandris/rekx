@@ -146,6 +146,8 @@ class nccopyBackend(RechunkingBackendBase):
         output_filename += f"_{longitude}"
         output_filename += f"_{compression}"
         output_filename += f"_{compression_level}"
+        if shuffling:
+            output_filename += f"_shuffled"
         output_filename += f"{input.suffix}"
         output_directory.mkdir(parents=True, exist_ok=True)
         output_filepath = output_directory / output_filename
