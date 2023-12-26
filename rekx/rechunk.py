@@ -480,6 +480,7 @@ def generate_rechunk_commands(
             shuffling,
         ):
             backend = RechunkingBackend.nccopy.get_backend()  # hard-coded!
+            # Review Me ----------------------------------------------------
             if spatial_symmetry and chunking_latitude != chunking_longitude:
                 continue
             else:
