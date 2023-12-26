@@ -97,10 +97,19 @@ def select_fast(
     tocsv: Annotated[Path, typer_option_csv] = None,
     verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
 ):
-    """Bare read & write"""
+    """Bare timing to read data over a location and optionally write
+    comma-separated values.
+
+    ``mask_and_scale`` is always set to ``False`` to avoid errors related with
+    decoding timestamps.
+
+    Returns
+    -------
+    data_retrieval_time : float
+        The time it took to retrieve data over the requested location
+    """
     try:
         data_retrieval_start_time = timer.time()
-
         series = xr.open_dataset(time_series, mask_and_scale=False)[variable].sel(
             lon=longitude, lat=latitude, method="nearest"
         )
