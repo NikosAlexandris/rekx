@@ -117,7 +117,6 @@ class nccopyBackend(RechunkingBackendBase):
         [x] infile
         [x] outfile
         """
-        variable_option = f"-v {','.join(variables + [XarrayVariableSet.time])}" # 'time' required 
         chunking_shape = (
             f"-c time/{time},lat/{latitude},lon/{longitude}"
             if all([time, latitude, longitude])
@@ -133,7 +132,9 @@ class nccopyBackend(RechunkingBackendBase):
 
         # build the command
         command = "nccopy "
-        command += f"{variable_option} "
+        # if variable_option:
+        #     variable_option = f"-v {','.join(variables + [XarrayVariableSet.time])}"  # 'time' required 
+        #     command += f"{variable_option} "
         command += f"{chunking_shape} "
         command += f"{compression_options} "
         command += f"{shuffling_option} "
@@ -367,6 +368,7 @@ def rechunk(
             "memory": memory,
         }
         backend = backend.get_backend()
+        # ------------------------------------------------- Deduplicate Me ---
         if dry_run:
             command = backend.rechunk(**rechunk_parameters, dry_run=dry_run)
             print(f"[bold]Dry run[/bold] the [bold]following command that would be executed[/bold]:")
@@ -376,6 +378,7 @@ def rechunk(
 
         else:
             command = backend.rechunk(**rechunk_parameters, dry_run=False)
+        # ------------------------------------------------- Deduplicate Me ---
 
         if verbose:
             rechunking_timer_end = timer.time()
@@ -456,7 +459,6 @@ def generate_rechunk_commands(
         import itertools
         commands = []
         for (
-            variable,
             chunking_time,
             chunking_latitude,
             chunking_longitude,
@@ -467,7 +469,6 @@ def generate_rechunk_commands(
             compressing_level,
             shuffling,
         ) in itertools.product(
-            selected_variables,
             time,
             latitude,
             longitude,
@@ -484,7 +485,7 @@ def generate_rechunk_commands(
             else:
                 command = backend.rechunk(
                     input=input,
-                    variables=[variable],
+                    variables=list(selected_variables),
                     output_directory=output,
                     time=chunking_time,
                     latitude=chunking_latitude,
