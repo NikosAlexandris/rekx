@@ -211,6 +211,7 @@ def write_nested_dictionary_to_csv(
         writer.writerow(
             [
                 "File",
+                "Size",
                 "Variable",
                 "Shape",
                 "Chunks",
@@ -228,6 +229,7 @@ def write_nested_dictionary_to_csv(
             for variable, metadata in file_data.get('Variables', {}).items():
                 row = [
                     file_data.get('File name', ''),
+                    file_data.get('File size', ''),
                     variable,
                     metadata.get('Shape', ''),
                     metadata.get('Chunks', ''),
