@@ -23,6 +23,7 @@ from .parquet import parquet_multi_reference
 from .combine import combine_kerchunk_references
 from .combine import combine_kerchunk_references_to_parquet
 from .parquet import combine_parquet_stores_to_parquet
+from .select import read
 from .select import select_fast
 from .select import select_time_series
 from .select import select_time_series_from_json
@@ -35,7 +36,14 @@ from .rich_help_panel_names import rich_help_panel_rechunking
 from .rich_help_panel_names import rich_help_panel_reference
 from .rich_help_panel_names import rich_help_panel_combine
 from .rich_help_panel_names import rich_help_panel_select
+from .rich_help_panel_names import rich_help_panel_select_references
 from rekx.messages import NOT_IMPLEMENTED_CLI
+
+
+def version_callback(value: bool):
+    if value:
+        typer.echo("Rekx CLI Version: 1.0.0")  # Replace with your actual version
+        raise typer.Exit()
 
 
 typer.rich_utils.Panel = Panel.fit
@@ -49,6 +57,19 @@ app = typer.Typer(
 
 )
 
+
+# callback
+
+@app.callback()
+def callback_app(
+    version: bool = typer.Option(
+        None, "--version", callback=version_callback,
+        is_eager=True, help="Show the version and exit."
+    )
+):
+    pass
+
+
 # diagnose
 
 app.command(
@@ -59,19 +80,19 @@ app.command(
 )(get_netcdf_metadata)
 app.command(
     name='inspect-multiple',
-    help='Inspect multiple Xarray-supported datasets',
+    help='Inspect multiple Xarray-supported data',
     no_args_is_help=True,
     rich_help_panel=rich_help_panel_diagnose,
 )(collect_netcdf_metadata)
 app.command(
     name='shapes',
-    help='Diagnose chunking shapes along series of files in a format supported by Xarray',
+    help='Diagnose chunking shapes in multiple Xarray-supported data',
     no_args_is_help=True,
     rich_help_panel=rich_help_panel_diagnose,
 )(diagnose_chunking_shapes)
 app.command(
     name='common-shape',
-    help='Determine common chunking shape in multiple NetCDF files',
+    help='Determine common chunking shape in multiple Xarray-supported data',
     no_args_is_help=True,
     rich_help_panel=rich_help_panel_diagnose,
 )(determine_common_chunking_layout)
@@ -80,13 +101,13 @@ app.command(
 
 app.command(
     name="validate",
-    help='Check for chunk size consistency along series of files in a format supported by Xarray',
+    help='Validate chunk size consistency along multiple Xarray-supported data',
     no_args_is_help=True,
     rich_help_panel=rich_help_panel_diagnose,
 )(check_chunk_consistency)
 app.command(
     name='validate-json',
-    help='Check for chunk size consistency along series of kerchunk reference files [reverse]How to get available variables?[/reverse]',
+    help='Validate chunk size consistency along multiple Kerchunk reference files [reverse]How to get available variables?[/reverse]',
     no_args_is_help=True,
     rich_help_panel=rich_help_panel_diagnose,
 )(check_chunk_consistency_json)
@@ -122,7 +143,7 @@ app.command(
 )(modify_chunk_size)
 app.command(
     name="rechunk",
-    help=f'Rechunk data [green bold]Functional[/green bold] [red bold]Untested[/red bold]',
+    help=f'Rechunk data',
     no_args_is_help=True,
     rich_help_panel=rich_help_panel_rechunking,
 )(rechunk)
@@ -134,7 +155,7 @@ app.command(
 # )(generate_rechunk_commands)
 app.command(
     name="rechunk-generator",
-    help=f'Generate variations of rechunking commands for multiple files [green bold]Functional[/green bold] [red bold]Untested[/red bold]',
+    help=f'Generate variations of rechunking commands for multiple files',
     no_args_is_help=True,
     rich_help_panel=rich_help_panel_rechunking,
 )(generate_rechunk_commands_for_multiple_netcdf)
@@ -191,13 +212,13 @@ app.command(
 )(select_time_series)
 app.command(
     name="select-fast",
-    help='  Bare read time series from a NetCDF file and optionally write to CSV [magenta reverse] :timer_clock: Performance Test [/magenta reverse]',
+    help='  Bare read time series from Xarray-supported data and optionally write to CSV [bold magenta reverse] :timer_clock: Performance Test [/bold magenta reverse]',
     no_args_is_help=True,
     rich_help_panel=rich_help_panel_select,
 )(select_fast)
 app.command(
     name="read",
-    help='  Select time series over a location',
+    help='  Bare read time series from Xarray-supported data [bold magenta reverse] :timer_clock: Performance Test [/bold magenta reverse]',
     no_args_is_help=True,
     rich_help_panel=rich_help_panel_select,
 )(read)
@@ -205,25 +226,25 @@ app.command(
     name="select-json",
     help='  Select time series over a location from a JSON Kerchunk reference set',
     no_args_is_help=True,
-    rich_help_panel=rich_help_panel_select,
+    rich_help_panel=rich_help_panel_select_references,
 )(select_time_series_from_json)
 app.command(
     name="select-json-from-memory",
     help='  Select time series over a location from a JSON Kerchunk reference set in memory',
     no_args_is_help=True,
-    rich_help_panel=rich_help_panel_select,
+    rich_help_panel=rich_help_panel_select_references,
 )(select_time_series_from_json_in_memory)
 app.command(
     name='select-parquet',
     help=f" Select data from a Parquet references store",
     no_args_is_help=True,
-    rich_help_panel=rich_help_panel_select,
+    rich_help_panel=rich_help_panel_select_references,
 )(select_from_parquet)
 app.command(
     name='read-parquet',
-    help=f" Read data from a Parquet references store [magenta reverse] :timer_clock: Performance Test [/magenta reverse]",
+    help=f" Read data from a Parquet references store [bold magenta reverse] :timer_clock: Performance Test [/bold magenta reverse]",
     no_args_is_help=True,
-    rich_help_panel=rich_help_panel_select,
+    rich_help_panel=rich_help_panel_select_references,
 )(read_from_parquet)
 
 
