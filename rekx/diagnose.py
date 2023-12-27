@@ -1,3 +1,10 @@
+"""Docstring for the diagnose.py module.
+
+Functions to inspect the metadata, the structure
+and specifically diagnose and validate
+the chunking shapes of NetCDF files.
+"""
+
 from loguru import logger
 import os
 from netCDF4 import Dataset
@@ -36,7 +43,7 @@ from .csv import write_nested_dictionary_to_csv
 
 def format_compression(compression_dict):
     if isinstance(compression_dict, dict):
-        # Keep only keys with True values
+        # Keep only keys with value = True
         return ', '.join([key for key, value in compression_dict.items() if value])
     return compression_dict
 
@@ -51,7 +58,37 @@ def get_netcdf_metadata(
     csv: Annotated[Path, typer_option_csv] = None,
     verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
 ):
-    """
+    """Collect NetCDF metadata
+
+    Collect and report metadata of a NetCDF file, including : 
+    file name, file size, dimensions, shape, chunks, cache, type, scale,
+    offset, compression, shuffling and lastly the read time (required to
+    retrieve data) for data variables.
+
+    Parameters
+    ----------
+    input_netcdf_path: Path
+        Path to the input NetCDF file
+    variable: str 
+        Name of the variable to query
+    variable_set: XarrayVariableSet
+        Name of the set of variables to query. See also docstring of
+        XarrayVariableSet
+    longitude: float
+        The longitude of the location to read data
+    latitude: float
+        The latitude of the location to read data
+    humanize: bool
+        Humanize measured quantities of bytes
+    csv: Path
+        Output file name for comma-separated values
+    verbose: int
+
+    Returns
+    -------
+    metadata, input_netcdf_path : dict, Path
+        A tuple of a nested dictionary and a pathlib.Path object
+
     """
     if not os.path.exists(input_netcdf_path):
         return "File not found: " + input_netcdf_path
