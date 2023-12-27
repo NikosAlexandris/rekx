@@ -85,6 +85,43 @@ import time as timer
 # )
 
 
+def read(
+    time_series: Annotated[Path, typer_argument_time_series],
+    variable: Annotated[str, typer.Argument(help='Variable to select data from')],
+    longitude: Annotated[float, typer_argument_longitude_in_degrees],
+    latitude: Annotated[float, typer_argument_latitude_in_degrees],
+    tolerance: Annotated[Optional[float], typer_option_tolerance] = 0.1, # Customize default if needed
+    # in_memory: Annotated[bool, typer_option_in_memory] = False,
+    verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
+):
+    """Time reading data over a location.
+
+    Returns
+    -------
+    data_retrieval_time : float
+        The time it took to retrieve data over the requested location
+
+    Notes
+    -----
+    ``mask_and_scale`` is always set to ``False`` to avoid errors related with
+    decoding timestamps.
+
+    """
+    try:
+        data_retrieval_start_time = timer.time()
+        series = xr.open_dataset(time_series, mask_and_scale=False)[variable].sel(
+            lon=longitude, lat=latitude, method="nearest"
+        )
+        data_retrieval_time = f"{timer.time() - data_retrieval_start_time:.3f}"
+        if not verbose:
+            return data_retrieval_time
+        else:
+            print(f'[bold green]It worked[/bold green] and took : {data_retrieval_time}')
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+
 def select_fast(
     time_series: Annotated[Path, typer_argument_time_series],
     variable: Annotated[str, typer.Argument(help='Variable to select data from')],
@@ -100,13 +137,16 @@ def select_fast(
     """Bare timing to read data over a location and optionally write
     comma-separated values.
 
-    ``mask_and_scale`` is always set to ``False`` to avoid errors related with
-    decoding timestamps.
-
     Returns
     -------
     data_retrieval_time : float
         The time it took to retrieve data over the requested location
+
+    Notes
+    -----
+    ``mask_and_scale`` is always set to ``False`` to avoid errors related with
+    decoding timestamps.
+
     """
     try:
         data_retrieval_start_time = timer.time()

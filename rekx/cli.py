@@ -184,17 +184,23 @@ app.command(
 # select / read
 
 app.command(
+    name="select",
+    help='  Select time series over a location',
+    no_args_is_help=True,
+    rich_help_panel=rich_help_panel_select,
+)(select_time_series)
+app.command(
     name="select-fast",
     help='  Bare read time series from a NetCDF file and optionally write to CSV [magenta reverse] :timer_clock: Performance Test [/magenta reverse]',
     no_args_is_help=True,
     rich_help_panel=rich_help_panel_select,
 )(select_fast)
 app.command(
-    name="select",
+    name="read",
     help='  Select time series over a location',
     no_args_is_help=True,
     rich_help_panel=rich_help_panel_select,
-)(select_time_series)
+)(read)
 app.command(
     name="select-json",
     help='  Select time series over a location from a JSON Kerchunk reference set',
