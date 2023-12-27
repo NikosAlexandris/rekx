@@ -61,10 +61,8 @@ from rich.table import Table
 def format_compression(compression_dictionary):
     if isinstance(compression_dictionary, dict):
         filters = [key for key, value in compression_dictionary.items() if value and key != 'complevel']
-        compression_level = compression_dictionary.get('complevel', '')  # old naming habits!
-        if compression_level:
-            return f"{', '.join(filters)}: {compression_level}"
-        return ', '.join(filters)
+        compression_level = compression_dictionary.get('complevel', None)  # old naming habits!
+        return {'Filters':', '.join(filters), 'Level': compression_level}
     return compression_dictionary
 
 
@@ -91,7 +89,9 @@ def print_metadata_table(metadata):
         for variable, details in variables_metadata.items():
             # Format compression dictionary into a readable string
             if 'Compression' in details:
-                details['Compression'] = format_compression(details['Compression'])
+                compression_details = format_compression(details['Compression'])
+                details['Compression'] = compression_details['Filters']
+                details['Level'] = compression_details['Level']
 
             row = [variable] + [str(details.get(key, '')) for key in next(iter(variables_metadata.values())).keys()]
             table.add_row(*row)
@@ -125,7 +125,9 @@ def print_metadata_series_table(
 
             for variable, details in variables_metadata.items():
                 if 'Compression' in details:
-                    details['Compression'] = format_compression(details['Compression'])
+                    compression_details = format_compression(details['Compression'])
+                    details['Compression'] = compression_details['Filters']
+                    details['Level'] = compression_details['Level']
 
                 row = [variable] + [str(details.get(key, '')) for key in next(iter(variables_metadata.values())).keys()]
                 table.add_row(*row)
@@ -186,7 +188,9 @@ def print_metadata_series_long_table(
         # row = []
         for variable, details in variables_metadata.items():
             if 'Compression' in details:
-                details['Compression'] = format_compression(details['Compression'])
+                compression_details = format_compression(details['Compression'])
+                details['Compression'] = compression_details['Filters']
+                details['Level'] = compression_details['Level']
 
             row = [filename, str(file_size), dimension_shape, variable]
             row += [str(details.get(key, NOT_AVAILABLE)) for key in details.keys()]
