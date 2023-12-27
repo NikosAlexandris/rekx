@@ -76,14 +76,18 @@ def get_netcdf_metadata(
         variables_metadata = {}
         for variable_name in selected_variables:
             variable = dataset[variable_name]  # variable is not a simple string anymore!
+            cache_metadata = variable.get_var_chunk_cache()
             variable_metadata = {
                 'Shape': ' x '.join(map(str, variable.shape)),
                 'Chunks': ' x '.join(map(str, variable.chunking())),
-                'Cache*': ' x '.join(map(str, variable.get_var_chunk_cache())),
+                'Cache': cache_metadata[0] if cache_metadata[0] else NOT_AVAILABLE,
+                'Elements': cache_metadata[1] if cache_metadata[1] else NOT_AVAILABLE,
+                'Preemption': cache_metadata[2] if cache_metadata[2] else NOT_AVAILABLE,
                 'Type': str(variable.dtype),
                 'Scale': getattr(variable, 'scale_factor', NOT_AVAILABLE),
                 'Offset': getattr(variable, 'add_offset', NOT_AVAILABLE),
                 'Compression': variable.filters() if 'filters' in dir(variable) else NOT_AVAILABLE,
+                'Level': NOT_AVAILABLE,
                 'Shuffling': getattr(variable, 'shuffle', NOT_AVAILABLE),
                 'Read time': NOT_AVAILABLE,
             }
