@@ -202,6 +202,9 @@ def collect_netcdf_metadata(
     """Scan files in the source directory that match the pattern and diagnose the chunking shapes for each variable."""
     source_directory = Path(source_directory)
     file_paths = list(source_directory.glob(pattern))
+    if not file_paths:
+        print(f"No files matching the pattern [code]{pattern}[/code] found in [code]{source_directory}[/code]!")
+        return
     mode = DisplayMode(verbose)
     with display_context[mode]:
         try:

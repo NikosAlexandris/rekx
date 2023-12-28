@@ -123,7 +123,9 @@ class nccopyBackend(RechunkingBackendBase):
             else ""
         )
         compression_options = f"-d {compression_level}" if compression == "zlib" else ""
+        # To Do : Add shuffling only if compression level > 0 ----------------
         shuffling_option = f"-s" if shuffling else ""
+        # --------------------------------------------------------------------
         cache_size = f"-h {cache_size} " if cache_size else ""  # cache size in bytes
         cache_elements = f"-e {cache_elements}" if cache_elements else ""
         # cache_preemption = f"-e {cache_preemption}" if cache_preemption else ""

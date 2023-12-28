@@ -97,10 +97,22 @@ typer_option_end_time = typer.Option(
 
 # Paths
 
+from pathlib import Path
+def callback_source_directory(
+    directory: Path
+):
+    """
+    """
+    if not directory.exists() or not any(directory.iterdir()):
+        print(f"[red]The directory [code]{directory}[/code] does not exist or is empty[/red].")
+    return directory
+
+
 typer_argument_source_directory = typer.Argument(
     show_default=True,
     help="Source directory path",
     rich_help_panel=rich_help_panel_time_series,
+    callback=callback_source_directory,
     # default_factory = None
 )
 typer_argument_output_directory = typer.Argument(
