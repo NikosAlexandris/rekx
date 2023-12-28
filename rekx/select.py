@@ -92,6 +92,7 @@ def read(
     latitude: Annotated[float, typer_argument_latitude_in_degrees],
     tolerance: Annotated[Optional[float], typer_option_tolerance] = 0.1, # Customize default if needed
     # in_memory: Annotated[bool, typer_option_in_memory] = False,
+    repetitions=9,
     verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
 ):
     """Time reading data over a location.
@@ -108,15 +109,21 @@ def read(
 
     """
     try:
-        data_retrieval_start_time = timer.time()
-        series = xr.open_dataset(time_series, mask_and_scale=False)[variable].sel(
-            lon=longitude, lat=latitude, method="nearest"
-        )
-        data_retrieval_time = f"{timer.time() - data_retrieval_start_time:.3f}"
+        timings = []
+        for _ in range(repetitions):
+            data_retrieval_start_time = timer.perf_counter()
+            with xr.open_dataset(time_series, mask_and_scale=False) as dataset:
+                _ = (
+                    dataset[variable]
+                    .sel(lon=longitude, lat=latitude, method="nearest")
+                    .load()
+                )
+            timings.append(timer.perf_counter() - data_retrieval_start_time)
+        average_data_retrieval_time = sum(timings) / len(timings)
         if not verbose:
-            return data_retrieval_time
+            return f"{average_data_retrieval_time:.3f}"
         else:
-            print(f'[bold green]It worked[/bold green] and took : {data_retrieval_time}')
+            print(f'[bold green]It worked[/bold green] and took : {average_data_retrieval_time}')
 
     except Exception as e:
         print(f"An error occurred: {e}")
@@ -149,7 +156,7 @@ def select_fast(
 
     """
     try:
-        data_retrieval_start_time = timer.time()
+        data_retrieval_start_time = timer.perf_counter()#time()
         series = xr.open_dataset(time_series, mask_and_scale=False)[variable].sel(
             lon=longitude, lat=latitude, method="nearest"
         )
@@ -169,7 +176,7 @@ def select_fast(
             if time_series_2:
                 to_csv(x=series_2, path=str(tocsv)+'2')
 
-        data_retrieval_time = f"{timer.time() - data_retrieval_start_time:.3f}"
+        data_retrieval_time = f"{timer.perf_counter() - data_retrieval_start_time:.3f}"
         if not verbose:
             return data_retrieval_time
         else:
