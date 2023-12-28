@@ -123,8 +123,7 @@ class nccopyBackend(RechunkingBackendBase):
             else ""
         )
         compression_options = f"-d {compression_level}" if compression == "zlib" else ""
-        # To Do : Add shuffling only if compression level > 0 ----------------
-        shuffling_option = f"-s" if shuffling else ""
+        shuffling_option = f"-s" if shuffling and compression_level > 0 else ""
         # --------------------------------------------------------------------
         cache_size = f"-h {cache_size} " if cache_size else ""  # cache size in bytes
         cache_elements = f"-e {cache_elements}" if cache_elements else ""
@@ -149,7 +148,7 @@ class nccopyBackend(RechunkingBackendBase):
         output_filename += f"_{longitude}"
         output_filename += f"_{compression}"
         output_filename += f"_{compression_level}"
-        if shuffling:
+        if shuffling and compression_level > 0:
             output_filename += f"_shuffled"
         output_filename += f"{input.suffix}"
         output_directory.mkdir(parents=True, exist_ok=True)
@@ -450,10 +449,11 @@ def generate_rechunk_commands(
     """
     Generate variations of rechunking commands based on `nccopy`.
     """
-    if shuffling:
+    # Shuffling makes sense only along with compression
+    if any([level > 0 for level in compression_level]) and shuffling:
         shuffling = [shuffling, False]
     else:
-        shuffling = [shuffling]
+        shuffling = [False]
     with xr.open_dataset(input, engine="netcdf4") as dataset:
         selected_variables = select_xarray_variable_set_from_dataset(
             XarrayVariableSet, variable_set, dataset
@@ -502,7 +502,8 @@ def generate_rechunk_commands(
                     memory=memory,
                     dry_run=True,  # just return the command!
                 )
-                commands.append(command)
+                if not command in commands:
+                    commands.append(command)
 
     commands_file = Path(commands_file.stem + '_for_' + input.stem + commands_file.suffix)
     if verbose: 
