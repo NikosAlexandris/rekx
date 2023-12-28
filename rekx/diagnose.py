@@ -125,7 +125,7 @@ def get_netcdf_metadata(
                 'Offset': getattr(variable, 'add_offset', NOT_AVAILABLE),
                 'Compression': variable.filters() if 'filters' in dir(variable) else NOT_AVAILABLE,
                 'Level': NOT_AVAILABLE,
-                'Shuffling': getattr(variable, 'shuffle', NOT_AVAILABLE),
+                'Shuffling': variable.filters().get('shuffle', NOT_AVAILABLE),
                 'Read time': NOT_AVAILABLE,
             }
             variables_metadata[variable_name] = variable_metadata  # Add info to variable_metadata
