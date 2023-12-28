@@ -7,6 +7,7 @@ from typing import Optional
 # from pvgisprototype import Latitude
 from datetime import datetime
 from pathlib import Path
+from rekx.constants import REPETITIONS_DEFAULT
 from rekx.constants import VERBOSE_LEVEL_DEFAULT
 from rekx.utilities import select_location_time_series
 from rekx.models import MethodForInexactMatches
@@ -92,7 +93,7 @@ def read(
     latitude: Annotated[float, typer_argument_latitude_in_degrees],
     tolerance: Annotated[Optional[float], typer_option_tolerance] = 0.1, # Customize default if needed
     # in_memory: Annotated[bool, typer_option_in_memory] = False,
-    repetitions=9,
+    repetitions=REPETITIONS_DEFAULT,
     verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
 ):
     """Time reading data over a location.
