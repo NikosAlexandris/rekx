@@ -1,3 +1,26 @@
+# rekx
+
+**[ Under Development ]**
+
+`rekx` interfaces the [Kerchunk](https://fsspec.github.io/kerchunk/) library
+in an interactive way through the command line.
+It assists in creating virtual aggregate datasets,
+also known as Kerchunk reference sets,
+enabling efficient, parallel and cloud-friendly in-situ data access
+without duplicating original datasets.
+
+More than a functional tool,
+`rekx` serves an educational purpose on matters around
+chunking, compression and reading data from file formats such as NetCDF
+that are widely adopted by the scientific community
+for storing and processing large time series.
+It features command line tools
+to diagnose data structures,
+validate chunking uniformity across multiple files,
+suggest good chunking shapes and paramterise the rechunking of datasets,
+create and aggregate Kerchunk reference sets
+and time data read operations.  
+
 # Kerchunking large time series
 
 <!-- vim-markdown-toc GFM -->
