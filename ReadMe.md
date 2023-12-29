@@ -21,6 +21,26 @@ suggest good chunking shapes and parameterise the rechunking of datasets,
 create and aggregate Kerchunk reference sets
 and time data read operations.
 
+## To Do
+
+- [ ] Write clean and meaningful docstrings for each and every function
+- [ ] Pytest each and every (?) function
+- [ ] Packaging
+- [ ] Documentation
+  - [ ] Use https://squidfunk.github.io/mkdocs-material/
+  - [ ] Examples
+    - [ ] Diagnose
+    - [ ] Suggest
+    - [ ] Rechunk
+    - [ ] Create references
+    - [ ] Combine References
+    - [ ] Select (aka read)
+      - [ ] From Xarray-supported datasets
+      - [ ] From Kerchunk references
+  - [ ] Tutorial
+- [ ] ...
+
+
 ## Examples
 
 Inspect a signle NetCDF file :
