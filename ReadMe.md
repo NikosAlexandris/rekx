@@ -46,7 +46,8 @@ and time data read operations.
 Inspect a signle NetCDF file :
 
 ``` bash
-❯ rekx inspect SISin202001010000004231000101MA.nc -v SISin202001010000004231000101MA.nc
+❯ rekx inspect SISin202001010000004231000101MA.nc -v
+                                                              SISin202001010000004231000101MA.nc
 
   Variable        Shape              Chunks         Cache      Elements   Preemption   Type      Scale   Offset   Compression   Level   Shuffling   Read Time
  ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -65,7 +66,8 @@ Inspect a signle NetCDF file :
 Perhaps restrict inspection on data variables only :
 
 ``` bash
-❯ rekx inspect SISin202001010000004231000101MA.nc -v --variable-set data SISin202001010000004231000101MA.nc
+❯ rekx inspect SISin202001010000004231000101MA.nc -v --variable-set data
+                                                              SISin202001010000004231000101MA.nc
 
   Variable   Shape              Chunks         Cache      Elements   Preemption   Type    Scale   Offset   Compression   Level   Shuffling   Read Time
  ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -73,6 +75,17 @@ Perhaps restrict inspection on data variables only :
 
                                     File size: 181550165 bytes, Dimensions: time: 48, lon: 2600, bnds: 2, lat: 2600
                                         * Cache: Size in bytes, Number of elements, Preemption ranging in [0, 1]
+```
+
+Report chunking shapes across multiple files in the same source directory :
+
+``` bash
+❯ rekx shapes . --pattern "SIS*.nc" --variable-set data 
+
+  Variable   Shapes            Files                                            Count
+ ─────────────────────────────────────────────────────────────────────────────────────
+  SIS        1 x 1 x 2600      SISin202001040000004231000101MA.nc ..            4
+  SIS        1 x 2600 x 2600   SISin200001010000004231000101MA_1_2600_2600.nc   1
 ```
 
 
