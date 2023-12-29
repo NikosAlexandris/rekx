@@ -174,6 +174,11 @@ typer_option_tolerance = typer.Option(
     rich_help_panel=rich_help_panel_select,
     # default_factory=0.1,
 )
+typer_option_repetitions = typer.Option(
+    help=f'',
+    rich_help_panel=rich_help_panel_select,
+    # default = 10,
+)
 
 
 # Arrays & Chunks

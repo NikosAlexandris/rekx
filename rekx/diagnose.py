@@ -25,11 +25,13 @@ from .typer_parameters import typer_option_filename_pattern
 from .typer_parameters import typer_argument_longitude_in_degrees
 from .typer_parameters import typer_argument_latitude_in_degrees
 from .typer_parameters import typer_option_humanize
+from .typer_parameters import typer_option_repetitions
 from .typer_parameters import typer_option_csv
 from .typer_parameters import typer_option_verbose
 from .models import XarrayVariableSet
 from .models import select_xarray_variable_set_from_dataset
 from .models import select_netcdf_variable_set_from_dataset
+from .constants import REPETITIONS_DEFAULT
 from .constants import VERBOSE_LEVEL_DEFAULT
 from .constants import NOT_AVAILABLE
 from .progress import DisplayMode
@@ -54,6 +56,7 @@ def get_netcdf_metadata(
     variable_set: Annotated[XarrayVariableSet, typer.Option(help="Set of Xarray variables to diagnose")] = XarrayVariableSet.all,
     longitude: Annotated[float, typer_argument_longitude_in_degrees] = 8,
     latitude: Annotated[float, typer_argument_latitude_in_degrees] = 45,
+    repetitions: Annotated[int, typer_option_repetitions] = REPETITIONS_DEFAULT,
     humanize: Annotated[bool, typer_option_humanize] = False,
     csv: Annotated[Path, typer_option_csv] = None,
     verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
@@ -135,6 +138,7 @@ def get_netcdf_metadata(
                     variable=variable_name,
                     longitude=longitude,
                     latitude=latitude,
+                    repetitions=repetitions,
                 )
             else:
                 data_retrieval_time = NOT_AVAILABLE
@@ -155,6 +159,7 @@ def get_multiple_netcdf_metadata(
     variable_set: XarrayVariableSet = XarrayVariableSet.all,
     longitude: Annotated[float, typer_argument_longitude_in_degrees] = 8,
     latitude: Annotated[float, typer_argument_latitude_in_degrees] = 45,
+    repetitions: Annotated[int, typer_option_repetitions] = REPETITIONS_DEFAULT,
     humanize: Annotated[bool, typer_option_humanize] = False,
     csv: Path = None,
     verbose: int = VERBOSE_LEVEL_DEFAULT,
@@ -171,6 +176,7 @@ def get_multiple_netcdf_metadata(
                 variable_set.value,
                 longitude,
                 latitude,
+                repetitions,
                 humanize,
             )
             for file_path in file_paths
@@ -196,6 +202,7 @@ def collect_netcdf_metadata(
     longitude: Annotated[float, typer_argument_longitude_in_degrees] = 8,
     latitude: Annotated[float, typer_argument_latitude_in_degrees] = 45,
     humanize: Annotated[bool, typer_option_humanize] = False,
+    repetitions: Annotated[int, typer_option_repetitions] = REPETITIONS_DEFAULT,
     csv: Annotated[Path, typer_option_csv] = None,
     verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
 ):
@@ -213,6 +220,7 @@ def collect_netcdf_metadata(
                     variable_set=variable_set,
                     longitude=longitude,
                     latitude=latitude,
+                    repetitions=repetitions,
                     humanize=humanize,
             )
         except TypeError as e:

@@ -16,8 +16,6 @@ from rekx.hardcodings import exclamation_mark
 from rekx.hardcodings import check_mark
 from rekx.hardcodings import x_mark
 import typer
-from .typer_parameters import OrderCommands
-from typing_extensions import Annotated
 from typing import Any
 from typing import Optional
 from datetime import datetime
@@ -43,6 +41,7 @@ from .typer_parameters import typer_option_convert_longitude_360
 from .typer_parameters import typer_option_mask_and_scale
 from .typer_parameters import typer_option_neighbor_lookup
 from .typer_parameters import typer_option_tolerance
+from .typer_parameters import typer_option_repetitions
 from .typer_parameters import typer_option_in_memory
 from .typer_parameters import typer_option_statistics
 from .typer_parameters import typer_option_rounding_places
@@ -93,7 +92,7 @@ def read(
     latitude: Annotated[float, typer_argument_latitude_in_degrees],
     tolerance: Annotated[Optional[float], typer_option_tolerance] = 0.1, # Customize default if needed
     # in_memory: Annotated[bool, typer_option_in_memory] = False,
-    repetitions=REPETITIONS_DEFAULT,
+    repetitions: Annotated[int, typer_option_repetitions] = REPETITIONS_DEFAULT,
     verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
 ):
     """Time reading data over a location.
