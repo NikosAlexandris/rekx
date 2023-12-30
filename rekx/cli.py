@@ -1,7 +1,6 @@
 """
 Rekx is a command line interface to Kerchunk
 """
-from rich.panel import Panel
 import typer
 from .typer_parameters import OrderCommands
 from .diagnose import get_netcdf_metadata
@@ -38,6 +37,8 @@ from .rich_help_panel_names import rich_help_panel_combine
 from .rich_help_panel_names import rich_help_panel_select
 from .rich_help_panel_names import rich_help_panel_select_references
 from rekx.messages import NOT_IMPLEMENTED_CLI
+from rich.panel import Panel
+from rich import print
 
 
 def version_callback(value: bool):
@@ -74,7 +75,7 @@ def callback_app(
     pass
 
 
-# diagnose
+# diagnose data structure
 
 app.command(
     name='inspect',
@@ -151,12 +152,6 @@ app.command(
     no_args_is_help=True,
     rich_help_panel=rich_help_panel_rechunking,
 )(rechunk)
-# app.command(
-#     name="rechunk-generator",
-#     help=f'Generate variations of rechunking commands [green bold]Work-In-Progress[/green bold]',
-#     no_args_is_help=True,
-#     rich_help_panel=rich_help_panel_rechunking,
-# )(generate_rechunk_commands)
 app.command(
     name="rechunk-generator",
     help=f'Generate variations of rechunking commands for multiple files',
@@ -164,7 +159,7 @@ app.command(
     rich_help_panel=rich_help_panel_rechunking,
 )(generate_rechunk_commands_for_multiple_netcdf)
 
-# create reference sets
+# create Kerchunk reference sets
 
 app.command(
     name="reference",
@@ -185,7 +180,7 @@ app.command(
     rich_help_panel=rich_help_panel_reference,
 )(parquet_multi_reference)
 
-# combine reference sets
+# combine Kerchunk reference sets
 
 app.command(
     name="combine",
