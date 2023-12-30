@@ -42,7 +42,9 @@ from rekx.messages import NOT_IMPLEMENTED_CLI
 
 def version_callback(value: bool):
     if value:
-        typer.echo("Rekx CLI Version: 1.0.0")  # Replace with your actual version
+        from rekx._version import get_versions
+        __version__ = get_versions()['version']
+        print(f"Rekx CLI Version : {__version__}") 
         raise typer.Exit()
 
 
@@ -63,8 +65,10 @@ app = typer.Typer(
 @app.callback()
 def callback_app(
     version: bool = typer.Option(
-        None, "--version", callback=version_callback,
-        is_eager=True, help="Show the version and exit."
+        "--version",
+        help="Show the version and exit.",
+        callback=version_callback,
+        is_eager=True,
     )
 ):
     pass
