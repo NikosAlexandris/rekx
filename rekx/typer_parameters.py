@@ -175,7 +175,7 @@ typer_option_tolerance = typer.Option(
     # default_factory=0.1,
 )
 typer_option_repetitions = typer.Option(
-    help=f'',
+    help=f'Times to repeat the reading operation and calculate the average read time.',
     rich_help_panel=rich_help_panel_select,
     # default = 10,
 )
