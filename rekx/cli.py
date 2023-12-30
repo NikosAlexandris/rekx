@@ -41,8 +41,8 @@ from rich.panel import Panel
 from rich import print
 
 
-def version_callback(value: bool):
-    if value:
+def version_callback(version: bool):
+    if version:
         from rekx._version import get_versions
         __version__ = get_versions()['version']
         print(f"Rekx CLI Version : {__version__}") 
@@ -66,9 +66,11 @@ app = typer.Typer(
 @app.callback()
 def callback_app(
     version: bool = typer.Option(
+        None,
         "--version",
         help="Show the version and exit.",
         callback=version_callback,
+        is_flag=True,
         is_eager=True,
     )
 ):
