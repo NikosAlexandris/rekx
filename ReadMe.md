@@ -88,6 +88,10 @@ Report chunking shapes across multiple files in the same source directory :
   SIS        1 x 2600 x 2600   SISin200001010000004231000101MA_1_2600_2600.nc   1
 ```
 
+## Other relevant projects
+
+- https://github.com/coecms/nccompress
+
 
 # Kerchunking large time series
 
@@ -212,7 +216,6 @@ See also :
 
 [Chunking in HDF5]: https://portal.hdfgroup.org/display/HDF5/Chunking+in+HDF5
 [Caching in HDF5]: https://support.hdfgroup.org/HDF5/doc/RM/RM_H5P.html#Property-SetChunkCache
-
 
 # `Kerchunk`
 
@@ -639,3 +642,6 @@ Durant, Martin; Jones, Max; Abernathey, Ryan; Hoese, David; Bednar, James
 (2023). Pangeo-ML Augmentation - Enabling Cloud-native access to archival data
 with Kerchunk. figshare. Preprint.
 [https://doi.org/10.6084/m9.figshare.22266433.v1](https://doi.org/10.6084/m9.figshare.22266433.v1)
+
+"NetCDF-4 Chunking Guide" by Unidata. Available at:
+https://www.unidata.ucar.edu/software/netcdf/workshops/most-recent/nc4chunking/index.html
