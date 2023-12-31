@@ -147,7 +147,7 @@ for the sake of showcasing `rekx`,
 let us only inspect new NetCDF files whose filename contains the string `256` :
 
 ``` bash
-❯ rekx inspect-multiple data/rechunking_test --repetitions 3 --humanize --long-table --variable-set data --pattern "*256*"
+❯ rekx inspect rechunking_test --repetitions 3 --humanize --long-table --variable-set data --pattern "*256*"
 
   Name                   Size        Dimensions            Variable   Shape              Chunks           Cache      Elements   Preemption   Type    Scale   Offset   Compression     Level   Shuffling   Read Time
  ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
