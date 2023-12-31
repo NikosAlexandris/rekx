@@ -26,6 +26,10 @@ and time data read operations.
 
 ## To Do
 
+- [ ] Complete agnostic backend for rechunking, support for 
+  - [ ] NetCDF4
+  - [ ] Xarray
+  - [ ] `nccopy`
 - [ ] Go through :
   - [ ] https://peps.python.org/pep-0314/
   - [ ] ?
