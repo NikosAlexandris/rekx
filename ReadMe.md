@@ -47,6 +47,17 @@ and time data read operations.
 - [ ] ...
 
 
+## Installation
+
+> **Everything is experimental and subject to change!**
+
+Before all, create a virtual environment.
+Once inside it, the installation is possible via 
+
+``` bash
+pip install git+https://github.com/NikosAlexandris/rekx
+```
+
 ## Examples
 
 Inspect a signle NetCDF file :
