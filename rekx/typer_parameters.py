@@ -98,6 +98,23 @@ typer_option_end_time = typer.Option(
 # Paths
 
 from pathlib import Path
+def callback_input_path(
+    input_path: Path
+):
+    """
+    """
+    from rich import print
+    if not input_path.exists():
+        print(f"[red]The path [code]{input_path}[/code] does not exist[/red].")
+        raise typer.Exit()
+
+    if not input_path.is_file() and not input_path.is_dir():
+        print(f"[red]The path: [code]{input_path}[/code] is not valid[/red].")
+        raise typer.Exit()
+
+    return input_path
+
+
 def callback_source_directory(
     directory: Path
 ):
@@ -108,6 +125,13 @@ def callback_source_directory(
     return directory
 
 
+typer_argument_input_path = typer.Argument(
+    show_default=True,
+    help="Input filename or directory path",
+    rich_help_panel=rich_help_panel_time_series,
+    callback=callback_input_path,
+    # default_factory = None
+)
 typer_argument_source_directory = typer.Argument(
     show_default=True,
     help="Source directory path",

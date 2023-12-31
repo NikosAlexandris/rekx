@@ -81,13 +81,7 @@ def callback_app(
 
 app.command(
     name='inspect',
-    help='Inspect an Xarray-supported dataset',
-    no_args_is_help=True,
-    rich_help_panel=rich_help_panel_diagnose,
-)(get_netcdf_metadata)
-app.command(
-    name='inspect-multiple',
-    help='Inspect multiple Xarray-supported data',
+    help='Inspect Xarray-supported data',
     no_args_is_help=True,
     rich_help_panel=rich_help_panel_diagnose,
 )(collect_netcdf_metadata)

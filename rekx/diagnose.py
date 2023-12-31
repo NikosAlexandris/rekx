@@ -20,6 +20,7 @@ from humanize import naturalsize
 from rich import print
 import typer
 from .typer_parameters import OrderCommands
+from .typer_parameters import typer_argument_input_path
 from .typer_parameters import typer_argument_source_directory
 from .typer_parameters import typer_option_filename_pattern
 from .typer_parameters import typer_argument_longitude_in_degrees
@@ -50,16 +51,17 @@ def format_compression(compression_dict):
     return compression_dict
 
 
+from typing import Optional
 def get_netcdf_metadata(
-    input_netcdf_path: Path,
-    variable: str = None,
-    variable_set: Annotated[XarrayVariableSet, typer.Option(help="Set of Xarray variables to diagnose")] = XarrayVariableSet.all,
-    longitude: Annotated[float, typer_argument_longitude_in_degrees] = 8,
-    latitude: Annotated[float, typer_argument_latitude_in_degrees] = 45,
-    repetitions: Annotated[int, typer_option_repetitions] = REPETITIONS_DEFAULT,
-    humanize: Annotated[bool, typer_option_humanize] = False,
-    csv: Annotated[Path, typer_option_csv] = None,
-    verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
+    input_netcdf_path: Annotated[Path, "Path to the NetCDF file"],
+    variable: Annotated[Optional[str], "Name of the variable to inspect, defaults to None"] = None,
+    variable_set: Annotated[XarrayVariableSet, "Set of variables to diagnose"] = XarrayVariableSet.all,
+    longitude: Annotated[float, "Longitude in degrees"] = 8,
+    latitude: Annotated[float, "Latitude in degrees"] = 45,
+    repetitions: Annotated[int, "Number of repetitions for read operation"] = REPETITIONS_DEFAULT,
+    humanize: Annotated[bool, "Flag to humanize file size"] = False,
+    csv: Annotated[Optional[Path], "Path to output CSV file, if any"] = None,
+    verbose: Annotated[int, "Verbosity level"] = VERBOSE_LEVEL_DEFAULT,
 ):
     """Collect NetCDF metadata
 
@@ -194,56 +196,71 @@ def get_multiple_netcdf_metadata(
 
 from typing import Optional
 def collect_netcdf_metadata(
-    source_directory: Annotated[Path, typer_argument_source_directory],
-    pattern: Annotated[str, typer_option_filename_pattern] = "*.nc",
+    input_path: Annotated[Path, typer_argument_input_path] = '.',
+    pattern: Annotated[str, typer_option_filename_pattern] = '*.nc',
+    variable: str = None,
     variable_set: Annotated[XarrayVariableSet, typer.Option(help="Set of Xarray variables to diagnose")] = XarrayVariableSet.all,
-    long_table: Annotated[Optional[bool], 'Group rows of metadata per input NetCDF file and variable in a long table'] = False,
+    long_table: Annotated[Optional[bool], 'Group rows of metadata per input NetCDF file and variable in a long table'] = True,
     group_metadata: Annotated[Optional[bool], 'Visually cluster rows of metadata per input NetCDF file and variable'] = False,
     longitude: Annotated[float, typer_argument_longitude_in_degrees] = 8,
     latitude: Annotated[float, typer_argument_latitude_in_degrees] = 45,
-    humanize: Annotated[bool, typer_option_humanize] = False,
     repetitions: Annotated[int, typer_option_repetitions] = REPETITIONS_DEFAULT,
+    humanize: Annotated[bool, typer_option_humanize] = False,
     csv: Annotated[Path, typer_option_csv] = None,
     verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
 ):
     """Scan files in the source directory that match the pattern and diagnose the chunking shapes for each variable."""
-    source_directory = Path(source_directory)
-    file_paths = list(source_directory.glob(pattern))
-    if not file_paths:
-        print(f"No files matching the pattern [code]{pattern}[/code] found in [code]{source_directory}[/code]!")
-        return
-    mode = DisplayMode(verbose)
-    with display_context[mode]:
-        try:
-            metadata_series = get_multiple_netcdf_metadata(
-                    file_paths=file_paths,
-                    variable_set=variable_set,
-                    longitude=longitude,
-                    latitude=latitude,
-                    repetitions=repetitions,
-                    humanize=humanize,
+    if input_path.is_file():
+        get_netcdf_metadata(
+            input_netcdf_path=input_path,
+            variable=variable,
+            variable_set=variable_set,
+            longitude=longitude,
+            latitude=latitude,
+            repetitions=repetitions,
+            humanize=humanize,
+            csv=csv,
+            verbose=verbose,
+        )
+    
+    if input_path.is_dir():
+        source_directory = Path(input_path)
+        file_paths = list(source_directory.glob(pattern))
+        if not file_paths:
+            print(f"No files matching the pattern [code]{pattern}[/code] found in [code]{source_directory}[/code]!")
+            return
+        mode = DisplayMode(verbose)
+        with display_context[mode]:
+            try:
+                metadata_series = get_multiple_netcdf_metadata(
+                        file_paths=file_paths,
+                        variable_set=variable_set,
+                        longitude=longitude,
+                        latitude=latitude,
+                        repetitions=repetitions,
+                        humanize=humanize,
+                )
+            except TypeError as e:
+                raise ValueError("Error occurred:", e)
+
+        if not long_table:
+            from .print import print_metadata_series_table
+            print_metadata_series_table(
+                metadata_series=metadata_series,
+                group_metadata=group_metadata,
             )
-        except TypeError as e:
-            raise ValueError("Error occurred:", e)
+        else:
+            from .print import print_metadata_series_long_table
+            print_metadata_series_long_table(
+                metadata_series=metadata_series,
+                group_metadata=group_metadata,
+            )
 
-    if not long_table:
-        from .print import print_metadata_series_table
-        print_metadata_series_table(
-            metadata_series=metadata_series,
-            group_metadata=group_metadata,
-        )
-    else:
-        from .print import print_metadata_series_long_table
-        print_metadata_series_long_table(
-            metadata_series=metadata_series,
-            group_metadata=group_metadata,
-        )
-
-    if csv:
-        write_nested_dictionary_to_csv(
-            nested_dictionary=metadata_series,
-            output_filename=csv,
-        )
+        if csv:
+            write_nested_dictionary_to_csv(
+                nested_dictionary=metadata_series,
+                output_filename=csv,
+            )
 
 
 def detect_chunking_shapes(
