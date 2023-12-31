@@ -1,5 +1,8 @@
 # rekx
 
+![License](https://img.shields.io/badge/License-EUPL--1.2-blue.svg)
+![GitHub tag (with filter)](https://img.shields.io/github/v/tag/NikosAlexandris/rekx)
+
 **[ Under Development ]**
 
 `rekx` interfaces the [Kerchunk](https://fsspec.github.io/kerchunk/) library
@@ -23,6 +26,9 @@ and time data read operations.
 
 ## To Do
 
+- [ ] Go through :
+  - [ ] https://peps.python.org/pep-0314/
+  - [ ] ?
 - [ ] Write clean and meaningful docstrings for each and every function
 - [ ] Pytest each and every (?) function
 - [ ] Packaging
