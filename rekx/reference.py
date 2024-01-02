@@ -1,10 +1,5 @@
-# from loguru import logger
-# logger.remove()
-# def filter_function(record):
-#     return verbose
-# logger.add("kerchunking_{time}.log", filter=filter_function)#, compression="tar.gz")
-import typer
-from rekx.typer_parameters import OrderCommands
+from .log import logger
+from .log import print_log_messages
 from typing_extensions import Annotated
 from pathlib import Path
 from .rich_help_panel_names import rich_help_panel_reference
@@ -24,16 +19,6 @@ import ujson
 from kerchunk.hdf import SingleHdf5ToZarr
 from rich import print
 import hashlib
-
-
-# app = typer.Typer(
-#     cls=OrderCommands,
-#     add_completion=True,
-#     add_help_option=True,
-#     no_args_is_help=True,
-#     rich_markup_mode="rich",
-#     help=f"Rekx command line interface [bold][magenta]prototype[/magenta][/bold]",
-# )
 
 
 def generate_file_md5(file_path):
@@ -86,12 +71,6 @@ def create_single_reference(
                 hf.write(generated_hash)
 
 
-# @app.command(
-#     'reference',
-#     no_args_is_help=True,
-#     help='Create Kerchunk JSON reference files',
-#     rich_help_panel=rich_help_panel_reference,
-# )
 def create_kerchunk_reference(
     source_directory: Annotated[Path, typer_argument_source_directory],
     output_directory: Annotated[Path, typer_argument_output_directory],
@@ -134,7 +113,3 @@ def create_kerchunk_reference(
     # profiler.disable()
     # stats = pstats.Stats(profiler).sort_stats('cumulative')
     # stats.print_stats(10)  # Print the top 10 time-consuming functions
-
-
-if __name__ == "__main__":
-    app()
