@@ -566,6 +566,7 @@ def select_time_series_from_json(
     if statistics:  # after echoing series which might be Long!
         print_series_statistics(
             data_array=location_time_series,
+            timestamps=timestamps,
             title='Selected series',
         )
     if csv:
