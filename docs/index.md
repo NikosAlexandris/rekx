@@ -6,7 +6,6 @@ tags:
   - Python
 ---
 
-...
 ![rekx](rekx_document_72dpi.png)[^*]
 
 [^*]: <a href="https://www.freepik.com/free-vector/hand-drawn-dinosaur-outline-illustration_58593460.htm#query=trex&position=47&from_view=search&track=sph&uuid=27caf12e-35ea-47ad-a113-2d4f5981f58f">Original T-Rex drawn by pikisuperstar</a> on Freepik
@@ -40,28 +39,27 @@ and time data read operations.
 ## To Do
 
 - [ ] Complete agnostic backend for rechunking, support for 
-  - [ ] NetCDF4
-  - [ ] Xarray
-  - [ ] `nccopy`
+    - [ ] NetCDF4
+    - [ ] Xarray
+    - [ ] `nccopy`
 - [ ] Go through :
-  - [ ] https://peps.python.org/pep-0314/
-  - [ ] ?
+    - [ ] https://peps.python.org/pep-0314/
+    - [ ] ?
 - [ ] Write clean and meaningful docstrings for each and every function
 - [ ] Pytest each and every (?) function
 - [ ] Packaging
 - [ ] Documentation
-  - [ ] Use https://squidfunk.github.io/mkdocs-material/
-  - [ ] Examples
-    - [ ] Diagnose
-    - [ ] Suggest
-    - [ ] Rechunk
-    - [ ] Create references
-    - [ ] Combine References
-    - [ ] Select (aka read)
-      - [ ] From Xarray-supported datasets
-      - [ ] From Kerchunk references
-  - [ ] Tutorial
-- [ ] ...
+    - [ ] Use https://squidfunk.github.io/mkdocs-material/
+    - [ ] Examples
+        - [ ] Diagnose
+        - [ ] Suggest
+        - [ ] Rechunk
+        - [ ] Create references
+        - [ ] Combine References
+        - [ ] Select (aka read)
+            - [ ] From Xarray-supported datasets
+            - [ ] From Kerchunk references
+    - [ ] Tutorial
 
 
 ## Installation
@@ -77,7 +75,7 @@ pip install git+https://github.com/NikosAlexandris/rekx
 
 ## Examples
 
-Inspect a signle NetCDF file :
+Inspect a signle NetCDF file
 
 ``` bash
 ❯ rekx inspect SISin202001010000004231000101MA.nc -v
@@ -97,7 +95,7 @@ Inspect a signle NetCDF file :
                                            * Cache: Size in bytes, Number of elements, Preemption ranging in [0, 1]
 ```
 
-Perhaps restrict inspection on data variables only :
+Perhaps restrict inspection on data variables only
 
 ``` bash
 ❯ rekx inspect SISin202001010000004231000101MA.nc -v --variable-set data
@@ -111,7 +109,7 @@ Perhaps restrict inspection on data variables only :
                                         * Cache: Size in bytes, Number of elements, Preemption ranging in [0, 1]
 ```
 
-Report chunking shapes across multiple files in the same source directory :
+Report chunking shapes across multiple files in the same source directory
 
 ``` bash
 ❯ rekx shapes . --pattern "SIS*.nc" --variable-set data 
@@ -164,7 +162,7 @@ nccopy -c time/48,lat/256,lon/256 -d 9 -s -h 16777216 -e 4133 -w SISin2020010100
 nccopy -c time/48,lat/256,lon/256 -d 9  -h 16777216 -e 4133 -w SISin202001010000004231000101MA.nc rechunking_test/SISin202001010000004231000101MA_48_256_256_zlib_9.nc
 ```
 
-We let GNU Parallel to execute these in parallel :
+We let GNU Parallel to execute these in parallel
 
 ``` bash
 parallel < rechunk_commands_for_SISin202001010000004231000101MA.txt
@@ -202,10 +200,142 @@ and the average time to read data over a geographic location.
 Analysing such results, can guide us in choosing an effective chunking shape
 and compression strategy in order to optimize our data structure.
 
+### Kerchunking
 
-## Other relevant projects
+Let us work with the following example files from the SARAH3 climate data
+records 
+
+``` bash
+❯ ls -1
+kerchunking_2024-01-02_17-40-35_685853.log
+kerchunking_2024-01-02_17-40-43_556420.log
+SISin202001010000004231000101MA.nc
+SISin202001020000004231000101MA.nc
+SISin202001030000004231000101MA.nc
+```
+
+In order to create a Kerchunk reference,
+all datasets need to be identically shaped in terms of chunk sizes!
+
+Thus, let us confirm this is the case
+
+``` bash
+❯ rekx validate .
+✓ All files are consistently shaped!
+```
+
+or with `-v` to report shape details
+
+``` bash
+❯ rekx validate . -v
+✓ All files are consistently shaped!
+
+  Variable        Shape
+ ──────────────────────────────
+  time            512
+  lon             2600
+  lon_bnds        2600 x 2
+  lat             2600
+  lat_bnds        2600 x 2
+  SIS             1 x 1 x 2600
+  record_status   48
+```
+
+We can proceed to create a JSON Kerchunk reference
+for each of the input NetCDF files. 
+Before actually producing any new file,
+let's dry-run the command in question to see what _will_ happen
+
+``` bash
+❯ rekx reference . sarah3_sis_kerchunk_references_json -v --dry-run
+Dry run of operations that would be performed:
+> Reading files in . matching the pattern *.nc
+> Number of files matched: 4
+> Creating single reference files to sarah3_sis_kerchunk_references_json
+```
+
+> Note that Kerchunking processes run in parallel!
+
+This looks okay, so let's give it a real go 
+
+``` bash
+❯ rekx reference . sarah3_sis_kerchunk_references_json -v
+```
+
+The output of this command is 
+
+``` bash
+
+❯ tree sarah3_sis_kerchunk_references_json/
+[nik      4.0K]  sarah3_sis_kerchunk_references_json/
+├── [nik      9.3M]  SISin202001010000004231000101MA.json
+├── [nik        32]  SISin202001010000004231000101MA.json.hash
+├── [nik      9.3M]  SISin202001020000004231000101MA.json
+├── [nik        32]  SISin202001020000004231000101MA.json.hash
+├── [nik      9.3M]  SISin202001030000004231000101MA.json
+├── [nik        32]  SISin202001030000004231000101MA.json.hash
+├── [nik      9.3M]  SISin202001040000004231000101MA.json
+└── [nik        32]  SISin202001040000004231000101MA.json.hash
+
+1 directory, 8 files
+```
+
+Next, we want to cobine the single references into one file. Let's dry run the
+`combine` command :
+
+``` bash
+❯ rekx combine sarah3_sis_kerchunk_references_json sarah3_sis_kerchunk_reference_json --dry-run
+Dry run of operations that would be performed:
+> Reading files in sarah3_sis_kerchunk_references_json matching the pattern *.json
+> Number of files matched: 4
+> Writing combined reference file to sarah3_sis_kerchunk_reference_json
+```
+
+> `--dry-run` is quite useful -- we need some indication things are right
+> before engaging with real massive processing!
+
+This also looks fine. So let's create the single reference file
+
+``` bash
+❯ rekx combine sarah3_sis_kerchunk_references_json sarah3_sis_kerchunk_reference_json -v
+```
+
+The file `sarah3_sis_kerchunk_reference_json` has been created an seems to be a
+valid one
+
+``` bash
+❯ file sarah3_sis_kerchunk_reference_json
+sarah3_sis_kerchunk_reference_json: ASCII text, with very long lines (65536), with no line terminators
+```
+
+Let's try to retrieve data over a geographic location though
+
+``` bash
+❯ rekx select-json sarah3_sis_kerchunk_reference_json SIS 8 45 --neighbor-lookup nearest -v
+✓ Coordinates : 8.0, 45.0.
+<xarray.DataArray 'SIS' (time: 192)>
+[192 values with dtype=int16]
+Coordinates:
+    lat      float32 45.03
+    lon      float32 8.025
+  * time     (time) datetime64[ns] 2020-01-01 ... 2020-01-04T23:30:00
+Attributes:
+    cell_methods:   time: point
+    long_name:      Surface Downwelling Shortwave Radiation
+    missing_value:  -999
+    standard_name:  surface_downwelling_shortwave_flux_in_air
+    units:          W m-2
+    _FillValue:     -999
+```
+
+This final bit reports on the data series over the location lon, lat `(8, 45)`
+and verifies that Kerchunking worked as expected.
+
+
+## See Also
 
 - https://github.com/coecms/nccompress
+- https://github.com/pmav99/inspectds
 
 
 # Kerchunking large time series
