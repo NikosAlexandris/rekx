@@ -1,9 +1,20 @@
 from loguru import logger
 logger.remove()
-# logger.add("kerchunking_{time}.log")#, compression="tar.gz")
 import re
 from datetime import datetime
 from rich import print
+from .constants import VERBOSE_LEVEL_DEFAULT
+verbosity_level = VERBOSE_LEVEL_DEFAULT
+
+
+def filter_function(record):
+    """Determine which logs to include based on the verbosity level."""
+    # Assuming record["level"].name gives the log level like "INFO", "DEBUG", etc.
+    # return verbose
+    return record["level"].name == "INFO" if verbosity_level == 1 else True
+
+
+logger.add("kerchunking_{time}.log", filter=filter_function)#, compression="tar.gz")
 
 
 def print_log_messages(start_time, end_time, log_file_name):
