@@ -1,4 +1,4 @@
-# from loguru import logger
+from .log import logger
 import typer
 from rekx.typer_parameters import OrderCommands
 from typing_extensions import Annotated
@@ -75,8 +75,9 @@ def check_chunk_consistency(
         # logger.info(f"{check_mark} [green]All files are consistently shaped in[/green] {chunk_sizes} chunks")
         # print(f"{check_mark} [green]All files are consistently shaped :[/green] {chunk_sizes} chunks")
         print(f"{check_mark} [green]All files are consistently shaped![/green]")
-        from .print import print_chunking_shapes
-        print_chunking_shapes(chunking_shapes=chunk_sizes)
+        if verbose:
+            from .print import print_chunking_shapes
+            print_chunking_shapes(chunking_shapes=chunk_sizes)
 
 
 def get_chunk_sizes_from_json(file_path, variable):

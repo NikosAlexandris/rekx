@@ -411,7 +411,7 @@ def select_time_series_from_json(
     #     longitude = longitude % 360
     # warn_for_negative_longitude(longitude)
 
-    logger.debug(f'Command context : {print(typer.Context)}')
+    # logger.debug(f'Command context : {print(typer.Context)}')
 
     data_retrieval_start_time = timer.time()
     logger.debug(f'Starting data retrieval... {data_retrieval_start_time}')
@@ -614,7 +614,7 @@ def select_time_series_from_json_in_memory(
     #     longitude = longitude % 360
     # warn_for_negative_longitude(longitude)
 
-    logger.debug(f'Command context : {print(typer.Context)}')
+    # logger.debug(f'Command context : {print(typer.Context)}')
 
     timer_start = timer.time()
     mapper = fsspec.get_mapper(
