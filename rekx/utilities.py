@@ -3,7 +3,7 @@ from rich import print
 # import warnings
 # import typer
 # import netCDF4
-# from .log import logger
+from .log import logger
 # import xarray as xr
 from pathlib import Path
 from rekx.constants import VERBOSE_LEVEL_DEFAULT
