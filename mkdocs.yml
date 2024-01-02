@@ -1,0 +1,64 @@
+site_name: rekx
+repo_url: https://github.com/NikosAlexandris/rekx
+repo_name: NikosAlexandris/rekx
+edit_uri: edit/main/docs/
+
+theme:
+  icon:
+    logo: material/animation-outline
+  palette:
+    - primary: purple
+    - accent: deep purple
+    - scheme: default
+      toggle:
+        icon: material/brightness-7 
+        name: Switch to dark mode
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  name: material
+  custom_dir: docs/overrides
+  features:
+    - content.action.edit
+    - content.action.view
+    - header.autohide
+
+plugins:
+  - search
+  - tags:
+      tags_file: tags.md
+
+markdown_extensions:
+  - toc:
+      permalink: true
+  - footnotes
+  - tables
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem
+  - pymdownx.caret
+  - pymdownx.mark
+  - pymdownx.tilde
+  - pymdownx.critic:
+      mode: view
+  - pymdownx.details
+  - pymdownx.highlight:
+      use_pygments: true
+      anchor_linenums: true
+      pygments_lang_class: true
+      linenums: true
+      line_spans: __span
+      linenums_style: pymdownx-inline
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.keys
+  - pymdownx.smartsymbols
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.snippets:
+      auto_append:
+        - includes/abbreviations.md
+
+watch:
+  - docs/includes
