@@ -1,4 +1,15 @@
+---
+tags:
+  - NetCDF
+  - Rechunking
+  - nccopy
+---
+
 # Rechunk
+
+!!! warning
+
+    `rekx rechunk` **yet not implemented!**
 
 ## NetCDF utilities
 
@@ -25,18 +36,22 @@ by creating the output in memory before writing it to disk on close:
 nccopy -w -c time/1000,lat/40,lon/40 slow.nc fast.nc
 ```
 
-## Example
+## Duration of rechunking operations
 
 Timing the rechunking of SID files from the SARAH3 collection using
-`nccopy` laptop-with-ssd [^laptop-with-ssd]
+`nccopy` on a laptop-with-ssd [^laptop-with-ssd]
 
 [^laptop-with-ssd]: Laptop with SSD disk
 
 <!-- ``` bash -->
 <!-- ❯ mlr --csv --oxtab --opprint put '$Duration = (${Duration 1} + ${Duration 2} + ${Duration 3}) /3' then cut -f Time,Latitude,Longitude,Duration then sort -n Duration rechunking_timings_old.noncsv -->
 <!-- ``` -->
+!!! inline end danger "Why does it take 300+ seconds?"
 
-| Time | Latitude | Longitude | Duration           |
+    Why does the duration of rechunking jump from ~15 to 300+ seconds for some
+    chunkings shape combinations where the chunk size for `time` is 48 ?
+
+| Time | Latitude | Longitude | Duration[^D]       |
 |------|----------|-----------|--------------------|
 | 1    | 2600     | 2600      | 8.659999999999998  |
 | 1    | 325      | 325       | 10.55              |
@@ -60,3 +75,6 @@ Timing the rechunking of SID files from the SARAH3 collection using
 | 48   | 512      | 512       | 417.2133333333333  |
 | 48   | 1024     | 1024      | 431.3666666666666  |
 | 48   | 2048     | 2048      | 641.8233333333334  |
+
+[^D]: Average of 3 repetitions
+
