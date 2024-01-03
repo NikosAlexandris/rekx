@@ -3,6 +3,29 @@ repo_url: https://github.com/NikosAlexandris/rekx
 repo_name: NikosAlexandris/rekx
 edit_uri: edit/main/docs/
 
+nav:
+  - Home: index.md
+  - Installation: install/install.md
+  - How To:
+      - Diagnose: how_to/diagnose.md
+      - Suggest: how_to/suggest.md
+      - Rechunk:
+          - Rechunk: how_to/rechunk.md
+          - A good data structure: how_to/rechunking_parameterisation.md
+      - Kerchunk: how_to/kerchunk.md
+  - Tutorials:
+      - Massive JSON Kerchunking: tutorials/massive_json_kerchunking.md
+  - Reference:
+      - Overview: reference/reference.md
+      - Notes: reference/notes.md
+      - Concepts: reference/concepts.md
+      - Kerchunking large time series : reference/kerchunking.md
+      - Xarray: reference/xarray.md
+  - About: 
+      - Overview: about/about.md
+      - License: about/license.md
+  - References: references/references.md
+
 theme:
   icon:
     logo: material/animation-outline
@@ -23,11 +46,23 @@ theme:
     - content.action.edit
     - content.action.view
     - header.autohide
+    - navigation.instant
+    - navigation.instant.progress
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    # - navigation.indexes 
+    - toc.follow
+    - toc.integrate 
+    - navigation.top
 
 plugins:
   - search
   - tags:
-      tags_file: tags.md
+      tags_file: includes/tags.md
 
 markdown_extensions:
   - toc:
