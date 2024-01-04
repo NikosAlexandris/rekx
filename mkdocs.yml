@@ -30,7 +30,7 @@ theme:
   icon:
     logo: material/animation-outline
   palette:
-    - primary: purple
+    - primary: lime
     - accent: deep purple
     - scheme: default
       toggle:
