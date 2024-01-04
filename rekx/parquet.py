@@ -1,6 +1,4 @@
-# from loguru import logger
-# logger.remove()
-# logger.add("debug.log", format="{time} {level} {message}", level="DEBUG")
+from .log import logger
 import typer
 from rekx.typer_parameters import OrderCommands
 from pathlib import Path
@@ -121,7 +119,7 @@ def create_single_parquet_store(
         record_size=record_size,
     )
     if verbose > 0:
-        print(f'Created the [code]{single_parquet_store}[/code] Parquet store')
+        print(f'  [code]{single_parquet_store}[/code]')
 
     if verbose > 1:
         dataset = xr.open_dataset(
@@ -142,15 +140,15 @@ def create_multiple_parquet_stores(
 ):
     """ """
     input_file_paths = list(source_directory.glob(pattern))
-    if verbose:
-        print(f'Input file paths : {input_file_paths}')
+    # if verbose:
+    #     print(f'Input file paths : {input_file_paths}')
     if not input_file_paths:
         print("No files found in [code]{source_directory}[/code] matching the pattern [code]{pattern}[/code]!"
         )
         return
     output_directory.mkdir(parents=True, exist_ok=True)
     with multiprocessing.Pool(processes=workers) as pool:
-        print(f'Creating Parquet stores in [code]{output_directory}[/code]')
+        print(f'Creating the following Parquet stores in [code]{output_directory}[/code] : ')
         partial_create_parquet_references = partial(
             create_single_parquet_store,
             output_directory=output_directory,
@@ -168,7 +166,6 @@ def combine_multiple_parquet_stores(
     pattern: str = '*.parquet',
     record_size: Optional[int] = DEFAULT_RECORD_SIZE,
 ):
-    # output_parquet_store = Path(output_parquet_store)
     output_parquet_store = output_parquet_store.parent / (output_parquet_store.name + '.parquet')
     output_parquet_store.mkdir(parents=True, exist_ok=True)
     filesystem = fsspec.filesystem("file")
@@ -223,7 +220,7 @@ def parquet_reference(
         )
         return  # Exit for a dry run
 
-    create_single_parquet_store(
+    create_parquet_store(
         input_file_path=input_file,
         output_directory=output_directory,
         record_size=record_size,
@@ -283,7 +280,8 @@ def parquet_multi_reference(
 def combine_parquet_stores_to_parquet(
     source_directory: Annotated[Path, typer_argument_source_directory],
     pattern: Annotated[str, typer_option_filename_pattern] = "*.parquet",
-    combined_reference: Annotated[Path, typer_argument_kerchunk_combined_reference] = "combined_kerchunk.parq",
+    combined_reference: Annotated[Path, typer_argument_kerchunk_combined_reference] = "combined_kerchunk.parquet",
+    record_size: int = DEFAULT_RECORD_SIZE,
     dry_run: Annotated[bool, typer.Option("--dry-run", help="Run the command without making any changes.")] = False,
     verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
 ):
@@ -295,6 +293,7 @@ def combine_parquet_stores_to_parquet(
         source_directory = Path(source_directory)
         reference_file_paths = list(source_directory.glob(pattern))
         reference_file_paths = list(map(str, reference_file_paths))
+        reference_file_paths.sort()
 
         if dry_run:
             print(f"[bold]Dry run[/bold] of [bold]operations that would be performed[/bold]:")
@@ -303,49 +302,60 @@ def combine_parquet_stores_to_parquet(
             print(f"> Writing combined reference file to [code]{combined_reference}[/code]")
             return  # Exit for a dry run
 
-        # Create LazyReferenceMapper to pass to MultiZarrToZarr
-        filesystem = fsspec.filesystem("file")
-        import os
+        try:
+            # Create LazyReferenceMapper to pass to MultiZarrToZarr
+            combined_reference.mkdir(parents=True, exist_ok=True)
+            print(f'Combined reference name : {combined_reference}')
+            filesystem = fsspec.filesystem("file")
+            from fsspec.implementations.reference import LazyReferenceMapper
+            output_lazy = LazyReferenceMapper.create(
+                    root=str(combined_reference),
+                    fs=filesystem,
+                    cache_size=record_size,
+            )
 
-        combined_reference.mkdir(parents=True, exist_ok=True)
-        print(f'Combined reference name : {combined_reference}')
-        from fsspec.implementations.reference import LazyReferenceMapper
-        output_lazy = LazyReferenceMapper(
-                root=str(combined_reference),
-                fs=filesystem,
-                cache_size=1000,
-        )
+            # Combine single references
+            from kerchunk.combine import MultiZarrToZarr
+            mzz = MultiZarrToZarr(
+                reference_file_paths,
+                remote_protocol="file",
+                concat_dims=["time"],
+                identical_dims=["lat", "lon"],
+                coo_map={"time": "cf:time"},
+                out=output_lazy,
+            )
+            multifile_kerchunk = mzz.translate()
+            output_lazy.flush()  # Write all non-full reference batches
 
-        from kerchunk.combine import MultiZarrToZarr
+        except Exception as e:
+            print(f"Failed creating the [code]{combined_reference}[/code] : {e}!")
+            import traceback
+            traceback.print_exc()
 
-        # Combine single references
-        mzz = MultiZarrToZarr(
-            reference_file_paths,
-            remote_protocol="file",
-            concat_dims=["time"],
-            identical_dims=["lat", "lon"],
-            out=output_lazy,
-        )
-        multifile_kerchunk = mzz.translate()
+        if verbose > 1:
+            # Read from the Parquet storage
+            # kerchunk.df.refs_to_dataframe(multifile_kerchunk, str(combined_reference))
 
-        output_lazy.flush()  # Write all non-full reference batches
-
-        # Read from the Parquet storage
-        kerchunk.df.refs_to_dataframe(multifile_kerchunk, str(combined_reference))
-
-        filesystem = fsspec.implementations.reference.ReferenceFileSystem(
-            fo=str(combined_reference),
-            target_protocol='file',
-            remote_protocol='file',
-            lazy=True
-        )
-        ds = xr.open_dataset(
-            filesystem.get_mapper(''),
-            engine="zarr",
-            chunks={},
-            backend_kwargs={"consolidated": False},
-        )
-        print(ds)
+            # filesystem = fsspec.implementations.reference.ReferenceFileSystem(
+            #     fo=str(combined_reference),
+            #     target_protocol='file',
+            #     remote_protocol='file',
+            #     lazy=True
+            # )
+            # ds = xr.open_dataset(
+            #     filesystem.get_mapper(''),
+            #     engine="zarr",
+            #     chunks={},
+            #     backend_kwargs={"consolidated": False},
+            # )
+            # print(ds)
+            dataset = xr.open_dataset(
+                str(combined_reference),  # does not handle Path
+                engine="kerchunk",
+                storage_options=dict(remote_protocol='file')
+                # storage_options=dict(skip_instance_cache=True, remote_protocol="file"),
+            )
+            print(dataset)
 
 
 # @app.command(
