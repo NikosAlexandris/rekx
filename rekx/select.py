@@ -3,8 +3,6 @@ from .log import logger
 from .log import print_log_messages
 from typing import Any
 from typing import Optional
-# from pvgisprototype import Longitude
-# from pvgisprototype import Latitude
 from datetime import datetime
 from pathlib import Path
 from rekx.constants import REPETITIONS_DEFAULT
@@ -91,7 +89,6 @@ def read(
     longitude: Annotated[float, typer_argument_longitude_in_degrees],
     latitude: Annotated[float, typer_argument_latitude_in_degrees],
     tolerance: Annotated[Optional[float], typer_option_tolerance] = 0.1, # Customize default if needed
-    # in_memory: Annotated[bool, typer_option_in_memory] = False,
     repetitions: Annotated[int, typer_option_repetitions] = REPETITIONS_DEFAULT,
     verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
 ):
@@ -116,7 +113,7 @@ def read(
                 _ = (
                     dataset[variable]
                     .sel(lon=longitude, lat=latitude, method="nearest")
-                    .load()
+                    .load()  # ensure reading data values !
                 )
             timings.append(timer.perf_counter() - data_retrieval_start_time)
         average_data_retrieval_time = sum(timings) / len(timings)

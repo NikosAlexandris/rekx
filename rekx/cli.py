@@ -36,6 +36,7 @@ from .rich_help_panel_names import rich_help_panel_reference
 from .rich_help_panel_names import rich_help_panel_combine
 from .rich_help_panel_names import rich_help_panel_select
 from .rich_help_panel_names import rich_help_panel_select_references
+from .rich_help_panel_names import rich_help_panel_read_performance
 from rekx.messages import NOT_IMPLEMENTED_CLI
 from rich.panel import Panel
 from rich import print
@@ -197,7 +198,8 @@ app.command(
     rich_help_panel=rich_help_panel_combine,
 )(combine_parquet_stores_to_parquet)
 
-# select / read
+# select
+
 
 app.command(
     name="select",
@@ -211,12 +213,7 @@ app.command(
     no_args_is_help=True,
     rich_help_panel=rich_help_panel_select,
 )(select_fast)
-app.command(
-    name="read",
-    help='  Bare read time series from Xarray-supported data [bold magenta reverse] :timer_clock: Performance Test [/bold magenta reverse]',
-    no_args_is_help=True,
-    rich_help_panel=rich_help_panel_select,
-)(read)
+
 app.command(
     name="select-json",
     help='  Select time series over a location from a JSON Kerchunk reference set',
@@ -235,11 +232,20 @@ app.command(
     no_args_is_help=True,
     rich_help_panel=rich_help_panel_select_references,
 )(select_from_parquet)
+
+# read and load in memory for performance assessment
+
+app.command(
+    name="read",
+    help='  Bare read time series from Xarray-supported data',
+    no_args_is_help=True,
+    rich_help_panel=rich_help_panel_read_performance,
+)(read)
 app.command(
     name='read-parquet',
-    help=f" Read data from a Parquet references store [bold magenta reverse] :timer_clock: Performance Test [/bold magenta reverse]",
+    help=f" Read data from a Parquet references store",
     no_args_is_help=True,
-    rich_help_panel=rich_help_panel_select_references,
+    rich_help_panel=rich_help_panel_read_performance,
 )(read_from_parquet)
 
 
