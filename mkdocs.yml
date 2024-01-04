@@ -39,7 +39,7 @@ nav:
 
 theme:
   font:
-    text: Afacad
+    text: Nunito
     code: Source Code Pro
   icon:
     logo: material/animation-outline
@@ -143,6 +143,9 @@ markdown_extensions:
   - admonition
   - pymdownx.details
   - pymdownx.superfences
+
+extra_css:
+  - stylesheets/extra.css
 
 extra_javascript:
   - javascripts/mathjax.js
