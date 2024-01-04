@@ -552,12 +552,14 @@ def read_from_parquet(
                     .load()  # ensure reading data values !
                 )
             timings.append(timer.perf_counter() - data_retrieval_start_time)
+            # print(f'{dataset}')
         average_data_retrieval_time = sum(timings) / len(timings)
         if not verbose:
-            print(f'{average_data_retrieval_time:.3f}"')
-            return f'{average_data_retrieval_time:.3f}"'
+            print(f'{average_data_retrieval_time:.3f} seconds')
+            # return average_data_retrieval_time
         else:
-            print(f'[bold green]Data read in memory in : {average_data_retrieval_time}"')
+            print(f'[bold green]Data read in memory in[/bold green] : {average_data_retrieval_time:.3f} seconds :high_voltage::high_voltage:')
+            print(f'{_}')
 
     except Exception as exception:
         print(f"{ERROR_IN_SELECTING_DATA} : {exception}")
