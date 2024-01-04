@@ -1,4 +1,4 @@
-# Kerchunking
+# Kerchunking to JSON
 
 ## Example data
 
