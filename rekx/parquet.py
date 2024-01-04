@@ -554,9 +554,10 @@ def read_from_parquet(
             timings.append(timer.perf_counter() - data_retrieval_start_time)
         average_data_retrieval_time = sum(timings) / len(timings)
         if not verbose:
-            return f"{average_data_retrieval_time:.3f}"
+            print(f'{average_data_retrieval_time:.3f}"')
+            return f'{average_data_retrieval_time:.3f}"'
         else:
-            print(f'[bold green]It worked[/bold green] and took : {average_data_retrieval_time}')
+            print(f'[bold green]Data read in memory in : {average_data_retrieval_time}"')
 
     except Exception as exception:
         print(f"{ERROR_IN_SELECTING_DATA} : {exception}")
