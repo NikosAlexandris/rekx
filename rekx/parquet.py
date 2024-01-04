@@ -12,6 +12,7 @@ from kerchunk.combine import MultiZarrToZarr
 from typing import Optional
 from typing_extensions import Annotated
 from .typer_parameters import typer_option_verbose
+from rekx.constants import REPETITIONS_DEFAULT
 from .constants import VERBOSE_LEVEL_DEFAULT
 from .typer_parameters import typer_argument_source_directory
 from .typer_parameters import typer_option_filename_pattern
@@ -33,6 +34,7 @@ from .typer_parameters import typer_option_mask_and_scale
 from .models import MethodForInexactMatches
 from .typer_parameters import typer_option_neighbor_lookup
 from .typer_parameters import typer_option_tolerance
+from .typer_parameters import typer_option_repetitions
 from .typer_parameters import typer_option_in_memory
 from .typer_parameters import typer_option_statistics
 from .typer_parameters import typer_option_csv
@@ -49,16 +51,6 @@ from .csv import to_csv
 from typing import Any
 from datetime import datetime
 from rich import print
-
-
-# app = typer.Typer(
-#     cls=OrderCommands,
-#     no_args_is_help=True,
-#     add_completion=True,
-#     add_help_option=True,
-#     rich_markup_mode="rich",
-#     help=f"Create parquet references",
-# )
 
 
 def create_parquet_store(
@@ -196,12 +188,8 @@ def combine_multiple_parquet_stores(
         # return
 
 
-# @app.command(
-#     "reference-parquet",
-#     no_args_is_help=True,
-#     help=f"Create Parquet references to an HDF5/NetCDF file [red]Merge to [code]reference[/code][/red]",
-#     rich_help_panel=rich_help_panel_reference,
-# )
+# commands
+
 def parquet_reference(
     input_file: Path,
     output_directory: Optional[Path] = '.',
@@ -228,12 +216,6 @@ def parquet_reference(
     )
 
 
-# @app.command(
-#     "reference-multi-parquet",
-#     no_args_is_help=True,
-#     help=f"Create Parquet references to multiple HDF5/NetCDF files [red]Merge to [code]reference[/code][/red]",
-#     rich_help_panel=rich_help_panel_reference,
-# )
 def parquet_multi_reference(
     source_directory: Path,
     output_directory: Optional[Path] = '.',
@@ -271,12 +253,6 @@ def parquet_multi_reference(
     )
 
 
-# @app.command(
-#     'combine-parquet',
-#     no_args_is_help=True,
-#     help='Combine multiple Parquet stores [red]Merge to [code]combine[/code][/red]',
-#     rich_help_panel=rich_help_panel_combine,
-# )
 def combine_parquet_stores_to_parquet(
     source_directory: Annotated[Path, typer_argument_source_directory],
     pattern: Annotated[str, typer_option_filename_pattern] = "*.parquet",
@@ -358,28 +334,6 @@ def combine_parquet_stores_to_parquet(
             print(dataset)
 
 
-# @app.command(
-#     no_args_is_help=True,
-#     help=f"Select data from a Parquet references store",
-#     rich_help_panel=rich_help_panel_select,
-# )
-# def select(
-#     parquet_store: Path,
-# ):
-#     """Select data from a Parquet store"""
-#     dataset = xr.open_dataset(
-#         str(parquet_store),  # does not handle Path
-#         engine="kerchunk",
-#         storage_options=dict(skip_instance_cache=True, remote_protocol="file"),
-#     )
-#     print(dataset)
-
-
-# @app.command(
-#     no_args_is_help=True,
-#     help=f" Select data from a Parquet references store",
-#     # rich_help_panel='Select data',
-# )
 def select_from_parquet(
     parquet_store: Annotated[Path, typer.Argument(..., help="Path to Parquet store")],
     variable: Annotated[str, typer.Argument(..., help='Variable name to select from')],
@@ -572,128 +526,38 @@ def select_from_parquet(
     # return location_time_series
 
 
-# @app.command(
-#     no_args_is_help=True,
-#     help=f" Read data from a Parquet references store [reverse]:timer_clock: Performance Test[/reverse]",
-#     rich_help_panel=rich_help_panel_select,
-# )
 def read_from_parquet(
     parquet_store: Annotated[Path, typer.Argument(..., help="Path to Parquet store")],
     variable: Annotated[str, typer.Argument(..., help='Variable name to select from')],
     longitude: Annotated[float, typer_argument_longitude_in_degrees],
     latitude: Annotated[float, typer_argument_latitude_in_degrees],
-    timestamps: Annotated[Optional[Any], typer_argument_timestamps] = None,
-    start_time: Annotated[Optional[datetime], typer_option_start_time] = None,
-    end_time: Annotated[Optional[datetime], typer_option_end_time] = None,
-    time: Annotated[Optional[int], typer.Option(help="New chunk size for the 'time' dimension")] = None,
-    lat: Annotated[Optional[int], typer.Option(help="New chunk size for the 'lat' dimension")] = None,
-    lon: Annotated[Optional[int], typer.Option(help="New chunk size for the 'lon' dimension")]= None,
-    # convert_longitude_360: Annotated[bool, typer_option_convert_longitude_360] = False,
-    mask_and_scale: Annotated[bool, typer_option_mask_and_scale] = False,
-    neighbor_lookup: Annotated[MethodForInexactMatches, typer_option_neighbor_lookup] = None,
     tolerance: Annotated[Optional[float], typer_option_tolerance] = 0.1, # Customize default if needed
-    in_memory: Annotated[bool, typer_option_in_memory] = False,
-    statistics: Annotated[bool, typer_option_statistics] = False,
-    csv: Annotated[Path, typer_option_csv] = None,
-    # output_filename: Annotated[Path, typer_option_output_filename] = 'series_in',  #Path(),
-    variable_name_as_suffix: Annotated[bool, typer_option_variable_name_as_suffix] = True,
-    rounding_places: Annotated[Optional[int], typer_option_rounding_places] = ROUNDING_PLACES_DEFAULT,
+    repetitions: Annotated[int, typer_option_repetitions] = REPETITIONS_DEFAULT,
     verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
 ) -> None:
-    """Select data from a Parquet store"""
-
-    # if convert_longitude_360:
-    #     longitude = longitude % 360
-    # warn_for_negative_longitude(longitude)
-
-    data_retrieval_start_time = timer.time()
-    print(f'Starting data retrieval... {data_retrieval_start_time}')
-
-    dataset = xr.open_dataset(
-        str(parquet_store),  # does not handle Path
-        engine="kerchunk",
-        storage_options=dict(skip_instance_cache=True, remote_protocol="file"),
-        # backend_kwargs={"consolidated": False},
-        # chunks=None,
-        # mask_and_scale=mask_and_scale,
-    )
-
-    available_variables = list(dataset.data_vars)
-    if not variable in available_variables:
-        print(f'The requested variable `{variable}` does not exist! Plese select one among the available variables : {available_variables}.')
-        raise typer.Exit(code=0)
-    else:
-        time_series = dataset[variable]
-        chunks = {'time': time, 'lat': lat, 'lon': lon}
-        time_series.chunk(chunks=chunks)
-
-    indexers = set_location_indexers(
-        data_array=time_series,
-        longitude=longitude,
-        latitude=latitude,
-        verbose=verbose,
-    )
-    
+    """Time reading data over a location."""
     try:
-        location_time_series = time_series.sel(
-            **indexers,
-            method=neighbor_lookup,
-            tolerance=tolerance,
-        )
-
-        if in_memory:
-            timer_start = timer.time()
-            location_time_series.load()  # load into memory for faster ... ?
-            print(f"Location series selection loading in memory took {timer.time() - timer_start:.2f} seconds")
+        timings = []
+        for _ in range(repetitions):
+            data_retrieval_start_time = timer.perf_counter()
+            with xr.open_dataset(
+                str(parquet_store),  # does not handle Path
+                engine="kerchunk",
+                storage_options=dict(skip_instance_cache=True, remote_protocol="file"),
+                # mask_and_scale=False,
+            ) as dataset:
+                _ = (
+                    dataset[variable]
+                    .sel(lon=longitude, lat=latitude, method="nearest", tolerance=tolerance)
+                    .load()  # ensure reading data values !
+                )
+            timings.append(timer.perf_counter() - data_retrieval_start_time)
+        average_data_retrieval_time = sum(timings) / len(timings)
+        if not verbose:
+            return f"{average_data_retrieval_time:.3f}"
+        else:
+            print(f'[bold green]It worked[/bold green] and took : {average_data_retrieval_time}')
 
     except Exception as exception:
         print(f"{ERROR_IN_SELECTING_DATA} : {exception}")
         raise SystemExit(33)
-    # ------------------------------------------------------------------------
-
-    if start_time or end_time:
-        timestamps = None  # we don't need a timestamp anymore!
-
-        if start_time and not end_time:  # set `end_time` to end of series
-            end_time = location_time_series.time.values[-1]
-
-        elif end_time and not start_time:  # set `start_time` to beginning of series
-            start_time = location_time_series.time.values[0]
-
-        else:  # Convert `start_time` & `end_time` to the correct string format
-            start_time = start_time.strftime('%Y-%m-%d %H:%M:%S')
-            end_time = end_time.strftime('%Y-%m-%d %H:%M:%S')
-    
-        location_time_series = (
-            location_time_series.sel(time=slice(start_time, end_time))
-        )
-
-    if timestamps is not None and not start_time and not end_time:
-        if len(timestamps) == 1:
-            start_time = end_time = timestamps[0]
-        
-        try:
-            location_time_series = (
-                location_time_series.sel(time=timestamps, method=neighbor_lookup)
-            )
-
-        except KeyError:
-            print(f"No data found for one or more of the given {timestamps}.")
-
-    if location_time_series.size == 1:
-        single_value = float(location_time_series.values)
-        warning = (
-            f"{exclamation_mark} The selected timestamp "
-            + f"{location_time_series.time.values}"
-            + f" matches the single value "
-            + f'{single_value}'
-        )
-        if verbose > 0:
-            print(warning)
-
-    print(f"Data retrieval took {timer.time() - data_retrieval_start_time:.2f} seconds ⚡:high_voltage: ")
-    print(f'Selected data : {location_time_series}')
-
-
-if __name__ == "__main__":
-    app()
