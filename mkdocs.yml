@@ -5,7 +5,7 @@ edit_uri: edit/main/docs/
 
 nav:
   - Overview:
-      - Overview: index.md
+      - '': index.md
       - To Do: to_do.md
   - Installation: install/install.md
   - How To:
@@ -26,10 +26,10 @@ nav:
       - Concepts: reference/concepts.md
       - Kerchunking large time series : reference/kerchunking.md
       - Xarray: reference/xarray.md
-  - About: 
-      - Meta: about/meta.md
+  - Meta: about/meta.md
   - References: references/references.md
   - Glossary: includes/glossary.md
+  - Tags: includes/tags.md
   - License: license.md
 
 theme:
