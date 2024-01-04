@@ -4,9 +4,12 @@ repo_name: NikosAlexandris/rekx
 edit_uri: edit/main/docs/
 
 nav:
-  - Home: index.md
+  - Overview:
+      - Overview: index.md
+      - To Do: to_do.md
   - Installation: install/install.md
   - How To:
+      - Help?: how_to/help.md
       - Diagnose: how_to/diagnose.md
       - Suggest: how_to/suggest.md
       - Rechunk: how_to/rechunk.md
@@ -14,6 +17,8 @@ nav:
       - Kerchunk to JSON: how_to/kerchunk_to_json.md
       - Kerchunk to Parquet: how_to/kerchunk_to_parquet.md
   - Tutorials:
+      - SARAH3: tutorials/sarah3/chunking_sarah3_time_series.md
+      - External file: tutorials/sarah3/sarah3_sid_time_variables.md
       - Massive JSON Kerchunking: tutorials/massive_json_kerchunking.md
   - Reference:
       - Overview: reference/reference.md
@@ -22,9 +27,9 @@ nav:
       - Kerchunking large time series : reference/kerchunking.md
       - Xarray: reference/xarray.md
   - About: 
-      - Overview: about/about.md
-      - License: about/license.md
+      - Meta: about/meta.md
   - References: references/references.md
+  - License: license.md
 
 theme:
   icon:
@@ -68,6 +73,7 @@ markdown_extensions:
   - toc:
       permalink: true
   - footnotes
+  - attr_list
   - tables
   - pymdownx.arithmatex:
       generic: true
