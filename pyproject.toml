@@ -2,6 +2,9 @@
 requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
 [project]
 name = "rekx"
 dynamic = ["version"]
@@ -13,9 +16,9 @@ authors = [
 requires-python = ">=3.11"
 dependencies = [
   "loguru",
-  "typer",
-  "rich",
-  "kerchunk",
+  "typer",  # Already included
+  "rich",   # Already included
+  "kerchunk @ git+https://github.com/fsspec/kerchunk.git@b9659c32449539ef6addcb7a12520715cecf3253",
   "netcdf4",
   "h5py",
   "pandas",
@@ -24,7 +27,7 @@ dependencies = [
   "humanize",
   "dask",
   "pydantic",
-  "devtools",  # move to optional dependencies ?
+  "fastparquet",
 ]
 classifiers = [
     'Development Status :: 3 - Alpha',
@@ -45,9 +48,14 @@ keywords = [
 
 [project.optional-dependencies]
 dev = [
+  "devtools",  # move to optional dependencies ?
   "pytest",
   "black",
   "flake8"
+]
+docs = [
+  "mkdocs-material",
+  "mkdocs-table-reader-plugin"
 ]
 
 
