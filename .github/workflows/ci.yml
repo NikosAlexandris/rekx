@@ -27,4 +27,5 @@ jobs:
           restore-keys: |
             mkdocs-material-
       - run: pip install mkdocs-material mkdocs-material mkdocs-table-reader-plugin mkdocs-exclude mkdocs-typer
+      - run: pip install .
       - run: mkdocs gh-deploy --force
