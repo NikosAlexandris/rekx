@@ -55,7 +55,8 @@ dev = [
 ]
 docs = [
   "mkdocs-material",
-  "mkdocs-table-reader-plugin"
+  "mkdocs-table-reader-plugin",
+  "mkdocs-exclude",
 ]
 
 
