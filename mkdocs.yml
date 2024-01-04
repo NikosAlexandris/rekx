@@ -38,6 +38,10 @@ theme:
     code: Source Code Pro
   icon:
     logo: material/animation-outline
+    tag:
+      chunking: fontawesome/solid/cubes-stacked
+      cli: octicons/terminal-16
+      howto: material/tools
   palette:
     # Palette toggle for automatic mode
     - media: "(prefers-color-scheme)"
@@ -82,6 +86,12 @@ plugins:
   - search
   - tags:
       tags_file: includes/tags.md
+
+extra:
+  tags:
+    Chunking: chunking
+    CLI: cli
+    How-To: howto
 
 markdown_extensions:
   - toc:
