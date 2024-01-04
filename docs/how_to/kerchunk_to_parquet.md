@@ -54,14 +54,31 @@ Combined reference name : combined_kerchunk.parquet
 We verify the aggregated Parquet store is readable
 
 ``` bash
-❯ rekx read-parquet combined_kerchunk.parquet SIS 8 45 '2020-01-01' --neighbor-lookup nearest
-Data retrieval took 0.17 seconds ⚡⚡
-Selected data : <xarray.DataArray 'SIS' (time: 1)>
-array([0.], dtype=float32)
+❯ rekx read-parquet combined_kerchunk.parquet SIS 8 45 -v
+Data read in memory in : 0.123 seconds ⚡⚡
+<xarray.DataArray 'SIS' (time: 192)>
+array([  0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,
+         0.,   0.,   0.,   0.,  46., 114., 179., 238., 290., 333., 359.,
+       379., 377., 372., 344., 306., 262., 206., 137.,  69.,   0.,   0.,
+         0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,
+         0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,
+         0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,  46., 110., 175.,
+       231., 291., 332., 356., 378., 376., 370., 344., 308., 260., 203.,
+       137.,  69.,   7.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,
+         0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,
+         0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,
+         0.,  13.,  61.,  74., 112., 142., 162., 185., 251., 251., 176.,
+       152., 136., 111.,  84.,  65.,  44.,   3.,   0.,   0.,   0.,   0.,
+         0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,
+         0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,
+         0.,   0.,   0.,   0.,   0.,  46., 105., 173., 236., 259., 322.,
+       371., 373., 382., 358., 347., 311., 267., 205., 147.,  74.,   9.,
+         0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,
+         0.,   0.,   0.,   0.,   0.], dtype=float32)
 Coordinates:
     lat      float32 45.03
     lon      float32 8.025
-  * time     (time) datetime64 2020-01-01
+  * time     (time) datetime64 2020-01-01 ... 2020-01-04T23:30:00
 Attributes:
     cell_methods:  time: point
 ```
