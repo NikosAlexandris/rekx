@@ -33,6 +33,9 @@ nav:
   - License: license.md
 
 theme:
+  font:
+    text: Afacad
+    code: Source Code Pro
   icon:
     logo: material/animation-outline
   palette:
