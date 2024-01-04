@@ -5,13 +5,13 @@ tags:
   - nccopy
 ---
 
-# Rechunk
+# `rekx rechunk`
 
 !!! warning
 
     `rekx rechunk` **yet not implemented!**
 
-## NetCDF utilities
+# `nccopy`
 
 Reorganizing the data into chunks that include all _timestamps_ in each chunk
 for a few lat and lon coordinates
@@ -36,7 +36,7 @@ by creating the output in memory before writing it to disk on close:
 nccopy -w -c time/1000,lat/40,lon/40 slow.nc fast.nc
 ```
 
-## Duration of rechunking operations
+## Duration of `nccopy` operations
 
 Timing the rechunking of SID files from the SARAH3 collection using
 `nccopy` on a laptop-with-ssd [^laptop-with-ssd]

@@ -9,10 +9,10 @@ nav:
   - How To:
       - Diagnose: how_to/diagnose.md
       - Suggest: how_to/suggest.md
-      - Rechunk:
-          - Rechunk: how_to/rechunk.md
-          - A good data structure: how_to/rechunking_parameterisation.md
-      - Kerchunk: how_to/kerchunk.md
+      - Rechunk: how_to/rechunk.md
+      - Identify appropriate structure: how_to/chunking_parameterisation.md
+      - Kerchunk to JSON: how_to/kerchunk_to_json.md
+      - Kerchunk to Parquet: how_to/kerchunk_to_parquet.md
   - Tutorials:
       - Massive JSON Kerchunking: tutorials/massive_json_kerchunking.md
   - Reference:
@@ -97,6 +97,11 @@ markdown_extensions:
   - admonition
   - pymdownx.details
   - pymdownx.superfences
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
 watch:
   - docs/includes

@@ -1,8 +1,8 @@
-# Rechunking parameterisation
+# Chunking parameterisation
 
 ## Combining parameters
 
-Identifying the appropriate configuration for data stored in NetCDF files,
+Identifying the _appropriate_ configuration for data stored in NetCDF files,
 involves systematic experimentation with various structural parameters.
 The `rechunk-generator` command
 varies structural data parameters and options for NetCDF files

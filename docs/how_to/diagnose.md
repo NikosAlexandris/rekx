@@ -3,7 +3,7 @@
 `rekx`
 can diagnose the structure of data stored in Xarray-supported file formats.
 
-## Data structures
+## Data structure
 
 Inspect a signle NetCDF file
 
@@ -39,7 +39,7 @@ Perhaps restrict inspection on data variables only
                                         * Cache: Size in bytes, Number of elements, Preemption ranging in [0, 1]
 ```
 
-## Chunking shapes
+## Chunking shape
 
 Report chunking shapes across multiple files in the same source directory
 
