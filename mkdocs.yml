@@ -2,6 +2,11 @@ site_name: rekx
 repo_url: https://github.com/NikosAlexandris/rekx
 repo_name: NikosAlexandris/rekx
 edit_uri: edit/main/docs/
+site_description: rekx dynamically interfaces Kerchunk and informs on chunked data structures
+site_author: Nikos Alexandris
+
+watch:
+  - docs/includes
 
 nav:
   - Overview:
@@ -17,8 +22,8 @@ nav:
       - Kerchunk to JSON: how_to/kerchunk_to_json.md
       - Kerchunk to Parquet: how_to/kerchunk_to_parquet.md
   - Tutorials:
-      - SARAH3: tutorials/sarah3/chunking_sarah3_time_series.md
-      - External file: tutorials/sarah3/sarah3_sid_time_variables.md
+      # - SARAH3: tutorials/sarah3/chunking_sarah3_time_series.md
+      # - External file: tutorials/sarah3/sarah3_sid_time_variables.md
       - Massive JSON Kerchunking: tutorials/massive_json_kerchunking.md
   - Reference:
       - Overview: reference/reference.md
@@ -43,25 +48,27 @@ theme:
       cli: octicons/terminal-16
       howto: material/tools
   palette:
-    # Palette toggle for automatic mode
-    - media: "(prefers-color-scheme)"
-      toggle:
-        icon: material/brightness-auto
-        name: Switch to light mode
+    - primary: lime
+    - accent: deep purple
+    # # Palette toggle for automatic mode
+    # - media: "(prefers-color-scheme)"
+    #   toggle:
+    #     icon: material/brightness-auto
+    #     name: Switch to light mode
+    #
     # Palette toggle for light mode
     - media: "(prefers-color-scheme: light)"
-      scheme: default 
+      scheme: default
+      primary: lime
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
     # Palette toggle for dark mode
     - media: "(prefers-color-scheme: dark)"
-      scheme: slate
+      scheme: lime
       toggle:
         icon: material/brightness-4
         name: Switch to system preference
-    - primary: lime
-    - accent: deep purple
   name: material
   custom_dir: docs/overrides
   features:
@@ -88,6 +95,10 @@ plugins:
   - search
   - tags:
       tags_file: includes/tags.md
+  - exclude:
+      glob:
+        - "*.py"  # Python scripts
+        - "*.inc"  # includes
 
 extra:
   tags:
@@ -97,7 +108,8 @@ extra:
 
 markdown_extensions:
   - toc:
-      permalink: true
+      permalink: true  # Paragraph symbol linking to current headline
+
   - footnotes
   - attr_list
   - tables
@@ -136,6 +148,3 @@ extra_javascript:
   - javascripts/mathjax.js
   - https://polyfill.io/v3/polyfill.min.js?features=es6
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
-
-watch:
-  - docs/includes
