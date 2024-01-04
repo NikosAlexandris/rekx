@@ -12,4 +12,3 @@ https://www.unidata.ucar.edu/software/netcdf/workshops/most-recent/nc4chunking/i
 
 - https://github.com/coecms/nccompress
 - https://github.com/pmav99/inspectds
-

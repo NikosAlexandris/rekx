@@ -1,3 +1,13 @@
+---
+tags:
+  - To Do
+  - Xarray
+  - Chunking
+  - Performance
+  - Optimisation
+  - Best practices
+---
+
 # Chunking & Xarray
 
 See useful hints at :

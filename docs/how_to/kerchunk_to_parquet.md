@@ -1,3 +1,15 @@
+---
+tags:
+  - To Do
+  - How-To
+  - rekx
+  - CLI
+  - Kerchunk
+  - Parquet
+  - SARAH3
+  - SIS
+---
+
 # Kerchunking to Parquet
 
 !!! danger "Proof-of-Concept with an issue pending clarification or/and fix"

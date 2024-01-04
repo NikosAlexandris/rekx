@@ -1,3 +1,10 @@
+---
+tags:
+  - To Do
+  - Notes
+  - Unsorted
+---
+
 # Unsorted notes
 
 Source [Chunking Data: Choosing Shapes][Chunking Data: Choosing Shapes]

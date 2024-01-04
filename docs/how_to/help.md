@@ -1,3 +1,10 @@
+---
+tags:
+  - How-To
+  - Help
+  - CLI
+---
+
 # Help ?
 
 For each and every command, there is a `--help` option. Please consult it to

@@ -1,3 +1,13 @@
+---
+tags:
+  - Tutorial
+  - Kerchunk
+  - Kerchunking
+  - JSON
+  - Experimental
+  - Revisit-Me
+---
+
 # Massive JSON Kerchunking
 
 Following is an incomplete **experiment**,
@@ -61,8 +71,8 @@ Swap:            0B          0B          0B
 13G Nov  3 07:41 sarah3_sid_reference_2021.json
 ```
 
-Trying to combine the above to a single reference set, fails with the following
-error message :
+Trying to combine the above to a single reference set,
+fails with the following error message :
 
 ``` python
 JSONDecodeError: Could not reserve memory block

@@ -1,3 +1,13 @@
+---
+tags:
+  - rekx
+  - Python
+  - install
+  - pip
+  - direnv
+  - virtual environment
+---
+
 # Install
 
 > **Everything is experimental and subject to change!**

@@ -1,3 +1,13 @@
+---
+tags:
+  - How-To
+  - rekx
+  - CLI
+  - Diagnose
+  - inspect
+  - shapes
+---
+
 # Diagnose data structures
 
 `rekx`

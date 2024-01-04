@@ -1,3 +1,16 @@
+---
+tags:
+  - Concepts
+  - Parallel
+  - Concurrent
+  - Chunking
+  - Consolidation
+  - Asynchronous
+  - Serverless
+  - Frontend
+  - Backend
+---
+
 # Concepts
 
 ## Parallel

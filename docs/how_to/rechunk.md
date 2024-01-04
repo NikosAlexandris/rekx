@@ -1,7 +1,11 @@
 ---
 tags:
+  - To Do
+  - How-To
+  - rekx
+  - CLI
+  - Rechunk
   - NetCDF
-  - Rechunking
   - nccopy
 ---
 
@@ -77,4 +81,3 @@ Timing the rechunking of SID files from the SARAH3 collection using
 | 48   | 2048     | 2048      | 641.8233333333334  |
 
 [^D]: Average of 3 repetitions
-

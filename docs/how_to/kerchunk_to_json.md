@@ -1,3 +1,14 @@
+---
+tags:
+  - How-To
+  - rekx
+  - CLI
+  - Kerchunk
+  - JSON
+  - SARAH3
+  - SIS
+---
+
 # Kerchunking to JSON
 
 ## Example data

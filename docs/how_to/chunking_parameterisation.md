@@ -1,3 +1,15 @@
+---
+tags:
+  - How-To
+  - rekx
+  - CLI
+  - NetCDF
+  - Chunking
+  - nccopy
+  - Parallel processing
+  - GNU Parallel
+---
+
 # Chunking parameterisation
 
 ## Combining parameters

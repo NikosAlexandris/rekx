@@ -1,4 +1,14 @@
-## To Do
+---
+tags:
+  - Development
+  - Programing
+  - Design
+  - Documentation
+  - CLI
+  - Ideas
+---
+
+# To Do
 
 - [ ] Complete backend for rechunking, support for 
     - [ ] NetCDF4
