@@ -2,6 +2,7 @@ site_name: rekx
 repo_url: https://github.com/NikosAlexandris/rekx
 repo_name: NikosAlexandris/rekx
 edit_uri: edit/main/docs/
+# Keep this in sync with pyproject.toml and index.md
 site_description: rekx dynamically interfaces Kerchunk and informs on chunked data structures
 site_author: Nikos Alexandris
 
@@ -27,15 +28,18 @@ nav:
       - Massive JSON Kerchunking: tutorials/massive_json_kerchunking.md
   - Reference:
       - Overview: reference/reference.md
-      - Notes: reference/notes.md
       - Concepts: reference/concepts.md
-      - Kerchunking large time series : reference/kerchunking.md
+      - Kerchunking: reference/kerchunking.md
+      - Notes: reference/notes.md
       - Xarray: reference/xarray.md
-  - Meta: about/meta.md
-  - References: references/references.md
-  - Glossary: includes/glossary.md
+      - Glossary: includes/glossary.md
+  - CLI Reference: cli/cli_reference.md
+  - Meta:
+      - "": about/meta.md
+      - License: license.md
+      - References: references/references.md
+      - See also: references/see_also.md
   - Tags: includes/tags.md
-  - License: license.md
 
 theme:
   font:
@@ -47,6 +51,7 @@ theme:
       chunking: fontawesome/solid/cubes-stacked
       cli: octicons/terminal-16
       howto: material/tools
+      # html: fontawesome/brands/html5
   palette:
     - primary: lime
     - accent: deep purple
@@ -95,6 +100,7 @@ plugins:
   - search
   - tags:
       tags_file: includes/tags.md
+  - table-reader
   - exclude:
       glob:
         - "*.py"  # Python scripts
@@ -109,7 +115,6 @@ extra:
 markdown_extensions:
   - toc:
       permalink: true  # Paragraph symbol linking to current headline
-
   - footnotes
   - attr_list
   - tables
@@ -143,6 +148,7 @@ markdown_extensions:
   - admonition
   - pymdownx.details
   - pymdownx.superfences
+  - mkdocs-typer
 
 extra_css:
   - stylesheets/extra.css

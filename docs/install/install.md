@@ -67,6 +67,12 @@ we can remove the entire virtual environment we created for it!
     pip cache remove rekx
     ```
 
+## Verify
+
+``` bash
+..
+```
+
 [rekx]: https://github.com/NikosAlexandris/rekx
 
 [direnv-wiki-python]: https://github.com/direnv/direnv/wiki/Python

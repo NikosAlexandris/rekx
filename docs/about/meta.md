@@ -5,8 +5,6 @@ tags:
   - To Do
 ---
 
-# Meta
-
 `rekx` 
 
 - builds its command line interface on top of the awesome [Typer](https://typer.tiangolo.com/)

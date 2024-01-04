@@ -7,8 +7,3 @@ with Kerchunk. figshare. Preprint.
 
 "NetCDF-4 Chunking Guide" by Unidata. Available at:
 https://www.unidata.ucar.edu/software/netcdf/workshops/most-recent/nc4chunking/index.html
-
-## See Also
-
-- https://github.com/coecms/nccompress
-- https://github.com/pmav99/inspectds
