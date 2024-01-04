@@ -29,6 +29,7 @@ nav:
   - About: 
       - Meta: about/meta.md
   - References: references/references.md
+  - Glossary: includes/glossary.md
   - License: license.md
 
 theme:
@@ -97,9 +98,11 @@ markdown_extensions:
   - pymdownx.smartsymbols
   - pymdownx.tasklist:
       custom_checkbox: true
+  - abbr
+  - attr_list
   - pymdownx.snippets:
       auto_append:
-        - includes/abbreviations.md
+        - includes/glossary.md
   - admonition
   - pymdownx.details
   - pymdownx.superfences
