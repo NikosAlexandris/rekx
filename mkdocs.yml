@@ -65,6 +65,8 @@ theme:
   name: material
   custom_dir: docs/overrides
   features:
+    - search.highlight
+    - search.share
     - content.tooltips
     - content.action.edit
     - content.action.view
