@@ -369,17 +369,20 @@ def rechunk(
             "memory": memory,
         }
         backend = backend.get_backend()
-        # ------------------------------------------------- Deduplicate Me ---
+        command = backend.rechunk(**rechunk_parameters, dry_run=dry_run)
         if dry_run:
-            command = backend.rechunk(**rechunk_parameters, dry_run=dry_run)
             print(f"[bold]Dry run[/bold] the [bold]following command that would be executed[/bold]:")
             print(f"    {command}")
             # print(f"    {rechunk_parameters}")
             return  # Exit for a dry run
 
         else:
-            command = backend.rechunk(**rechunk_parameters, dry_run=False)
-        # ------------------------------------------------- Deduplicate Me ---
+            command_arguments = shlex.split(command)
+            try:
+                subprocess.run(command_arguments, check=True)
+                print(f"Command {command} executed successfully.")
+            except subprocess.CalledProcessError as e:
+                print(f"An error occurred while executing the command: {e}")
 
         if verbose:
             rechunking_timer_end = timer.time()
