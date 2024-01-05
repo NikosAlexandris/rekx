@@ -188,7 +188,7 @@ def combine_multiple_parquet_stores(
         # return
 
 
-# commands
+# commands for CLI
 
 def parquet_reference(
     input_file: Path,
@@ -292,7 +292,7 @@ def combine_parquet_stores_to_parquet(
 
             # Combine single references
             from kerchunk.combine import MultiZarrToZarr
-            mzz = MultiZarrToZarr(
+            multi_zarr_to_zarr = MultiZarrToZarr(
                 reference_file_paths,
                 remote_protocol="file",
                 concat_dims=["time"],
@@ -300,7 +300,7 @@ def combine_parquet_stores_to_parquet(
                 coo_map={"time": "cf:time"},
                 out=output_lazy,
             )
-            multifile_kerchunk = mzz.translate()
+            multifile_kerchunk = multi_zarr_to_zarr.translate()
             output_lazy.flush()  # Write all non-full reference batches
 
         except Exception as e:
