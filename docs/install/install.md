@@ -10,7 +10,9 @@ tags:
 
 # Install
 
-> **Everything is experimental and subject to change!**
+!!! danger "Experimental"
+
+    **Everything is under heavy development and subject to change!**
 
 ## Virtual environment
 

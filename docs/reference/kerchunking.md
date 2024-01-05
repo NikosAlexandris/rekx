@@ -6,6 +6,10 @@ tags:
 
 # Kerchunk
 
+!!! warning
+
+    Unsorted notes
+
 [kerchunk][kerchunk] supports cloud-friendly access of data
 with specific reference to netCDF4/HDF5 files.[^funded-by-nasa]
 

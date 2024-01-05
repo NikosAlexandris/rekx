@@ -10,8 +10,9 @@ tags:
 
 # Massive JSON Kerchunking
 
-Following is an incomplete **experiment**,
-eventually worth revisiting.
+!!! danger "Experimental"
+
+    Following is an incomplete experiment, eventually worth revisiting.
 
 ## Overview
 

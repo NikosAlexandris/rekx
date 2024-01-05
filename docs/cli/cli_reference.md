@@ -7,7 +7,11 @@ tags:
 
 # CLI Reference
 
-This page provides documentation for our command line tools.
+Documentation for all command line tools.
+
+!!! bug
+
+    Sort commands as they appear in the interface!
 
 ::: mkdocs-typer
     :module: rekx.cli

@@ -8,3 +8,7 @@ tags:
 ---
 
 # Suggest
+
+!!! warning
+
+    Would this make sense ?

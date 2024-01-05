@@ -10,6 +10,10 @@ tags:
 
 # Chunking & Xarray
 
+!!! warning
+
+    To sort out!
+
 See useful hints at :
 
 - [Chunking and performance][Chunking and performance]

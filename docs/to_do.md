@@ -10,6 +10,10 @@ tags:
 
 # To Do
 
+!!! warning
+
+    While functional, `rekx` needs some :purple_heart: to be able to properly crunch more data chunks!
+
 - [ ] Complete backend for rechunking, support for 
     - [ ] NetCDF4
     - [ ] Xarray

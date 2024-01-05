@@ -1,5 +1,5 @@
 # Tags
 
-A list of relevant tags:
+Tags in this documentation site : 
 
 <!-- material/tags -->
