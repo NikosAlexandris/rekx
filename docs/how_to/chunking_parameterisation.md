@@ -10,6 +10,10 @@ tags:
   - GNU Parallel
 ---
 
+!!! danger "Fix Me"
+
+    Explain better the idea, the commands and the example !
+
 # Chunking parameterisation
 
 ## Combining parameters
@@ -20,16 +24,42 @@ The `rechunk-generator` command
 varies structural data parameters and options for NetCDF files
 that influence the file size and data access speed
 and generates a series of `nccopy` commands for rechunking NetCDF files.
-The list of commands can be fed to the mighty GNU Parallel tool
+The list of commands can be fed to 
+[GNU Parallel](https://www.gnu.org/software/parallel/)
 which will take care to run them in parallel.
-Subsequently, `rekx inspect-multiple` will report on the new data structeres
-and measure the average time it takes to read data over a geographic location.
+Subsequently,
+`rekx inspect` can report on the new data structures
+and the average time it takes to retrieve data over a geographic location.
 
 Given the initial NetCDF file `SISin202001010000004231000101MA.nc`,
-we can generate a series of experimental `nccopy` commands :
+we can use `rekx rechunk-generator` 
+to generate a series of experimental `nccopy` commands 
+and save them in a file prefixed with
+`rechunk_commands_for_` followed after the name of the input NetCDF file :
 
 ```bash
 ❯ rekx rechunk-generator SISin202001010000004231000101MA.nc rechunking_test --time 48 --latitude 64,128,256 --longitude 64,128,256 --compression-level 0,3,6,9 -v --shuffling --memory
+```
+
+!!! example
+
+    In this example, we ask for possible chunk sizes for :
+
+    - time to be 48, that is only one size
+    
+    - latitude and longitude sizes 64, 128 and 256
+    
+    - compression levels 0, 3, 6, and 9
+
+    In addition, we ask for `--shuffling`.
+    Since shuffling wouldn't make sense for uncompressed data,
+    `rekx` takes care to only add it along with compression levels greater than 0.
+
+    There are more options and we can list them with the typical --help option.
+
+The above command will generate
+
+``` bash
 Writing generated commands into rechunk_commands_for_SISin202001010000004231000101MA.txt
 nccopy -c time/48,lat/64,lon/64 -d 0  -h 16777216 -e 4133 -w SISin202001010000004231000101MA.nc rechunking_test/SISin202001010000004231000101MA_48_64_64_zlib_0.nc
 nccopy -c time/48,lat/64,lon/64 -d 3 -s -h 16777216 -e 4133 -w SISin202001010000004231000101MA.nc rechunking_test/SISin202001010000004231000101MA_48_64_64_zlib_3_shuffled.nc
@@ -56,7 +86,8 @@ nccopy -c time/48,lat/256,lon/256 -d 9  -h 16777216 -e 4133 -w SISin202001010000
 
 ## Process in parallel
 
-We let GNU Parallel to execute these in parallel
+We let the mighty [GNU Parallel](https://www.gnu.org/software/parallel/)
+execute these commands in parallel
 
 ``` bash
 parallel < rechunk_commands_for_SISin202001010000004231000101MA.txt
@@ -68,7 +99,11 @@ let us only inspect new NetCDF files whose filename contains the string `256` :
 
 ``` bash
 ❯ rekx inspect rechunking_test --repetitions 3 --humanize --long-table --variable-set data --pattern "*256*"
+```
 
+The above command will return
+
+``` bash
   Name                   Size        Dimensions            Variable   Shape              Chunks           Cache      Elements   Preemption   Type    Scale   Offset   Compression     Level   Shuffling   Read Time
  ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
   SISin20200101000000…   726.1 MiB   2 x 48 x 2600 x       SIS        48 x 2600 x 2600   48 x 256 x 256   16777216   4133       0.75         int16   -       -                        0       False       0.024
@@ -89,7 +124,22 @@ let us only inspect new NetCDF files whose filename contains the string `256` :
                                                ^ Dimensions: lat x time x lon x bnds * Cache: Size in bytes, Number of elements, Preemption strategy ranging in [0, 1]
 ```
 
+!!! info
+
+    Note, the reported reading times
+    are averages of repeated reads of the data in the memory
+    to ensure we are really retrieving data values!
+    Look for the `repetitions` parameter in `rekx inspect --help`.
+
 The output reports on dataset structure, chunking, compression levels,
 and the average time to read data over a geographic location.
 Analysing such results, can guide us in choosing an effective chunking shape
 and compression strategy in order to optimize our data structure.
+
+
+To get a machine readable output of such an analysis, `rekx` can write this out
+in a CSV file via the `--csv` option.
+
+!!! warning "Complete Me"
+
+    Complete documentation of this example!
