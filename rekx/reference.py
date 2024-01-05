@@ -59,7 +59,7 @@ def create_single_reference(
     """
     filename = file_path.stem
     output_file = f"{output_directory}/{filename}.json"
-    hash_file = f"{output_directory}/{filename}.json.hash"
+    hash_file = output_file + '.hash'
     generated_hash = generate_file_md5(file_path)
     local_fs = fsspec.filesystem('file')
     if local_fs.exists(output_file) and local_fs.exists(hash_file):
