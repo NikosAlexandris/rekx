@@ -5,6 +5,7 @@ edit_uri: edit/main/docs/
 # Keep this in sync with pyproject.toml and index.md
 site_description: rekx dynamically interfaces Kerchunk and informs on chunked data structures
 site_author: Nikos Alexandris
+copyright: Copyright &copy; 2023 Nikos Alexandris. Licensed under the EUPL-1.2 or later
 
 watch:
   - docs/includes
@@ -15,7 +16,7 @@ nav:
       - To Do: to_do.md
   - Installation: install/install.md
   - How To:
-      - Help?: how_to/help.md
+      - how_to/index.md
       - Diagnose: how_to/diagnose.md
       - Suggest: how_to/suggest.md
       - Rechunk: how_to/rechunk.md
@@ -96,6 +97,7 @@ theme:
     - toc.follow
     # - toc.integrate 
     - navigation.top
+    - navigation.footer
 
 plugins:
   - search
