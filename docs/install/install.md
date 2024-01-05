@@ -46,7 +46,7 @@ Have a look at [direnv's Wiki page for Python][direnv-wiki-python].
 Once inside a dedicated virtual environment,
 we can install `rekx` using `pip` : 
 
-``` bash
+```{.shell linenums="0"}
 pip install git+https://github.com/NikosAlexandris/rekx
 ```
 
@@ -54,7 +54,7 @@ pip install git+https://github.com/NikosAlexandris/rekx
 
 Done with `rekx` ?  Uninstall via
 
-``` bash
+```{.shell linenums="0"}
 pip uninstall rekx
 ```
 
@@ -65,13 +65,13 @@ we can remove the entire virtual environment we created for it!
 
     In case we need to clean it from the cache too, we can do
 
-    ```bash
+    ```{.shell linenums="0"}
     pip cache remove rekx
     ```
 
 ## Verify
 
-``` bash
+```{.shell linenums="0"}
 ..
 ```
 
