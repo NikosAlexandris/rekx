@@ -37,7 +37,7 @@ nav:
       - Glossary: includes/glossary.md
   - CLI Reference: cli/cli_reference.md
   - Meta:
-      - "": about/meta.md
+      - meta/index.md
       - License: license.md
       - References: references/references.md
       - See also: references/see_also.md
