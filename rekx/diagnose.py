@@ -13,6 +13,7 @@ import numpy as np
 import xarray as xr
 from typing import Annotated
 from typing import List
+from typing import Optional
 from pathlib import Path
 from concurrent.futures import ProcessPoolExecutor
 from concurrent.futures import as_completed
@@ -44,14 +45,6 @@ from .csv import write_nested_dictionary_to_csv
 # from .rich_help_panel_names import rich_help_panel_diagnose
 
 
-def format_compression(compression_dict):
-    if isinstance(compression_dict, dict):
-        # Keep only keys with value = True
-        return ', '.join([key for key, value in compression_dict.items() if value])
-    return compression_dict
-
-
-from typing import Optional
 def get_netcdf_metadata(
     input_netcdf_path: Annotated[Path, "Path to the NetCDF file"],
     variable: Annotated[Optional[str], "Name of the variable to inspect, defaults to None"] = None,
@@ -60,12 +53,11 @@ def get_netcdf_metadata(
     latitude: Annotated[float, "Latitude in degrees"] = 45,
     repetitions: Annotated[int, "Number of repetitions for read operation"] = REPETITIONS_DEFAULT,
     humanize: Annotated[bool, "Flag to humanize file size"] = False,
-    csv: Annotated[Optional[Path], "Path to output CSV file, if any"] = None,
     verbose: Annotated[int, "Verbosity level"] = VERBOSE_LEVEL_DEFAULT,
 ):
-    """Collect NetCDF metadata
+    """Get the metadata of a single NetCDF file
 
-    Collect and report metadata of a NetCDF file, including : 
+    Get and report the metadata of a single NetCDF file, including : 
     file name, file size, dimensions, shape, chunks, cache, type, scale,
     offset, compression, shuffling and lastly the read time (required to
     retrieve data) for data variables.
@@ -163,10 +155,41 @@ def get_multiple_netcdf_metadata(
     latitude: Annotated[float, typer_argument_latitude_in_degrees] = 45,
     repetitions: Annotated[int, typer_option_repetitions] = REPETITIONS_DEFAULT,
     humanize: Annotated[bool, typer_option_humanize] = False,
-    csv: Path = None,
-    verbose: int = VERBOSE_LEVEL_DEFAULT,
 ):
-    """
+    """Get the metadata of multiple NetCDF files.
+
+    Get and report the metadata of multiple NetCDF files, including : 
+    file name, file size, dimensions, shape, chunks, cache, type, scale,
+    offset, compression, shuffling and lastly the read time (required to
+    retrieve data) for data variables.
+
+    Parameters
+    ----------
+    file_paths: List[Path]
+        List of paths to the input NetCDF files
+    variable: str 
+        Name of the variable to query
+    variable_set: XarrayVariableSet
+        Name of the set of variables to query. See also docstring of
+        XarrayVariableSet
+    longitude: float
+        The longitude of the location to read data
+    latitude: float
+        The latitude of the location to read data
+    repetitions: int
+        Number of repetitions for read operation
+    humanize: bool
+        Humanize measured quantities of bytes
+    csv: Path
+        Output file name for comma-separated values
+    verbose: int
+        Verbosity level
+
+    Returns
+    -------
+    metadata_series: dict
+        A nested dictionary
+
     """
     metadata_series = {}
     with ProcessPoolExecutor() as executor:
@@ -194,7 +217,6 @@ def get_multiple_netcdf_metadata(
     return metadata_series
 
 
-from typing import Optional
 def collect_netcdf_metadata(
     input_path: Annotated[Path, typer_argument_input_path] = '.',
     pattern: Annotated[str, typer_option_filename_pattern] = '*.nc',
@@ -209,7 +231,14 @@ def collect_netcdf_metadata(
     csv: Annotated[Path, typer_option_csv] = None,
     verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
 ):
-    """Scan files in the source directory that match the pattern and diagnose the chunking shapes for each variable."""
+    """Collect the metadata of a single or multiple NetCDF files.
+
+    Scan the `source_directory` for files that match the given `pattern`,
+    and collect their metadata, including : file name, file size, dimensions,
+    shape, chunks, cache, type, scale, offset, compression, shuffling and
+    lastly measure the time required to retrieve and load data variables (only)
+    in memory.
+    """
     if input_path.is_file():
         get_netcdf_metadata(
             input_netcdf_path=input_path,
@@ -222,7 +251,6 @@ def collect_netcdf_metadata(
             csv=csv,
             verbose=verbose,
         )
-    
     if input_path.is_dir():
         source_directory = Path(input_path)
         file_paths = list(source_directory.glob(pattern))
@@ -267,7 +295,9 @@ def detect_chunking_shapes(
     file_path: Path,
     variable_set: XarrayVariableSet = XarrayVariableSet.all,
 ):
-    """Scan a single NetCDF file for chunking shapes per variable"""
+    """
+    Detect the chunking shapes of variables within single NetCDF file.
+    """
     chunking_shapes = {}
     with xr.open_dataset(file_path, engine="netcdf4") as dataset:
         selected_variables = select_xarray_variable_set_from_dataset(
@@ -286,7 +316,8 @@ def detect_chunking_shapes_parallel(
     variable_set: XarrayVariableSet = XarrayVariableSet.all,
 ):
     """
-    Detect and aggregate the chunking shapes of variables within a set of NetCDF files in parallel.
+    Detect and aggregate the chunking shapes of variables within a set of
+    multiple NetCDF files in parallel.
 
     Parameters
     ----------
@@ -331,62 +362,40 @@ def detect_chunking_shapes_parallel(
     return aggregated_chunking_shapes
 
 
-# app = typer.Typer(
-#     cls=OrderCommands,
-#     add_completion=True,
-#     add_help_option=True,
-#     rich_markup_mode="rich",
-#     help=f'Create kerchunk reference',
-# )
+# functions for CLI commands
 
-
-# @app.command(
-#     'shapes',
-#     no_args_is_help=True,
-#     help='Diagnose chunking shapes along series of files in a format supported by Xarray',
-#     rich_help_panel=rich_help_panel_diagnose,
-# )
 def diagnose_chunking_shapes(
     source_directory: Annotated[Path, typer_argument_source_directory],
     pattern: Annotated[str, typer_option_filename_pattern] = "*.nc",
     variable_set: Annotated[XarrayVariableSet, typer.Option(help="Set of Xarray variables to diagnose")] = XarrayVariableSet.all,
+    common_shapes: Annotated[bool, typer.Option(help="Report common maximum chunking shape")] = False,
     csv: Annotated[Path, typer_option_csv] = None,
     verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
 ):
-    """Scan files in the source directory that match the pattern and diagnose the chunking shapes for each variable."""
-    source_directory = Path(source_directory)
-    file_paths = list(source_directory.glob(pattern))
-    mode = DisplayMode(verbose)
-    with display_context[mode]:
-        try:
-            chunking_shapes = detect_chunking_shapes_parallel(
-                    file_paths=file_paths,
-                    variable_set=variable_set,
-            )
-        except TypeError as e:
-            raise ValueError("Error occurred:", e)
-    print_chunk_shapes_table(chunking_shapes)#, highlight_variables)  : Idea
+    """Diagnose the chunking shapes of multiple Xarray-supported files.
 
-    if csv:
-        write_nested_dictionary_to_csv(
-            nested_dictionary=chunking_shapes,
-            output_filename=csv,
-        )
+    Scan the `source_directory` for Xarray-supported files that match
+    the given `pattern` and diagnose the chunking shapes for each variable
+    or determine the maximum common chunking shape across the input data.
 
+    Parameters
+    ----------
+    source_directory: Path
+        The source directory to scan for files matching the `pattern`
+    pattern: str
+        The filename pattern to match files
+    variable_set: XarrayVariableSet
+        Name of the set of variables to query. See also docstring of
+        XarrayVariableSet
+    verbose: int
+        Verbosity level
 
-# @app.command(
-#     'common-shape',
-#     no_args_is_help=True,
-#     help='Determine common chunking shape in multiple NetCDF files',
-#     rich_help_panel=rich_help_panel_diagnose,
-# )
-def determine_common_chunking_layout(
-    source_directory: Annotated[Path, typer_argument_source_directory],
-    pattern: Annotated[str, typer_option_filename_pattern] = "*.nc",
-    variable_set: Annotated[XarrayVariableSet, typer.Option(help="Set of Xarray variables to diagnose")] = XarrayVariableSet.all,
-    verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
-):
-    """
+    Returns
+    -------
+    # common_chunking_shapes: dict
+    #     A dictionary with the common maximum chunking shapes for each variable
+    #     identified in the input data.
+
     """
     source_directory = Path(source_directory)
     if not source_directory.exists() or not any(source_directory.iterdir()):
@@ -399,18 +408,31 @@ def determine_common_chunking_layout(
 
     mode = DisplayMode(verbose)
     with display_context[mode]:
-        chunking_shapes = detect_chunking_shapes_parallel(
-                file_paths=file_paths,
-                variable_set=variable_set,
-                )
-        common_chunking_shapes = {}
-        for variable, shapes in chunking_shapes.items():
-            import numpy as np
-            max_shape = np.array(next(iter(shapes)), dtype=int)
-            for shape in shapes:
-                current_shape = np.array(shape, dtype=int)
-                max_shape = np.maximum(max_shape, current_shape)
-            common_chunking_shapes[variable] = tuple(max_shape)
+        try:
+            chunking_shapes = detect_chunking_shapes_parallel(
+                    file_paths=file_paths,
+                    variable_set=variable_set,
+            )
+        except TypeError as e:
+            raise ValueError("Error occurred:", e)
 
-        print_common_chunk_layouts(common_chunking_shapes)
-        return common_chunking_shapes
+        if common_shapes:
+            common_chunking_shapes = {}
+            for variable, shapes in chunking_shapes.items():
+                import numpy as np
+                max_shape = np.array(next(iter(shapes)), dtype=int)
+                for shape in shapes:
+                    current_shape = np.array(shape, dtype=int)
+                    max_shape = np.maximum(max_shape, current_shape)
+                common_chunking_shapes[variable] = tuple(max_shape)
+
+            print_common_chunk_layouts(common_chunking_shapes)
+            # return common_chunking_shapes
+
+    print_chunk_shapes_table(chunking_shapes)#, highlight_variables)  : Idea
+    if csv:
+        write_nested_dictionary_to_csv(
+            # nested_dictionary=chunking_shapes,
+            nested_dictionary=chunking_shapes if not common_shapes else common_chunking_shapes,
+            output_filename=csv,
+        )
