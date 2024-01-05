@@ -22,13 +22,12 @@ from .parquet import parquet_multi_reference
 from .combine import combine_kerchunk_references
 from .combine import combine_kerchunk_references_to_parquet
 from .parquet import combine_parquet_stores_to_parquet
-from .select import read
+from .select import read_performance
 from .select import select_fast
 from .select import select_time_series
 from .select import select_time_series_from_json
 from .select import select_time_series_from_json_in_memory
 from .parquet import select_from_parquet
-from .parquet import read_from_parquet
 from .rich_help_panel_names import rich_help_panel_diagnose
 from .rich_help_panel_names import rich_help_panel_suggest
 from .rich_help_panel_names import rich_help_panel_rechunking
@@ -236,17 +235,11 @@ app.command(
 # read and load in memory for performance assessment
 
 app.command(
-    name="read",
+    name="read-performance",
     help='  Bare read time series from Xarray-supported data',
     no_args_is_help=True,
     rich_help_panel=rich_help_panel_read_performance,
-)(read)
-app.command(
-    name='read-parquet',
-    help=f" Read data from a Parquet references store",
-    no_args_is_help=True,
-    rich_help_panel=rich_help_panel_read_performance,
-)(read_from_parquet)
+)(read_performance)
 
 
 if __name__ == "__main__":
