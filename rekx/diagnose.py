@@ -39,7 +39,7 @@ from .progress import DisplayMode
 from .progress import display_context
 from .print import print_chunk_shapes_table
 from .print import print_common_chunk_layouts
-from .select import read
+from .select import read_performance
 from .csv import write_nested_dictionary_to_csv
 # from .rich_help_panel_names import rich_help_panel_diagnose
 
@@ -135,7 +135,7 @@ def get_netcdf_metadata(
             }
             variables_metadata[variable_name] = variable_metadata  # Add info to variable_metadata
             if variable_name in data_variables:
-                data_retrieval_time = read(
+                data_retrieval_time = read_performance(
                     time_series=input_netcdf_path,
                     variable=variable_name,
                     longitude=longitude,
