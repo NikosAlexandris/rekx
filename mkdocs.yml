@@ -119,7 +119,7 @@ markdown_extensions:
   - toc:
       permalink: true  # Paragraph symbol linking to current headline
   - footnotes
-  - attr_list
+  - def_list
   - tables
   - pymdownx.arithmatex:
       generic: true
@@ -143,8 +143,8 @@ markdown_extensions:
   - pymdownx.smartsymbols
   - pymdownx.tasklist:
       custom_checkbox: true
-  - abbr
   - attr_list
+  - abbr
   - pymdownx.snippets:
       auto_append:
         - includes/glossary.md
