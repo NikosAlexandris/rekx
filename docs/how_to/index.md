@@ -13,13 +13,13 @@ values and settings that can further shape the output.
 
 For example,
 
-``` bash
+```{.shell linenums="0"}
 rekx
 ```
 
 returns (**currently**)
 
-```
+``` shell
  Usage: rekx [OPTIONS] COMMAND [ARGS]...
 
  🙾  🦖 Rekx command line interface prototype
@@ -82,14 +82,14 @@ returns (**currently**)
 
 The help for the command `shapes`
 
-``` bash
+```{.shell linenums="0"}
 rekx shapes --help
 ```
 
 is (**currently**)
 
-``` bash
-❯ rekx shapes --help
+``` shell
+rekx shapes --help
 
  Usage: rekx shapes [OPTIONS] SOURCE_DIRECTORY
 

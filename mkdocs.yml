@@ -92,9 +92,9 @@ theme:
     - navigation.sections
     - navigation.expand
     - navigation.path
-    # - navigation.indexes 
+    - navigation.indexes 
     - toc.follow
-    - toc.integrate 
+    # - toc.integrate 
     - navigation.top
 
 plugins:
