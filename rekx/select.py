@@ -197,7 +197,6 @@ def select_fast(
         print(f"An error occurred: {e}")
 
 
-
 def select_time_series(
     time_series: Path,
     variable: Annotated[str, typer.Argument(..., help='Variable name to select from')],
@@ -668,7 +667,7 @@ def select_time_series_from_json_in_memory(
         timer_end = timer.time()
         logger.debug(f"Data array rechunking took {timer_end - timer_start:.2f} seconds")
         
-        # in-memort
+        # in-memory
         timer_start = timer.time()
         time_series.load()  # load into memory for faster ... ?
         timer_end = timer.time()

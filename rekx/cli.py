@@ -6,7 +6,6 @@ from .typer_parameters import OrderCommands
 from .diagnose import get_netcdf_metadata
 from .diagnose import collect_netcdf_metadata
 from .diagnose import diagnose_chunking_shapes
-from .diagnose import determine_common_chunking_layout
 from .consistency import check_chunk_consistency
 from .consistency import check_chunk_consistency_json
 from .suggest import suggest_chunking_shape
@@ -91,12 +90,6 @@ app.command(
     no_args_is_help=True,
     rich_help_panel=rich_help_panel_diagnose,
 )(diagnose_chunking_shapes)
-app.command(
-    name='common-shape',
-    help='Determine common chunking shape in multiple Xarray-supported data',
-    no_args_is_help=True,
-    rich_help_panel=rich_help_panel_diagnose,
-)(determine_common_chunking_layout)
 
 # validate chunking in series of data
 
