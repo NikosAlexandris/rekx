@@ -44,9 +44,19 @@ def generate_file_md5(file_path):
 def create_single_reference(
     file_path: Path,
     output_directory: Path,
+    # md5: bool = True,
     verbose: int = 0
 ):
-    """Helper function for create_kerchunk_reference()"""
+    """Helper function for create_kerchunk_reference()
+
+    Notes
+
+    Will create an MD5 Hash for each new reference file in order to avoid
+    regenerating the same file in case of a renewed attempt to reference the
+    same file.  This is useful in the context or epxlorative massive
+    processing.
+
+    """
     filename = file_path.stem
     output_file = f"{output_directory}/{filename}.json"
     hash_file = f"{output_directory}/{filename}.json.hash"
