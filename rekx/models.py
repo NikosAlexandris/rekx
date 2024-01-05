@@ -4,6 +4,7 @@ from typing import Type
 from typing import List
 import xarray as xr
 import netCDF4
+from pathlib import Path
 
 
 class MethodForInexactMatches(str, enum.Enum):
@@ -123,3 +124,46 @@ def select_netcdf_variable_set_from_dataset(
 
     else:
         raise ValueError("Invalid category")
+
+
+class FileFormat(enum.Enum):
+    NETCDF = '.nc'
+    PARQUET = '.parquet'
+    JSON = '.json'
+
+    def open_dataset_options(self) -> dict:
+        if self == FileFormat.NETCDF:
+            # Default options for other formats
+            return {"mask_and_scale": False}
+        if self == FileFormat.JSON:
+            return {
+                "engine": "zarr",
+                "backend_kwargs": {
+                    "consolidated": False,
+                },
+                "chunks": None,
+                "mask_and_scale": False,
+            }
+        if self == FileFormat.PARQUET:
+            return {
+                "engine": "kerchunk",
+                "storage_options": {
+                    "skip_instance_cache": True,
+                    "remote_protocol": "file",
+                },
+            }
+
+    def dataset_select_options(self, tolerance) -> dict:
+        if self == FileFormat.PARQUET:
+            return {"tolerance": tolerance}
+        else:
+            # Default or no additional options for other formats
+            return {}
+
+
+def get_file_format(file_path: Path) -> FileFormat:
+    """
+    Get the format from the filename extension.
+    """
+    file_extension = file_path.suffix.lower()
+    return FileFormat(file_extension)

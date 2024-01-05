@@ -5,6 +5,7 @@ from typing import Any
 from typing import Optional
 from datetime import datetime
 from pathlib import Path
+from rekx.constants import DATASET_SELECT_TOLERANCE_DEFAULT
 from rekx.constants import REPETITIONS_DEFAULT
 from rekx.constants import VERBOSE_LEVEL_DEFAULT
 from rekx.utilities import select_location_time_series
@@ -74,29 +75,22 @@ from .progress import display_context
 import time as timer
 
 
-# app = typer.Typer(
-#     cls=OrderCommands,
-#     add_completion=True,
-#     add_help_option=True,
-#     rich_markup_mode="rich",
-#     help=f'Create kerchunk reference',
-# )
-
-
-def read(
+def read_performance(
     time_series: Annotated[Path, typer_argument_time_series],
     variable: Annotated[str, typer.Argument(help='Variable to select data from')],
     longitude: Annotated[float, typer_argument_longitude_in_degrees],
     latitude: Annotated[float, typer_argument_latitude_in_degrees],
-    tolerance: Annotated[Optional[float], typer_option_tolerance] = 0.1, # Customize default if needed
+    tolerance: Annotated[Optional[float], typer_option_tolerance] = DATASET_SELECT_TOLERANCE_DEFAULT,
     repetitions: Annotated[int, typer_option_repetitions] = REPETITIONS_DEFAULT,
     verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
-):
-    """Time reading data over a location.
+) -> str:
+    """
+    Count the time to read and load data over a geographic location from an
+    Xarray-supported file format.
 
     Returns
     -------
-    data_retrieval_time : float
+    data_retrieval_time : float or None ?
         The time it took to retrieve data over the requested location
 
     Notes
@@ -105,25 +99,45 @@ def read(
     decoding timestamps.
 
     """
+    from .models import get_file_format
+
+    file_format = get_file_format(time_series)
+    open_dataset_options = file_format.open_dataset_options()
+    dataset_select_options = file_format.dataset_select_options(tolerance)
+
     try:
         timings = []
         for _ in range(repetitions):
             data_retrieval_start_time = timer.perf_counter()
-            with xr.open_dataset(time_series, mask_and_scale=False) as dataset:
+
+            with xr.open_dataset(str(time_series), **open_dataset_options) as dataset:
                 _ = (
                     dataset[variable]
-                    .sel(lon=longitude, lat=latitude, method="nearest")
-                    .load()  # ensure reading data values !
+                    .sel(
+                        lon=longitude,
+                        lat=latitude,
+                        method="nearest",
+                        **dataset_select_options,
+                    )
+                    .load()
                 )
             timings.append(timer.perf_counter() - data_retrieval_start_time)
-        average_data_retrieval_time = sum(timings) / len(timings)
-        if not verbose:
-            return f"{average_data_retrieval_time:.3f}"
-        else:
-            print(f'[bold green]It worked[/bold green] and took : {average_data_retrieval_time}')
 
-    except Exception as e:
-        print(f"An error occurred: {e}")
+        average_data_retrieval_time = sum(timings) / len(timings)
+        result = f"{average_data_retrieval_time:.3f} seconds"
+
+        if not verbose:
+            print(result)
+            # return result
+        else:
+            print(
+                f"[bold green]Data read in memory in[/bold green] : {result} :high_voltage::high_voltage:"
+            )
+            print(f"{_}")
+
+    except Exception as exception:
+        print(f"Error in data retrieval: {exception}")
+        raise SystemExit(33)
 
 
 def select_fast(
