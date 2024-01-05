@@ -22,6 +22,7 @@ nav:
       - Identify appropriate structure: how_to/chunking_parameterisation.md
       - Kerchunk to JSON: how_to/kerchunk_to_json.md
       - Kerchunk to Parquet: how_to/kerchunk_to_parquet.md
+      - Performance: how_to/read_performance.md
   - Tutorials:
       # - SARAH3: tutorials/sarah3/chunking_sarah3_time_series.md
       # - External file: tutorials/sarah3/sarah3_sid_time_variables.md
