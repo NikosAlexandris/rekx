@@ -287,7 +287,7 @@ def combine_parquet_stores_to_parquet(
             output_lazy = LazyReferenceMapper.create(
                     root=str(combined_reference),
                     fs=filesystem,
-                    cache_size=record_size,
+                    record_size=record_size,
             )
 
             # Combine single references
