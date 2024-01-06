@@ -41,6 +41,7 @@ from .progress import display_context
 from .print import print_chunk_shapes_table
 from .print import print_common_chunk_layouts
 from .select import read_performance
+from .csv import write_metadata_dictionary_to_csv
 from .csv import write_nested_dictionary_to_csv
 # from .rich_help_panel_names import rich_help_panel_diagnose
 
@@ -236,7 +237,7 @@ def collect_netcdf_metadata(
     in memory.
     """
     if input_path.is_file():
-        get_netcdf_metadata(
+        metadata, _ = get_netcdf_metadata(
             input_netcdf_path=input_path,
             variable=variable,
             variable_set=variable_set,
@@ -244,9 +245,19 @@ def collect_netcdf_metadata(
             latitude=latitude,
             repetitions=repetitions,
             humanize=humanize,
-            csv=csv,
             verbose=verbose,
         )
+        if not csv:
+            from .print import print_metadata_table
+            print_metadata_table(metadata)
+        if csv:
+            write_metadata_dictionary_to_csv(
+                dictionary=metadata,
+                output_filename=csv,
+            )
+        return
+
+
     if input_path.is_dir():
         source_directory = Path(input_path)
         file_paths = list(source_directory.glob(pattern))
