@@ -197,6 +197,66 @@ def _compress_func(
         raise ValueError("Unrecognized compression: %s" % compression)
 
 
+def write_metadata_dictionary_to_csv(
+    dictionary: dict,
+    output_filename: Path,
+) -> None:
+    """
+    Write a metadata dictionary to a CSV file.
+
+    Parameters
+    ----------
+    dictionary:
+        A dictionary containing the metadata.
+    output_filename: Path
+        Path to the output CSV file.
+
+    Returns
+    -------
+    None
+
+    """
+    if not dictionary:
+        raise ValueError("The given dictionary is empty!")
+
+    headers = [
+        "File Name", 
+        "File Size", 
+        "Variable", 
+        "Shape", 
+        "Type", 
+        "Compression", 
+        "Read time"
+    ]
+
+    with open(output_filename, 'w', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file)
+        writer.writerow(headers)
+
+        file_name = dictionary.get('File name', '')
+        file_size = dictionary.get('File size', '')
+
+        for variable, metadata in dictionary.get('Variables', {}).items():
+            if 'Compression' in metadata:
+                from .print import format_compression
+                compression_details = format_compression(metadata['Compression'])
+            row = [
+                file_name,
+                file_size,
+                variable,
+                metadata.get('Shape', ''),
+                metadata.get('Type', ''),
+                metadata.get('Scale', ''),
+                metadata.get('Offset', ''),
+                compression_details['Filters'] if compression_details else None,
+                compression_details['Level'] if compression_details else None,
+                metadata.get('Shuffling', ''),
+                metadata.get('Read time', '')
+            ]
+            writer.writerow(row)
+    print(f"Output written to [code]{output_filename}[/code]")
+
+
 def write_nested_dictionary_to_csv(
     nested_dictionary: dict,
     output_filename: Path,
@@ -248,3 +308,4 @@ def write_nested_dictionary_to_csv(
                     metadata.get('Read time', '')
                 ]
                 writer.writerow(row)
+    print(f"Output written to [code]{output_filename}[/code]")
