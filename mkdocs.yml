@@ -34,7 +34,7 @@ nav:
       - Kerchunking: reference/kerchunking.md
       - Notes: reference/notes.md
       - Xarray: reference/xarray.md
-      - Glossary: includes/glossary.md
+      # - Glossary: ?
   - CLI Reference: cli/cli_reference.md
   - Meta:
       - meta/index.md
@@ -147,7 +147,8 @@ markdown_extensions:
   - abbr
   - pymdownx.snippets:
       auto_append:
-        - includes/glossary.md
+        - docs/includes/abbreviations.md
+      check_paths: True
   - admonition
   - pymdownx.details
   - pymdownx.superfences
