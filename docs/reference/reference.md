@@ -86,13 +86,49 @@ Splits data for easier reading
 
 ### Size and number of chunks
 
-The `chunks` keyword specifies the _size_ of chunks, not the number of chunks!
-Increasing the number of chunks in the _time_ dimension will consume more memory!
+Chunks affect both memory usage and processing efficiency.
+An important distinction for efficient data handling
+is the _size_ or _number_ of chunks in a dataset.
+The `chunks` keyword in NetCDF, Xarray and similar libraries,
+specifies the _size_ of each chunk in a dimension,
+not the number of chunks!
+Thus,
+the smaller a chunk size,
+the larger the number of chunks and vice versa.
 
-Examples:
+Consequently,
+decreasing the size of chunks
+will increase the number of chunks
+which in turn can lead to higher memory overhead
+due to the larger number of chunks,
+rather than direct memory consumption of the data.
 
-- chunks={'time':1, 'y':768, 'x':922} --> size of each chunk is 1*768*922 ~ 7e5
-- chunks={'time':168, 'y':384, 'x':288}  --> size of each chunk is 168*384*288 ~ 2e7.
+| Chunking shape                   | Size or Number of elements in chunk | Number of chunks |
+|----------------------------------|-------------------------------------|------------------|
+| `{'time':1, 'y':768, 'x':922}`   | (708,096) Smaller                   | Larger           |
+| `{'time':168, 'y':384, 'x':288}` | (18,579,456) Larger                 | Smaller          |
+
+While a larger number of smaller chunks might increase overhead,
+it doesn't necessarily mean a higher memory footprint.
+Memory usage is not exclusively determined by the size or number of chunks.
+Rather it depends by how many chunks are loaded into memory at once.
+Hence,
+even if we have a large number of small chunks,
+it won't necessarily increase the total memory used by the data,
+as long as we don't load all chunks into memory simultaneously.
+
+!!! quote ""
+
+    Memory usage depends on the number of chunks loaded into memory at once.
+
+The focus is on
+the efficiency and optimization of data processing and access,
+rather than memory usage implied by the number and size of the chunks.
+
+<!-- Examples: -->
+
+<!-- - `chunks = {'time':1, 'y':768, 'x':922}` -1-> size of each chunk is $1*768*922 = 708096$ -->
+<!-- - `chunks = {'time':168, 'y':384, 'x':288}`  -1-> size of each chunk is $168*384*288 = 18579456$ -->
 
 See also :
 
