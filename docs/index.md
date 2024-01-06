@@ -23,7 +23,7 @@ hide:
 !!! danger "Experimental"
 
     **Everything is under heavy development and subject to change!**
-    Interested ? Peak over at the [To Do](to_do.md) list !
+    Interested ? Peek over at the [To Do](to_do.md) list !
 
 `rekx` interfaces the [Kerchunk](https://fsspec.github.io/kerchunk/) library
 in an interactive way through the command line.
