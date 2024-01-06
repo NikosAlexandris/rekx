@@ -6,4 +6,8 @@ with Kerchunk. figshare. Preprint.
 [https://doi.org/10.6084/m9.figshare.22266433.v1](https://doi.org/10.6084/m9.figshare.22266433.v1)
 
 "NetCDF-4 Chunking Guide" by Unidata. Available at:
-https://www.unidata.ucar.edu/software/netcdf/workshops/most-recent/nc4chunking/index.html
+[https://www.unidata.ucar.edu/software/netcdf/workshops/most-recent/nc4chunking/index.html](https://www.unidata.ucar.edu/software/netcdf/workshops/most-recent/nc4chunking/index.html)
+
+[https://www.unidata.ucar.edu/publications/factsheets/current/factsheet_netcdf.pdf](https://www.unidata.ucar.edu/publications/factsheets/current/factsheet_netcdf.pdf)
+
+[https://www.unidata.ucar.edu/software/netcdf/workshops/2011/nc4chunking/](https://www.unidata.ucar.edu/software/netcdf/workshops/2011/nc4chunking/)
