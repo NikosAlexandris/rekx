@@ -1,15 +1,15 @@
-![rekx](rekx_draft_logo_72dpi.png)[^*]
-
-[^*]: <a href="https://www.freepik.com/free-vector/hand-drawn-dinosaur-outline-illustration_58593460.htm#query=trex&position=47&from_view=search&track=sph&uuid=27caf12e-35ea-47ad-a113-2d4f5981f58f">Original T-Rex drawn by pikisuperstar</a> on Freepik
-
 # rekx 🦖
+
+![Under Heavy Development](https://img.shields.io/badge/Under%20Heavy%20Development-purple?style=for-the-badge)
 
 ![License](https://img.shields.io/badge/License-EUPL--1.2-blue.svg)
 ![GitHub tag (with filter)](https://img.shields.io/github/v/tag/NikosAlexandris/rekx)
-<!-- [![Built with Material for MkDocs](https://img.shields.io/badge/Material_for_MkDocs-526CFE?style=for-the-badge&logo=MaterialForMkDocs&logoColor=white)](https://squidfunk.github.io/mkdocs-material/) -->
+![Built with Material for MkDocs](https://img.shields.io/badge/Material_for_MkDocs-526CFE?style=flat&logo=MaterialForMkDocs&logoColor=white)
 [![Documentation](https://img.shields.io/badge/Documentation-Available-green.svg)](https://nikosalexandris.github.io/rekx/)
 
-**[ Under Heavy Development ]**
+[^*] <img align="right" width="300" height="300" src="rekx_draft_logo_72dpi.png">
+<!-- ![rekx](rekx_draft_logo_72dpi.png)[^*] -->
+[^*]: <a href="https://www.freepik.com/free-vector/hand-drawn-dinosaur-outline-illustration_58593460.htm#query=trex&position=47&from_view=search&track=sph&uuid=27caf12e-35ea-47ad-a113-2d4f5981f58f">Original T-Rex drawn by pikisuperstar</a> on Freepik
 
 `rekx` interfaces the [Kerchunk](https://fsspec.github.io/kerchunk/) library
 in an interactive way through the command line.
@@ -30,7 +30,7 @@ suggest good chunking shapes and parameterise the rechunking of datasets,
 create and aggregate Kerchunk reference sets
 and time data read operations.
 
-Interested ? Head over to the [documentation](https://nikosalexandris.github.io/rekx/).
+***Interested ? Head over to the [documentation](https://nikosalexandris.github.io/rekx/).***
 
 ## To Do
 
