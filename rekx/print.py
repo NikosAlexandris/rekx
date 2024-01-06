@@ -163,10 +163,12 @@ def print_metadata_series_long_table(
     dimension_attributes = " x ".join(
         [f"[bold]{dimension}[/bold]" for dimension in dimension_attributes_sorted]
     )
-    caption = f"^ Dimensions: {dimension_attributes} "
-    caption += (
-        f"* Cache: [bold]Size[/bold] in bytes, [bold]Number of elements[/bold], [bold]Preemption strategy[/bold] ranging in [0, 1]"
-    )
+    caption = f"Dimensions: {dimension_attributes} | "
+    caption += f"Cache [bold]size[/bold] in bytes | "
+    caption += f"[bold]Number of elements[/bold] | "
+    caption += f"[bold]Preemption strategy[/bold] ranging in [0, 1] | "
+    repetitions = metadata_series_level_one.get("Repetitions", None)
+    caption += f"Average time of [bold]{repetitions}[/bold] reads in [bold]seconds[/bold]"
     table = Table(
         *columns,
         caption=caption,

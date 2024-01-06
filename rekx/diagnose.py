@@ -100,6 +100,7 @@ def get_netcdf_metadata(
             "Dimensions": {
                 dim: len(dataset.dimensions[dim]) for dim in dataset.dimensions
             },
+            "Repetitions": repetitions,
         }
         selected_variables = select_netcdf_variable_set_from_dataset(
             XarrayVariableSet, variable_set, dataset
