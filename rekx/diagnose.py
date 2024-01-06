@@ -114,7 +114,7 @@ def get_netcdf_metadata(
             cache_metadata = variable.get_var_chunk_cache()
             variable_metadata = {
                 'Shape': ' x '.join(map(str, variable.shape)),
-                'Chunks': ' x '.join(map(str, variable.chunking())),
+                'Chunks': variable.chunking() if variable.chunking() == 'contiguous' else ' x '.join(map(str, variable.chunking())),
                 'Cache': cache_metadata[0] if cache_metadata[0] else NOT_AVAILABLE,
                 'Elements': cache_metadata[1] if cache_metadata[1] else NOT_AVAILABLE,
                 'Preemption': cache_metadata[2] if cache_metadata[2] else NOT_AVAILABLE,
@@ -140,11 +140,6 @@ def get_netcdf_metadata(
             variables_metadata[variable_name]['Read time'] = data_retrieval_time
 
     metadata['Variables'] = variables_metadata
-
-    if verbose:
-        from .print import print_metadata_table
-        print_metadata_table(metadata)
-
     return metadata, input_netcdf_path
 
 
