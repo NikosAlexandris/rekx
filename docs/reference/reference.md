@@ -83,7 +83,6 @@ Splits data for easier reading
 
 > **`AA 0? 01`** sequences mark the _start_ of a chunk
 
-
 ### Size and number of chunks
 
 Chunks affect both memory usage and processing efficiency.
@@ -133,7 +132,11 @@ rather than memory usage implied by the number and size of the chunks.
 See also :
 
 - [Chunking in HDF5][Chunking in HDF5]
+- [https://support.hdfgroup.org/HDF5/doc/Advanced/Chunking/](https://support.hdfgroup.org/HDF5/doc/Advanced/Chunking/)
 - [Caching in HDF5][Caching in HDF5]
+- [14 Chunking and Deflating Data with NetCDF-4][nc4chunking]
 
 [Chunking in HDF5]: https://portal.hdfgroup.org/display/HDF5/Chunking+in+HDF5
 [Caching in HDF5]: https://support.hdfgroup.org/HDF5/doc/RM/RM_H5P.html#Property-SetChunkCache
+[nc4chunking]: (https://www.unidata.ucar.edu/software/netcdf/workshops/2011/nc4chunking/)
+
