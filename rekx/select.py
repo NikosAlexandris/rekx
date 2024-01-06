@@ -128,7 +128,7 @@ def read_performance(
 
         if not verbose:
             print(result)
-            # return result
+            return result
         else:
             print(
                 f"[bold green]Data read in memory in[/bold green] : {result} :high_voltage::high_voltage:"
