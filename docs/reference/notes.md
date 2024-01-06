@@ -63,14 +63,66 @@ _into a single metadata file_.
 
 **Chunking and Compression**
 
+- Chunking splits the data in equal-sized blocks or chunks of a pre-defined size
+- Only the chunks of data required are accessed
+- The HDF5 file format stores compressed data in chunks 
 - a chunk is the _atomic unit_ of compression as well as disk access
-- compressed data has to be/is forcedly chunked
+- thus, compressed data is forcedly chunked
 - rechunking compressed data involves several steps:
 
   `read` $\rightarrow$ `uncompress` $\rightarrow$ `rechunk` $\rightarrow$ `recompress` $\rightarrow$  `write` new chunks
 
 - rechunking compressed data _can sometimes be faster_ due to savings in disk
   I/O!
+
+Chunking is required for :
+  - compression and other filters
+  - creating extendible or unlimited dimension datasets
+  - subsetting very large datasets to improve performance
+
+While chunking can improve performance for large datasets,
+using a chunking layout without considering the consequences of the chunk size,
+can lead to poor performance.
+Unfortunately,
+it is easy to end up with some random and inefficient chunking layout due to ...
+
+
+**Problems Using Chunking**
+
+Issues that can cause performance problems with chunking include:
+
+- Very small chunks can create very large datasets which can degrade access performance.
+
+    - The smaller the chunk size the more chunks that HDF5 has to keep track of,
+    and the more time it will take to search for a chunk.
+
+- Very large chunks need to be read and uncompressed entirely before any access operation.
+
+    - There can be a performance penalty for reading a small subset, if the chunk size is substantially larger than the subset. Also, a dataset may be larger than expected if there are chunks that only contain a small amount of data.
+
+- Smaller chunk-cache than the predefined chunk size. 
+
+    - A chunk does not fit in the Chunk Cache. Every chunked dataset has a chunk cache associated with it that has a default size of 1 MB. The purpose of the chunk cache is to improve performance by keeping chunks that are accessed frequently in memory so that they do not have to be accessed from disk.
+    - If a chunk is too large to fit in the chunk cache, it can significantly degrade performance.
+
+It is a good idea to:
+
+- Avoid very small chunk sizes
+- Be aware of the 1 MB chunk cache size default
+- Test the data with different chunk sizes to determine the optimal chunk size to use.
+- Consider the chunk size in terms of the most common access patterns for the data.
+
+See also : 
+
+- [https://docs.hdfgroup.org/hdf5/develop/_l_b_com_dset.html](https://docs.hdfgroup.org/hdf5/develop/_l_b_com_dset.html)
+
+- [https://docs.hdfgroup.org/hdf5/develop/_l_b_dset_layout.html](https://docs.hdfgroup.org/hdf5/develop/_l_b_dset_layout.html)
+
+- [https://ntrs.nasa.gov/api/citations/20180008456/downloads/20180008456.pdf](https://ntrs.nasa.gov/api/citations/20180008456/downloads/20180008456.pdf)
+
+- [https://www.hdfgroup.org/2017/05/hdf5-data-compression-demystified-2-performance-tuning/](https://www.hdfgroup.org/2017/05/hdf5-data-compression-demystified-2-performance-tuning/)
+
+- [https://docs.unidata.ucar.edu/nug/current/netcdf_perf_chunking.html#default_chunking_4_1](https://docs.unidata.ucar.edu/nug/current/netcdf_perf_chunking.html#default_chunking_4_1)
 
 **Optimal layout?**
 
