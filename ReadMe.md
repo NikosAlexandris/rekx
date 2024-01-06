@@ -11,24 +11,39 @@
 <!-- ![rekx](rekx_draft_logo_72dpi.png)[^*] -->
 [^*]: <a href="https://www.freepik.com/free-vector/hand-drawn-dinosaur-outline-illustration_58593460.htm#query=trex&position=47&from_view=search&track=sph&uuid=27caf12e-35ea-47ad-a113-2d4f5981f58f">Original T-Rex drawn by pikisuperstar</a> on Freepik
 
-`rekx` interfaces the [Kerchunk](https://fsspec.github.io/kerchunk/) library
+`rekx` seamlessly interfaces
+the [Kerchunk](https://fsspec.github.io/kerchunk/) library
 in an interactive way through the command line.
 It assists in creating virtual aggregate datasets,
 also known as Kerchunk reference sets,
-enabling efficient, parallel and cloud-friendly in-situ data access
-without duplicating original datasets.
+which allows for an efficient, parallel and cloud-friendly way
+to access data in-situ without duplicating the original datasets.
 
 More than a functional tool,
 `rekx` serves an educational purpose on matters around
-chunking, compression and reading data from file formats such as NetCDF
-that are widely adopted by the scientific community
-for storing and processing large time series.
-It features command line tools
+chunking, compression and efficient data reading
+from common scientific file formats such as NetCDF
+used extensively to store large time-series.
+While there is abundant documentation on such topics,
+it is often highly technical
+and oriented towards developers,
+`rekx` tries to simplify these concepts through practical examples.
+
+Similarly,
+existing tools for managing HDF and NetCDF data,
+such as `cdo`, `nco`, and others,
+often have overlapping functionalities
+and present a steep learning curve for non-experts.
+`rekx` focuses on practical aspects of efficient data access
+trying to simplify these processes.
+It features simple command line tools
 to diagnose data structures,
-validate chunking uniformity across multiple files,
+validate uniform chunking across files,
 suggest good chunking shapes and parameterise the rechunking of datasets,
 create and aggregate Kerchunk reference sets
 and time data read operations.
+
+`rekx` dedicates to practicality, simplicity, and essence.
 
 ***Interested ? Head over to the [documentation](https://nikosalexandris.github.io/rekx/).***
 
