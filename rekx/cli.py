@@ -21,7 +21,7 @@ from .parquet import parquet_multi_reference
 from .combine import combine_kerchunk_references
 from .combine import combine_kerchunk_references_to_parquet
 from .parquet import combine_parquet_stores_to_parquet
-from .select import read_performance
+from .select import read_performance_cli
 from .select import select_fast
 from .select import select_time_series
 from .select import select_time_series_from_json
@@ -232,7 +232,7 @@ app.command(
     help='  Bare read time series from Xarray-supported data',
     no_args_is_help=True,
     rich_help_panel=rich_help_panel_read_performance,
-)(read_performance)
+)(read_performance_cli)
 
 
 if __name__ == "__main__":

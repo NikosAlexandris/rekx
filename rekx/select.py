@@ -82,7 +82,6 @@ def read_performance(
     latitude: Annotated[float, typer_argument_latitude_in_degrees],
     tolerance: Annotated[Optional[float], typer_option_tolerance] = DATASET_SELECT_TOLERANCE_DEFAULT,
     repetitions: Annotated[int, typer_option_repetitions] = REPETITIONS_DEFAULT,
-    verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
 ) -> str:
     """
     Count the time to read and load data over a geographic location from an
@@ -100,11 +99,9 @@ def read_performance(
 
     """
     from .models import get_file_format
-
     file_format = get_file_format(time_series)
     open_dataset_options = file_format.open_dataset_options()
     dataset_select_options = file_format.dataset_select_options(tolerance)
-
     try:
         timings = []
         for _ in range(repetitions):
@@ -124,20 +121,53 @@ def read_performance(
             timings.append(timer.perf_counter() - data_retrieval_start_time)
 
         average_data_retrieval_time = sum(timings) / len(timings)
-        result = f"{average_data_retrieval_time:.3f} seconds"
-
-        if not verbose:
-            print(result)
-            return result
-        else:
-            print(
-                f"[bold green]Data read in memory in[/bold green] : {result} :high_voltage::high_voltage:"
-            )
-            print(f"{_}")
+        return f"{average_data_retrieval_time:.3f}"
 
     except Exception as exception:
-        print(f"Error in data retrieval: {exception}")
-        raise SystemExit(33)
+        print(f"Cannot open [code]{variable}[/code] from [code]{time_series}[/code] via Xarray: {exception}")
+        # raise SystemExit(33)
+        return '-'
+
+
+def read_performance_cli(
+    time_series: Annotated[Path, typer_argument_time_series],
+    variable: Annotated[str, typer.Argument(help='Variable to select data from')],
+    longitude: Annotated[float, typer_argument_longitude_in_degrees],
+    latitude: Annotated[float, typer_argument_latitude_in_degrees],
+    tolerance: Annotated[Optional[float], typer_option_tolerance] = DATASET_SELECT_TOLERANCE_DEFAULT,
+    repetitions: Annotated[int, typer_option_repetitions] = REPETITIONS_DEFAULT,
+    verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
+) -> str:
+    """
+    Count the time to read and load data over a geographic location from an
+    Xarray-supported file format.
+
+    Returns
+    -------
+    data_retrieval_time : float or None ?
+        The time it took to retrieve data over the requested location
+
+    Notes
+    -----
+    ``mask_and_scale`` is always set to ``False`` to avoid errors related with
+    decoding timestamps.
+
+    """
+    average_data_retrieval_time = read_performance(
+            time_series=time_series,
+            variable=variable,
+            longitude=longitude,
+            latitude=latitude,
+            tolerance=tolerance,
+            repetitions=repetitions,
+            )
+    if not verbose:
+        print(average_data_retrieval_time)
+    else:
+        print(
+            f"[bold green]Data read in memory in[/bold green] : {result} :high_voltage::high_voltage:"
+        )
+        print(f"{_}")
 
 
 def select_fast(
