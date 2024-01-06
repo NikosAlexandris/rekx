@@ -260,6 +260,9 @@ def collect_netcdf_metadata(
 
     if input_path.is_dir():
         source_directory = Path(input_path)
+        if not any(source_directory.iterdir()):
+            print(f"[red]The directory [code]{source_directory}[/code] is empty[/red].")
+            return
         file_paths = list(source_directory.glob(pattern))
         if not file_paths:
             print(f"No files matching the pattern [code]{pattern}[/code] found in [code]{source_directory}[/code]!")
@@ -268,15 +271,22 @@ def collect_netcdf_metadata(
         with display_context[mode]:
             try:
                 metadata_series = get_multiple_netcdf_metadata(
-                        file_paths=file_paths,
-                        variable_set=variable_set,
-                        longitude=longitude,
-                        latitude=latitude,
-                        repetitions=repetitions,
-                        humanize=humanize,
+                    file_paths=file_paths,
+                    variable_set=variable_set,
+                    longitude=longitude,
+                    latitude=latitude,
+                    repetitions=repetitions,
+                    humanize=humanize,
                 )
             except TypeError as e:
                 raise ValueError("Error occurred:", e)
+
+        if csv:
+            write_nested_dictionary_to_csv(
+                nested_dictionary=metadata_series,
+                output_filename=csv,
+            )
+            return
 
         if not long_table:
             from .print import print_metadata_series_table
@@ -291,11 +301,6 @@ def collect_netcdf_metadata(
                 group_metadata=group_metadata,
             )
 
-        if csv:
-            write_nested_dictionary_to_csv(
-                nested_dictionary=metadata_series,
-                output_filename=csv,
-            )
 
 
 def detect_chunking_shapes(
