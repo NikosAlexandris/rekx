@@ -50,9 +50,12 @@ theme:
   icon:
     logo: material/animation-outline
     tag:
+      concepts: simple/blueprint
       chunking: fontawesome/solid/cubes-stacked
       cli: octicons/terminal-16
       howto: material/tools
+      todo: octicons/tasklist-16
+      seealso: material/eye
       # html: fontawesome/brands/html5
   palette:
     - primary: lime
@@ -111,9 +114,12 @@ plugins:
 
 extra:
   tags:
+    Concepts: concepts
     Chunking: chunking
     CLI: cli
     How-To: howto
+    To Do: todo
+    See-Also: seealso
 
 markdown_extensions:
   - toc:
