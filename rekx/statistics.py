@@ -1,9 +1,4 @@
-# from rich.console import Console
 # import xarray as xr
-# import numpy as np
-# from scipy.stats import mode
-# from rich.table import Table
-# from rich import box
 # import csv
 # from rekx.conversions import round_float_values
 # from rekx.constants import ROUNDING_PLACES_DEFAULT
@@ -16,6 +11,8 @@ def calculate_series_statistics(data_array, timestamps):
         coords=[('time', timestamps)],
     )
     data_xarray.load()
+    import numpy as np
+    from scipy.stats import mode
     statistics = {
         'Start': data_xarray.time.values[0],
         'End': data_xarray.time.values[-1],
@@ -48,6 +45,8 @@ def print_series_statistics(
     """
     """
     statistics = calculate_series_statistics(data_array, timestamps)
+    from rich.table import Table
+    from rich import box
     table = Table(
         title=title,
         caption='Caption text',
@@ -92,6 +91,7 @@ def print_series_statistics(
             # table.add_row(key, str(round_float_values(value, rounding_places)))
             table.add_row(key, str(value))
 
+    from rich.console import Console
     console = Console()
     console.print(table)
 
