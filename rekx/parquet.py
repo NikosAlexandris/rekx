@@ -363,7 +363,7 @@ def select_from_parquet(
     #     longitude = longitude % 360
     # warn_for_negative_longitude(longitude)
 
-    logger.debug(f'Command context : {print(typer.Context)}')
+    logger.debug(f'Command context : {typer.Context}')
 
     data_retrieval_start_time = timer.time()
     logger.debug(f'Starting data retrieval... {data_retrieval_start_time}')
