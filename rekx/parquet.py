@@ -377,7 +377,7 @@ def select_from_parquet(
     # )
     # timer_end = timer.time()
     # logger.debug(f"Mapper creation took {timer_end - timer_start:.2f} seconds")
-    timer_start = timer.time()
+    timer_start = timer.perf_counter()
     dataset = xr.open_dataset(
         str(parquet_store),  # does not handle Path
         engine="kerchunk",
@@ -386,7 +386,7 @@ def select_from_parquet(
         # chunks=None,
         # mask_and_scale=mask_and_scale,
     )
-    timer_end = timer.time()
+    timer_end = timer.perf_counter()
     logger.debug(f"Dataset opening via Xarray took {timer_end - timer_start:.2f} seconds")
 
     available_variables = list(dataset.data_vars)
