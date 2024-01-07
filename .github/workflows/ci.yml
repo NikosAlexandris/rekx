@@ -28,4 +28,5 @@ jobs:
             mkdocs-material-
       - run: pip install mkdocs-material mkdocs-material mkdocs-table-reader-plugin mkdocs-exclude mkdocs-typer
       - run: pip install .[dev]
+      - run: pip install tlz
       - run: mkdocs gh-deploy --force
