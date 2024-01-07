@@ -165,9 +165,8 @@ def read_performance_cli(
         print(average_data_retrieval_time)
     else:
         print(
-            f"[bold green]Data read in memory in[/bold green] : {result} :high_voltage::high_voltage:"
+            f"[bold green]Data read in memory in[/bold green] : {average_data_retrieval_time} :high_voltage::high_voltage:"
         )
-        print(f"{_}")
 
 
 def select_fast(
