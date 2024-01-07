@@ -19,6 +19,7 @@ dependencies = [
   "typer",  # Already included
   "rich",   # Already included
   "kerchunk @ git+https://github.com/fsspec/kerchunk.git@b9659c32449539ef6addcb7a12520715cecf3253",
+  "fsspec @ git+https://github.com/NikosAlexandris/filesystem_spec",
   "netcdf4",
   "h5py",
   "pandas",
