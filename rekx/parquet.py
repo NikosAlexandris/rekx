@@ -505,10 +505,17 @@ def select_from_parquet(
         timer_end = timer.time()
         logger.debug(f"Timestamps conversion to NumPy from Xarray's _time_ coordinate took {timer_end - timer_start:.2f} seconds")
 
+    if not verbose and not (statistics or csv):
+        flat_array = location_time_series.values.flatten()
+        print(*flat_array, sep=', ')
+    if verbose > 0:
+        print(location_time_series)
+
     if statistics:  # after echoing series which might be Long!
         timer_start = timer.time()
         print_series_statistics(
             data_array=location_time_series,
+            timestamps=timestamps,
             title='Selected series',
         )
         timer_end = timer.time()
