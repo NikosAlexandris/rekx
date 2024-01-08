@@ -58,3 +58,17 @@ create and aggregate Kerchunk reference sets
 and time data read operations.
 
 `rekx` dedicates to practicality, simplicity, and essence.
+
+!!! quote "The Zen of Chunking"
+
+    Chunks are equal-sized data blocks.
+    Chunks are _required_ for _compression_, _extendible_ data
+    and _subsetting_ large datasets.
+    Small chunks lead to a large number of chunks.
+    Large chunks lead to a small number of chunks.
+    Appropriately sized chunks can improve performance.
+    Unthoughtfully sized chunks will decrease performance.
+    Good chunk sizes depend on data access patterns.
+    Good chunk sizes balance read/write operations and computational efficiency.
+    There is no _one size fits all_.
+    ..
