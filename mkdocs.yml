@@ -20,7 +20,7 @@ nav:
       - Diagnose: how_to/diagnose.md
       - Suggest: how_to/suggest.md
       - Rechunk: how_to/rechunk.md
-      - Identify appropriate structure: how_to/chunking_parameterisation.md
+      - Appropriate chunking ?: how_to/chunking_parameterisation.md
       - Kerchunk to JSON: how_to/kerchunk_to_json.md
       - Kerchunk to Parquet: how_to/kerchunk_to_parquet.md
       - Performance: how_to/read_performance.md
