@@ -6,6 +6,7 @@
 ![GitHub tag (with filter)](https://img.shields.io/github/v/tag/NikosAlexandris/rekx)
 ![Built with Material for MkDocs](https://img.shields.io/badge/Material_for_MkDocs-526CFE?style=flat&logo=MaterialForMkDocs&logoColor=white)
 [![Documentation](https://img.shields.io/badge/Documentation-Available-green.svg)](https://nikosalexandris.github.io/rekx/)
+[![ci](https://github.com/NikosAlexandris/rekx/actions/workflows/ci.yml/badge.svg)](https://github.com/NikosAlexandris/rekx/actions/workflows/ci.yml)
 
 [^*] <img align="right" width="300" height="300" src="rekx_draft_logo_72dpi.png">
 <!-- ![rekx](rekx_draft_logo_72dpi.png)[^*] -->

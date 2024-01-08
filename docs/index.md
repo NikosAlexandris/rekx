@@ -13,6 +13,7 @@ hide:
 ![License](https://img.shields.io/badge/License-EUPL--1.2-blue.svg)
 ![GitHub tag (with filter)](https://img.shields.io/github/v/tag/NikosAlexandris/rekx)
 [![Documentation](https://img.shields.io/badge/Documentation-Available-green.svg)](https://nikosalexandris.github.io/rekx/)
+[![ci](https://github.com/NikosAlexandris/rekx/actions/workflows/ci.yml/badge.svg)](https://github.com/NikosAlexandris/rekx/actions/workflows/ci.yml)
 
 <!-- <figure markdown> -->
   ![rekx](images/rekx_document_72dpi.png){ align=right }[^*]
