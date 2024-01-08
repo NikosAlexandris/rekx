@@ -70,15 +70,15 @@ _into a single metadata file_.
 - thus, compressed data is forcedly chunked
 - rechunking compressed data involves several steps:
 
-  `read` $\rightarrow$ `uncompress` $\rightarrow$ `rechunk` $\rightarrow$ `recompress` $\rightarrow$  `write` new chunks
+    `read` $\rightarrow$ `uncompress` $\rightarrow$ `rechunk` $\rightarrow$ `recompress` $\rightarrow$  `write` new chunks
 
 - rechunking compressed data _can sometimes be faster_ due to savings in disk
   I/O!
 
 Chunking is required for :
-  - compression and other filters
-  - creating extendible or unlimited dimension datasets
-  - subsetting very large datasets to improve performance
+    - compression and other filters
+    - creating extendible or unlimited dimension datasets
+    - subsetting very large datasets to improve performance
 
 While chunking can improve performance for large datasets,
 using a chunking layout without considering the consequences of the chunk size,

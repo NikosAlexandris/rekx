@@ -87,7 +87,7 @@ Splits data for easier reading
 
 Chunks affect both memory usage and processing efficiency.
 An important distinction for efficient data handling
-is the _size_ or _number_ of chunks in a dataset.
+is between the _size_ and the _number_ of chunks in a dataset.
 The `chunks` keyword in NetCDF, Xarray and similar libraries,
 specifies the _size_ of each chunk in a dimension,
 not the number of chunks!
@@ -138,5 +138,4 @@ See also :
 
 [Chunking in HDF5]: https://portal.hdfgroup.org/display/HDF5/Chunking+in+HDF5
 [Caching in HDF5]: https://support.hdfgroup.org/HDF5/doc/RM/RM_H5P.html#Property-SetChunkCache
-[nc4chunking]: (https://www.unidata.ucar.edu/software/netcdf/workshops/2011/nc4chunking/)
-
+[nc4chunking]: https://www.unidata.ucar.edu/software/netcdf/workshops/2011/nc4chunking/
