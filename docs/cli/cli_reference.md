@@ -13,6 +13,4 @@ Documentation for all command line tools.
 
     Sort commands as they appear in the interface!
 
-::: mkdocs-typer
-    :module: rekx.cli
-    :command: app
+::: rekx.cli

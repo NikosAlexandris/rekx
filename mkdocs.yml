@@ -113,6 +113,32 @@ plugins:
       glob:
         - "*.py"  # Python scripts
         - "*.inc"  # includes
+  - mkdocstrings:
+      handlers:
+        python:
+          import:
+          # - url: https://docs.python-requests.org/en/master/objects.inv
+          #   domains: [std, py]
+          - https://docs.python.org/3/objects.inv
+          - https://installer.readthedocs.io/en/stable/objects.inv  # demonstration purpose in the docs
+          - https://mkdocstrings.github.io/autorefs/objects.inv
+          paths: [.]
+          options:
+            docstring_options:
+              ignore_init_summary: true
+            docstring_section_style: list
+            filters: ["!^_"]
+            heading_level: 1
+            inherited_members: true
+            merge_init_into_class: true
+            separate_signature: true
+            show_root_heading: true
+            show_root_full_path: false
+            show_signature_annotations: true
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            signature_crossrefs: true
+            summary: true
 
 extra:
   tags:
@@ -167,7 +193,6 @@ markdown_extensions:
   - admonition
   - pymdownx.details
   - pymdownx.superfences
-  - mkdocs-typer
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
