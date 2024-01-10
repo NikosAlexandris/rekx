@@ -58,7 +58,7 @@ docs = [
   "mkdocs-material",
   "mkdocs-table-reader-plugin",
   "mkdocs-exclude",
-  "mkdocstrings[python]"
+  "mkdocstrings[python]",
   "mkdocs-bibtex",
 ]
 
