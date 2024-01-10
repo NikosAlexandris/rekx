@@ -124,18 +124,25 @@ The focus is on
 the efficiency and optimization of data processing and access,
 rather than memory usage implied by the number and size of the chunks.
 
-<!-- Examples: -->
+!!! danger "To Do"
 
-<!-- - `chunks = {'time':1, 'y':768, 'x':922}` -1-> size of each chunk is $1*768*922 = 708096$ -->
-<!-- - `chunks = {'time':168, 'y':384, 'x':288}`  -1-> size of each chunk is $168*384*288 = 18579456$ -->
+    Discuss about [caching in HDF5][Caching in HDF5]!
 
-See also :
+!!! seealso "See also :"
 
-- [Chunking in HDF5][Chunking in HDF5]
-- [https://support.hdfgroup.org/HDF5/doc/Advanced/Chunking/](https://support.hdfgroup.org/HDF5/doc/Advanced/Chunking/)
+    Information regarding chunking and various data structure characteristics
+    is largely sourced from resources provided by Unidata.
+    Recognized as an authoritative entity,
+    Unidata is not only the developer but also the maintainer of NetCDF.
+
+<!-- - [Chunking in HDF5][Chunking in HDF5] -->
+- [Chunking and Deflating Data with NetCDF-4 - 2012 Unidata NetCDF Workshop][Unidata NetCDF Workshop 2012]
+- [Chunking and Deflating Data with NetCDF-4 - 2011 Unidata NetCDF Workshop][Unidata NetCDF Workshop 2011][@unidata_2011_nc4chunking]
+- [Support on Chunking in HDF5][Support on Chunking in HDF5] -- **No longer maintained**
 - [Caching in HDF5][Caching in HDF5]
-- [14 Chunking and Deflating Data with NetCDF-4][nc4chunking]
 
-[Chunking in HDF5]: https://portal.hdfgroup.org/display/HDF5/Chunking+in+HDF5
+<!-- [Chunking in HDF5]: https://portal.hdfgroup.org/display/HDF5/Chunking+in+HDF5 -->
+[Unidata NetCDF Workshop 2012]: https://www.unidata.ucar.edu/software/netcdf/workshops/most-recent/nc4chunking/index.html
+[Unidata NetCDF Workshop 2011]: https://www.unidata.ucar.edu/software/netcdf/workshops/2011/nc4chunking/
+[Support on Chunking in HDF5]: https://support.hdfgroup.org/HDF5/doc/Advanced/Chunking/
 [Caching in HDF5]: https://support.hdfgroup.org/HDF5/doc/RM/RM_H5P.html#Property-SetChunkCache
-[nc4chunking]: https://www.unidata.ucar.edu/software/netcdf/workshops/2011/nc4chunking/

@@ -1,10 +1,10 @@
 site_name: rekx
+site_description: rekx dynamically interfaces Kerchunk and informs on chunked data structures
+site_author: Nikos Alexandris
 repo_url: https://github.com/NikosAlexandris/rekx
 repo_name: NikosAlexandris/rekx
 edit_uri: edit/main/docs/
 # Keep this in sync with pyproject.toml and index.md
-site_description: rekx dynamically interfaces Kerchunk and informs on chunked data structures
-site_author: Nikos Alexandris
 copyright: Copyright &copy; 2023 Nikos Alexandris. Licensed under the EUPL-1.2 or later
 
 watch:
@@ -20,7 +20,7 @@ nav:
       - Diagnose: how_to/diagnose.md
       - Suggest: how_to/suggest.md
       - Rechunk: how_to/rechunk.md
-      - Appropriate chunking ?: how_to/chunking_parameterisation.md
+      - Chunk appropriately ?: how_to/chunking_parameterisation.md
       - Kerchunk to JSON: how_to/kerchunk_to_json.md
       - Kerchunk to Parquet: how_to/kerchunk_to_parquet.md
       - Performance: how_to/read_performance.md
@@ -104,6 +104,8 @@ theme:
 
 plugins:
   - search
+  - bibtex:
+      bib_file: "references.bib"
   - tags:
       tags_file: includes/tags.md
   - table-reader
@@ -170,3 +172,5 @@ extra_javascript:
   - javascripts/mathjax.js
   - https://polyfill.io/v3/polyfill.min.js?features=es6
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+  - https://unpkg.com/tablesort@5.3.0/dist/tablesort.min.js
+  - javascripts/tablesort.js
