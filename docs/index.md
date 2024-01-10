@@ -27,7 +27,7 @@ hide:
     Interested ? Peek over at the [To Do](to_do.md) list !
 
 `rekx` seamlessly interfaces
-the [Kerchunk](https://fsspec.github.io/kerchunk/) library
+the [Kerchunk](https://fsspec.github.io/kerchunk/) library [@Durant2023]
 in an interactive way through the command line.
 It assists in creating virtual aggregate datasets,
 also known as Kerchunk reference sets,
