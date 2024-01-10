@@ -122,6 +122,13 @@ extra:
     How-To: howto
     To Do: todo
     See-Also: seealso
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/NikosAlexandris
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/in/nikosalexandris/
+    - icon: fontawesome/brands/dev
+      link: https://dev.to/nikosalexandris
 
 markdown_extensions:
   - toc:
