@@ -17,7 +17,7 @@ can diagnose the structure of data stored in Xarray-supported file formats.
 
 ### A single file
 
-Inspect a signle NetCDF file
+Inspect a single NetCDF file
 
 ``` bash
 ❯ rekx inspect SISin202001010000004231000101MA.nc
@@ -181,3 +181,41 @@ data/SRImm201301010000003231000101MA.nc
   SIS         1 x 1 x 2600        SISin202001030000004231000101MA.nc ..            4
   SIS         1 x 2600 x 2600     SISin200001010000004231000101MA_1_2600_2600.nc   1
 ```
+
+## Consistency
+
+Consider a case where we want _only_ to know
+if our NetCDF data are uniformely chunked or not.
+No more or less than a _yes_ or a _no_ answer.
+`rekx` can [`validate`][rekx.diagnose]
+for a uniform chunking shape across multiple NetCDF files.
+
+Let's list some NetCDF files which differ in terms of their chunking shapes :
+
+``` bash
+❯ ls -1 *.nc
+SISin200001010000004231000101MA_1_2600_2600.nc
+SISin202001010000004231000101MA.nc
+SISin202001020000004231000101MA.nc
+SISin202001030000004231000101MA.nc
+SISin202001040000004231000101MA.nc
+SRImm201301010000003231000101MA.nc
+```
+
+From the file names, we expect to have at least two different chunking shapes.
+Let's try first with the files named after a common pattern :
+
+``` bash
+❯ rekx validate . --pattern "SIS*MA.nc"
+✓ All files are consistently shaped!
+```
+
+Indeed, the requested files are chunked identically.
+What about the other file `SISin200001010000004231000101MA_1_2600_2600.nc` ?
+
+``` bash
+❯ rekx validate .
+ValueError: Chunk size mismatch in file 'SISin202001030000004231000101MA.nc' for variable 'time'. Expected (1,) but got (512,)
+```
+
+Voilà, this is a _no_ !
