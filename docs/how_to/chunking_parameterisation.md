@@ -5,6 +5,7 @@ tags:
   - CLI
   - NetCDF
   - Chunking
+  - Caching
   - nccopy
   - Parallel processing
   - GNU Parallel
@@ -45,17 +46,22 @@ and save them in a file prefixed with
 
     In this example, we ask for possible chunk sizes for :
 
-    - time to be 48, that is only one size
+    - `time` to be $48$, that is only one size
     
-    - latitude and longitude sizes 64, 128 and 256
+    - `latitude` and `longitude` sizes $64$, $128$ and $256$
     
-    - compression levels 0, 3, 6, and 9
+    - `compression-level`s $0$, $3$, $64$, and $9$
 
-    In addition, we ask for `--shuffling`.
-    Since shuffling wouldn't make sense for uncompressed data,
-    `rekx` takes care to only add it along with compression levels greater than 0.
+      In addition, we ask for `--shuffling`.
+      Since shuffling wouldn't make sense for uncompressed data,
+      `rekx` takes care to only add it along with compression levels greater than 0.
+
+    - [`caching` parameters][Caching in HDF5] will be set to the default values since we did not
+      specify them
 
     There are more options and we can list them with the typical --help option.
+
+[Caching in HDF5]: https://support.hdfgroup.org/HDF5/doc/RM/RM_H5P.html#Property-SetChunkCache
 
 The above command will generate
 
