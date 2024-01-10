@@ -80,6 +80,7 @@ def read_performance(
     variable: Annotated[str, typer.Argument(help='Variable to select data from')],
     longitude: Annotated[float, typer_argument_longitude_in_degrees],
     latitude: Annotated[float, typer_argument_latitude_in_degrees],
+    # window: Annotated[int, typer_option_spatial_window_in_degrees] = None,
     tolerance: Annotated[Optional[float], typer_option_tolerance] = DATASET_SELECT_TOLERANCE_DEFAULT,
     repetitions: Annotated[int, typer_option_repetitions] = REPETITIONS_DEFAULT,
 ) -> str:
@@ -87,26 +88,49 @@ def read_performance(
     Count the time to read and load data over a geographic location from an
     Xarray-supported file format.
 
+    Parameters
+    ----------
+    time_series:
+        Path to Xarray-supported input file
+    variable: str 
+        Name of the variable to query
+    longitude: float
+        The longitude of the location to read data
+    latitude: float
+        The latitude of the location to read data
+    # window:
+    tolerance: float
+        Maximum distance between original and new labels for inexact matches.
+        Read Xarray manual on nearest-neighbor-lookups
+    repetitions: int
+        Number of times to repeat read operation
+
     Returns
     -------
-    data_retrieval_time : float or None ?
+    data_retrieval_time : str
         The time it took to retrieve data over the requested location
 
     Notes
     -----
     ``mask_and_scale`` is always set to ``False`` to avoid errors related with
-    decoding timestamps.
+    decoding timestamps. See also ...
 
     """
     from .models import get_file_format
     file_format = get_file_format(time_series)
     open_dataset_options = file_format.open_dataset_options()
     dataset_select_options = file_format.dataset_select_options(tolerance)
+
+    # indexers = set_location_indexers(
+    #     data_array=time_series,
+    #     longitude=longitude,
+    #     latitude=latitude,
+    #     verbose=verbose,
+    # )
     try:
         timings = []
         for _ in range(repetitions):
             data_retrieval_start_time = timer.perf_counter()
-
             with xr.open_dataset(str(time_series), **open_dataset_options) as dataset:
                 _ = (
                     dataset[variable]
@@ -129,6 +153,43 @@ def read_performance(
         return '-'
 
 
+def read_performance_spatial(
+    time_series: Annotated[Path, typer_argument_time_series],
+    variable: Annotated[str, typer.Argument(help='Variable to select data from')],
+    longitude: Annotated[float, typer_argument_longitude_in_degrees],
+    latitude: Annotated[float, typer_argument_latitude_in_degrees],
+    max_longitude: Annotated[float, typer_argument_longitude_in_degrees],
+    max_latitude: Annotated[float, typer_argument_latitude_in_degrees],
+    tolerance: Annotated[Optional[float], typer_option_tolerance] = DATASET_SELECT_TOLERANCE_DEFAULT,
+    repetitions: Annotated[int, typer_option_repetitions] = REPETITIONS_DEFAULT,
+    verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
+):
+    from .models import get_file_format
+    file_format = get_file_format(time_series)
+    open_dataset_options = file_format.open_dataset_options()
+    dataset_select_options = file_format.dataset_select_options(tolerance)
+    try:
+        timings = []
+        for _ in range(repetitions):
+            data_retrieval_start_time = timer.perf_counter()
+            with xr.open_dataset(str(time_series), **open_dataset_options) as dataset:
+                _ = (
+                    dataset[variable]
+                    .sel(
+                        lon=slice(min_longitude, max_longitude),
+                        lat=slice(min_latitude, max_latitude),
+                        **dataset_select_options,
+                    )
+                    .load()
+                )
+            timings.append(timer.perf_counter() - data_retrieval_start_time)
+
+    except Exception as exception:
+        print(f"Cannot open [code]{variable}[/code] from [code]{time_series}[/code] via Xarray: {exception}")
+        # raise SystemExit(33)
+        return '-'
+
+
 def read_performance_cli(
     time_series: Annotated[Path, typer_argument_time_series],
     variable: Annotated[str, typer.Argument(help='Variable to select data from')],
@@ -139,8 +200,27 @@ def read_performance_cli(
     verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
 ) -> str:
     """
-    Count the time to read and load data over a geographic location from an
-    Xarray-supported file format.
+    Command line interface to `read_performance()` to count the time to read
+    and load data over a geographic location from an Xarray-supported file
+    format.
+
+    Parameters
+    ----------
+    time_series:
+        Path to Xarray-supported input file
+    variable: str 
+        Name of the variable to query
+    longitude: float
+        The longitude of the location to read data
+    latitude: float
+        The latitude of the location to read data
+    tolerance: float
+        Maximum distance between original and new labels for inexact matches.
+        Read Xarray manual on nearest-neighbor-lookups
+    repetitions: int
+        Number of times to repeat read operation
+    verbose: int
+        Verbosity level
 
     Returns
     -------
@@ -184,11 +264,31 @@ def select_fast(
     """Bare timing to read data over a location and optionally write
     comma-separated values.
 
+    Parameters
+    ----------
+    time_series:
+        Path to Xarray-supported input file
+    variable: str 
+        Name of the variable to query
+    longitude: float
+        The longitude of the location to read data
+    latitude: float
+        The latitude of the location to read data
+    time_series:
+        Path to second Xarray-supported input file
+    tolerance: float
+        Maximum distance between original and new labels for inexact matches.
+        Read Xarray manual on nearest-neighbor-lookups
+    csv:
+        CSV output filename
+    to_csv:
+        CSV output filename (fast implementation from xarray-extras)
+
     Returns
     -------
     data_retrieval_time : float
-        The time it took to retrieve data over the requested location
-
+        An estimation of the time it took to retrieve data over the requested
+        location if no verbosity is asked.
     Notes
     -----
     ``mask_and_scale`` is always set to ``False`` to avoid errors related with
@@ -246,12 +346,54 @@ def select_time_series(
     statistics: Annotated[bool, typer_option_statistics] = False,
     csv: Annotated[Path, typer_option_csv] = None,
     # output_filename: Annotated[Path, typer_option_output_filename] = 'series_in',  #Path(),
-    variable_name_as_suffix: Annotated[bool, typer_option_variable_name_as_suffix] = True,
-    rounding_places: Annotated[Optional[int], typer_option_rounding_places] = ROUNDING_PLACES_DEFAULT,
+    # variable_name_as_suffix: Annotated[bool, typer_option_variable_name_as_suffix] = True,
+    # rounding_places: Annotated[Optional[int], typer_option_rounding_places] = ROUNDING_PLACES_DEFAULT,
     verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
 ) -> None:
     """
     Select data using a Kerchunk reference file
+
+    Parameters
+    ----------
+    time_series:
+        Path to Xarray-supported input file
+    variable: str 
+        Name of the variable to query
+    longitude: float
+        The longitude of the location to read data
+    latitude: float
+        The latitude of the location to read data
+    list_variables: bool
+         Optional flag to list data variables and exit without doing anything
+         else.
+    timestamps: str
+        A string of properly formatted timestamps to be parsed and use for
+        temporal selection.
+    start_time: str
+        A start time to generate a temporal selection period
+    end_time: str
+        An end time for the generation of a temporal selection period
+    time: int
+        New chunk size for the 'time' dimension
+    lat: int
+        New chunk size for the 'lat' dimension
+    lon: int
+        New chunk size for the 'lon' dimension
+    mask_and_scale: bool
+        Flag to apply masking and scaling based on the input metadata
+    neighbor_lookup: str
+        Method to use for inexact matches.
+    tolerance: float
+        Maximum distance between original and new labels for inexact matches.
+        Read Xarray manual on nearest-neighbor-lookups
+    statistics: bool
+        Optional flag to calculate and display summary statistics
+    verbose: int
+        Verbosity level
+
+    Returns
+    -------
+
     """
     # if convert_longitude_360:
     #     longitude = longitude % 360
@@ -439,12 +581,54 @@ def select_time_series_from_json(
     statistics: Annotated[bool, typer_option_statistics] = False,
     csv: Annotated[Path, typer_option_csv] = None,
     # output_filename: Annotated[Path, typer_option_output_filename] = 'series_in',  #Path(),
-    variable_name_as_suffix: Annotated[bool, typer_option_variable_name_as_suffix] = True,
-    rounding_places: Annotated[Optional[int], typer_option_rounding_places] = ROUNDING_PLACES_DEFAULT,
+    # variable_name_as_suffix: Annotated[bool, typer_option_variable_name_as_suffix] = True,
+    # rounding_places: Annotated[Optional[int], typer_option_rounding_places] = ROUNDING_PLACES_DEFAULT,
     verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
 ) -> None:
     """
     Select data using a Kerchunk reference file
+
+    Parameters
+    ----------
+    reference_file:
+        Path to an input JSON Kerchunk reference file
+    variable: str 
+        Name of the variable to query
+    longitude: float
+        The longitude of the location to read data
+    latitude: float
+        The latitude of the location to read data
+    list_variables: bool
+         Optional flag to list data variables and exit without doing anything
+         else.
+    timestamps: str
+        A string of properly formatted timestamps to be parsed and use for
+        temporal selection.
+    start_time: str
+        A start time to generate a temporal selection period
+    end_time: str
+        An end time for the generation of a temporal selection period
+    time: int
+        New chunk size for the 'time' dimension
+    lat: int
+        New chunk size for the 'lat' dimension
+    lon: int
+        New chunk size for the 'lon' dimension
+    mask_and_scale: bool
+        Flag to apply masking and scaling based on the input metadata
+    neighbor_lookup: str
+        Method to use for inexact matches.
+    tolerance: float
+        Maximum distance between original and new labels for inexact matches.
+        Read Xarray manual on nearest-neighbor-lookups
+    in_memory: bool
+        ?
+    statistics: bool
+        Optional flag to calculate and display summary statistics
+    csv:
+        CSV output filename
+    verbose: int
+        Verbosity level
     """
     # if convert_longitude_360:
     #     longitude = longitude % 360
@@ -631,7 +815,7 @@ def select_time_series_from_json_in_memory(
     timestamps: Annotated[Optional[Any], typer_argument_timestamps] = None,
     start_time: Annotated[Optional[datetime], typer_option_start_time] = None,
     end_time: Annotated[Optional[datetime], typer_option_end_time] = None,
-    list_variables: Annotated[bool, typer_option_list_variables] = False,
+    # list_variables: Annotated[bool, typer_option_list_variables] = False,
     time: Annotated[Optional[int], typer.Option(help="New chunk size for the 'time' dimension")] = None,
     lat: Annotated[Optional[int], typer.Option(help="New chunk size for the 'lat' dimension")] = None,
     lon: Annotated[Optional[int], typer.Option(help="New chunk size for the 'lon' dimension")]= None,
@@ -642,12 +826,58 @@ def select_time_series_from_json_in_memory(
     statistics: Annotated[bool, typer_option_statistics] = False,
     csv: Annotated[Path, typer_option_csv] = None,
     # output_filename: Annotated[Path, typer_option_output_filename] = 'series_in',  #Path(),
-    variable_name_as_suffix: Annotated[bool, typer_option_variable_name_as_suffix] = True,
-    rounding_places: Annotated[Optional[int], typer_option_rounding_places] = ROUNDING_PLACES_DEFAULT,
+    # variable_name_as_suffix: Annotated[bool, typer_option_variable_name_as_suffix] = True,
+    # rounding_places: Annotated[Optional[int], typer_option_rounding_places] = ROUNDING_PLACES_DEFAULT,
     verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
 ) -> None:
     """
     Select data using a Kerchunk reference file
+
+    Parameters
+    ----------
+    reference_file:
+        Path to an input JSON Kerchunk reference file
+    variable: str 
+        Name of the variable to query
+    longitude: float
+        The longitude of the location to read data
+    latitude: float
+        The latitude of the location to read data
+    list_variables: bool
+         Optional flag to list data variables and exit without doing anything
+         else.
+    timestamps: str
+        A string of properly formatted timestamps to be parsed and use for
+        temporal selection.
+    start_time: str
+        A start time to generate a temporal selection period
+    end_time: str
+        An end time for the generation of a temporal selection period
+    time: int
+        New chunk size for the 'time' dimension
+    lat: int
+        New chunk size for the 'lat' dimension
+    lon: int
+        New chunk size for the 'lon' dimension
+    mask_and_scale: bool
+        Flag to apply masking and scaling based on the input metadata
+    neighbor_lookup: str
+        Method to use for inexact matches.
+    tolerance: float
+        Maximum distance between original and new labels for inexact matches.
+        Read Xarray manual on nearest-neighbor-lookups
+    statistics: bool
+        Optional flag to calculate and display summary statistics
+    csv:
+        CSV output filename
+    verbose: int
+        Verbosity level
+
+    Returns
+    -------
+    This function does not return any object. It either prints the results in
+    the terminal or writes them out in form of a CSV file.
+
     """
     # if convert_longitude_360:
     #     longitude = longitude % 360

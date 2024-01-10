@@ -7,7 +7,7 @@ tags:
 
 !!! abstract "Learn how to ..."
 
-    :material-scan-helper: [**`diagnose`**][#Diagnose] structural characteristics of data packed in NetCDF/HDF5
+    :material-scan-helper: **`diagnose`** structural characteristics of data packed in NetCDF/HDF5
 
     consistency
 
