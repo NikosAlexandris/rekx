@@ -235,6 +235,37 @@ def collect_netcdf_metadata(
     shape, chunks, cache, type, scale, offset, compression, shuffling and
     lastly measure the time required to retrieve and load data variables (only)
     in memory.
+
+    Parameters
+    ----------
+    input_path: Path
+        A singe path or a list of paths to the input NetCDF data
+    variable: str 
+        Name of the variable to query
+    variable_set: XarrayVariableSet
+        Name of the set of variables to query. See also docstring of
+        XarrayVariableSet.
+    longitude: float
+        The longitude of the location to read data
+    latitude: float
+        The latitude of the location to read data
+    group_metadata: bool
+        Visually group metadata records per input file by using empty lines
+        in-between 
+    repetitions: int
+        Number of repetitions for read operation
+    humanize: bool
+        Humanize measured quantities of bytes
+    csv: Path
+        Output file name for comma-separated values
+    verbose: int
+        Verbosity level
+
+    Returns
+    -------
+    This function does not return anything. It either prints out the results in
+    the terminal or writes then in a CSV file if requested.
+
     """
     if input_path.is_file():
         metadata, _ = get_netcdf_metadata(
@@ -309,6 +340,24 @@ def detect_chunking_shapes(
 ):
     """
     Detect the chunking shapes of variables within single NetCDF file.
+
+    Parameters
+    ----------
+    file_path: Path
+        Path to input file
+    variable_set: XarrayVariableSet
+        Name of the set of variables to query. See also docstring of
+        XarrayVariableSet
+
+    Returns
+    -------
+    tuple
+        A tuple containing a dictionary `chunking_shape` and the name of the
+        input file. The nested dictionary's first level keys are variable names,
+        and the second level keys are the chunking shapes encountered, with the
+        associated values being sets of file names where those chunking shapes
+        are found.
+
     """
     chunking_shapes = {}
     with xr.open_dataset(file_path, engine="netcdf4") as dataset:
@@ -333,7 +382,7 @@ def detect_chunking_shapes_parallel(
 
     Parameters
     ----------
-    file_paths : list of Path
+    file_paths: List[Path]
         A list of file paths pointing to the NetCDF files to be scanned.
 
     Returns
