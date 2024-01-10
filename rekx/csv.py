@@ -3,15 +3,17 @@ with full support for `dask <http://dask.org/>`_ and `dask distributed
 <http://distributed.dask.org/>`_.
 """
 from __future__ import annotations
+
+import csv
 from collections.abc import Callable
-import xarray
 from pathlib import Path
+
+import xarray
 from dask.base import tokenize
 from dask.delayed import Delayed
 from dask.highlevelgraph import HighLevelGraph
-import csv
-from xarray_extras.kernels import csv as kernels
 from rich import print
+from xarray_extras.kernels import csv as kernels
 
 __all__ = ("to_csv",)
 
@@ -220,38 +222,39 @@ def write_metadata_dictionary_to_csv(
         raise ValueError("The given dictionary is empty!")
 
     headers = [
-        "File Name", 
-        "File Size", 
-        "Variable", 
-        "Shape", 
-        "Type", 
-        "Compression", 
-        "Read time"
+        "File Name",
+        "File Size",
+        "Variable",
+        "Shape",
+        "Type",
+        "Compression",
+        "Read time",
     ]
 
-    with open(output_filename, 'w', newline='', encoding='utf-8') as file:
+    with open(output_filename, "w", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
         writer.writerow(headers)
 
-        file_name = dictionary.get('File name', '')
-        file_size = dictionary.get('File size', '')
+        file_name = dictionary.get("File name", "")
+        file_size = dictionary.get("File size", "")
 
-        for variable, metadata in dictionary.get('Variables', {}).items():
-            if 'Compression' in metadata:
+        for variable, metadata in dictionary.get("Variables", {}).items():
+            if "Compression" in metadata:
                 from .print import format_compression
-                compression_details = format_compression(metadata['Compression'])
+
+                compression_details = format_compression(metadata["Compression"])
             row = [
                 file_name,
                 file_size,
                 variable,
-                metadata.get('Shape', ''),
-                metadata.get('Type', ''),
-                metadata.get('Scale', ''),
-                metadata.get('Offset', ''),
-                compression_details['Filters'] if compression_details else None,
-                compression_details['Level'] if compression_details else None,
-                metadata.get('Shuffling', ''),
-                metadata.get('Read time', '')
+                metadata.get("Shape", ""),
+                metadata.get("Type", ""),
+                metadata.get("Scale", ""),
+                metadata.get("Offset", ""),
+                compression_details["Filters"] if compression_details else None,
+                compression_details["Level"] if compression_details else None,
+                metadata.get("Shuffling", ""),
+                metadata.get("Read time", ""),
             ]
             writer.writerow(row)
     print(f"Output written to [code]{output_filename}[/code]")
@@ -261,12 +264,11 @@ def write_nested_dictionary_to_csv(
     nested_dictionary: dict,
     output_filename: Path,
 ) -> None:
-    """
-    """
+    """ """
     if not nested_dictionary:
         raise ValueError("The given dictionary is empty!")
 
-    with open(output_filename, 'w', newline='', encoding='utf-8') as file:
+    with open(output_filename, "w", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
         writer.writerow(
             [
@@ -290,23 +292,23 @@ def write_nested_dictionary_to_csv(
         )
 
         for file_name, file_data in nested_dictionary.items():
-            for variable, metadata in file_data.get('Variables', {}).items():
+            for variable, metadata in file_data.get("Variables", {}).items():
                 row = [
-                    file_data.get('File name', ''),
-                    file_data.get('File size', ''),
+                    file_data.get("File name", ""),
+                    file_data.get("File size", ""),
                     variable,
-                    metadata.get('Shape', ''),
-                    metadata.get('Chunks', ''),
-                    metadata.get('Cache', ''),
-                    metadata.get('Elements', ''),
-                    metadata.get('Preemption', ''),
-                    metadata.get('Type', ''),
-                    metadata.get('Scale', ''),
-                    metadata.get('Offset', ''),
-                    metadata.get('Compression', ''),
-                    metadata.get('Level', ''),
-                    metadata.get('Shuffling', ''),
-                    metadata.get('Read time', '')
+                    metadata.get("Shape", ""),
+                    metadata.get("Chunks", ""),
+                    metadata.get("Cache", ""),
+                    metadata.get("Elements", ""),
+                    metadata.get("Preemption", ""),
+                    metadata.get("Type", ""),
+                    metadata.get("Scale", ""),
+                    metadata.get("Offset", ""),
+                    metadata.get("Compression", ""),
+                    metadata.get("Level", ""),
+                    metadata.get("Shuffling", ""),
+                    metadata.get("Read time", ""),
                 ]
                 writer.writerow(row)
     print(f"Output written to [code]{output_filename}[/code]")

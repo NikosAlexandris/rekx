@@ -6,30 +6,32 @@
 
 def calculate_series_statistics(data_array, timestamps):
     import xarray as xr
+
     data_xarray = xr.DataArray(
         data_array,
-        coords=[('time', timestamps)],
+        coords=[("time", timestamps)],
     )
     data_xarray.load()
     import numpy as np
     from scipy.stats import mode
+
     statistics = {
-        'Start': data_xarray.time.values[0],
-        'End': data_xarray.time.values[-1],
-        'Count': data_xarray.count().values,
-        'Min': data_xarray.min().values,
-        '25th Percentile': np.percentile(data_xarray, 25),
-        'Mean': data_xarray.mean().values,
-        'Median': data_xarray.median().values,
-        'Mode': mode(data_xarray.values.flatten())[0],
-        'Max': data_xarray.max().values,
-        'Sum': data_xarray.sum().values,
-        'Variance': data_xarray.var().values,
-        'Standard deviation': data_xarray.std().values,
-        'Time of Min': data_xarray.idxmin('time').values,
-        'Index of Min': data_xarray.argmin().values,
-        'Time of Max': data_xarray.idxmax('time').values,
-        'Index of Max': data_xarray.argmax().values,
+        "Start": data_xarray.time.values[0],
+        "End": data_xarray.time.values[-1],
+        "Count": data_xarray.count().values,
+        "Min": data_xarray.min().values,
+        "25th Percentile": np.percentile(data_xarray, 25),
+        "Mean": data_xarray.mean().values,
+        "Median": data_xarray.median().values,
+        "Mode": mode(data_xarray.values.flatten())[0],
+        "Max": data_xarray.max().values,
+        "Sum": data_xarray.sum().values,
+        "Variance": data_xarray.var().values,
+        "Standard deviation": data_xarray.std().values,
+        "Time of Min": data_xarray.idxmin("time").values,
+        "Index of Min": data_xarray.argmin().values,
+        "Time of Max": data_xarray.idxmax("time").values,
+        "Index of Max": data_xarray.argmax().values,
         # 'Longitude of Max': data_xarray.argmax('lon').values,
         # 'Latitude of Max': data_xarray.argmax('lat').values,
     }
@@ -39,20 +41,20 @@ def calculate_series_statistics(data_array, timestamps):
 def print_series_statistics(
     data_array,
     timestamps,
-    title='Time series',
+    title="Time series",
     rounding_places: int = None,
 ):
-    """
-    """
+    """ """
     statistics = calculate_series_statistics(data_array, timestamps)
-    from rich.table import Table
     from rich import box
+    from rich.table import Table
+
     table = Table(
         title=title,
-        caption='Caption text',
+        caption="Caption text",
         show_header=True,
         header_style="bold magenta",
-        row_styles=['none', 'dim'],
+        row_styles=["none", "dim"],
         box=box.SIMPLE_HEAD,
         highlight=True,
     )
@@ -70,11 +72,11 @@ def print_series_statistics(
 
     # Index of items
     index_metadata = [
-        'Time of Min',
-        'Index of Min',
-        'Time of Max',
-        'Index of Max', 
-        ]
+        "Time of Min",
+        "Index of Min",
+        "Time of Max",
+        "Index of Max",
+    ]
 
     # Add statistics
     for key, value in statistics.items():
@@ -92,6 +94,7 @@ def print_series_statistics(
             table.add_row(key, str(value))
 
     from rich.console import Console
+
     console = Console()
     console.print(table)
 

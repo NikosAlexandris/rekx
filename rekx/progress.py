@@ -1,13 +1,9 @@
 from contextlib import nullcontext
-from rich.console import Console
 from enum import Enum
-from rich.progress import (
-    BarColumn,
-    Progress,
-    TaskID,
-    TextColumn,
-    TimeRemainingColumn,
-)
+
+from rich.console import Console
+from rich.progress import BarColumn, Progress, TaskID, TextColumn, TimeRemainingColumn
+
 
 class DisplayMode(Enum):
     SILENT = 0

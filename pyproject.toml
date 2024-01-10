@@ -52,7 +52,7 @@ dev = [
   "devtools",  # move to optional dependencies ?
   "pytest",
   "black",
-  "flake8"
+  "flake8",
   "isort",
 ]
 docs = [

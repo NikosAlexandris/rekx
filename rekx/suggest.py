@@ -1,25 +1,25 @@
-from pydantic import BaseModel
-from pydantic import conlist
-from pydantic import field_validator
-import typer
-from rekx.typer_parameters import OrderCommands
-from typing import List
-import numpy as np
 import math
+from typing import Annotated, List
+
+import numpy as np
+import typer
+from pydantic import BaseModel, conlist, field_validator
+
+from rekx.typer_parameters import OrderCommands
+
 from .rich_help_panel_names import rich_help_panel_rechunking
-from typing import Annotated
 from .typer_parameters import typer_argument_variable_shape
 
 
 class VariableShapeModel(BaseModel):
     variable_shape: conlist(int, min_length=2, max_length=4)
 
-    @field_validator('variable_shape')
+    @field_validator("variable_shape")
     @classmethod
     def validate_shape(cls, value):
         if isinstance(value, str):
             try:
-                return list(map(int, value.split(',')))
+                return list(map(int, value.split(",")))
             except ValueError:
                 raise ValueError("Invalid integer in the list")
         return value
@@ -50,7 +50,9 @@ def perturb_shape(shape, on_bits):
     return [dim + bit for dim, bit in zip(shape, binlist(on_bits, len(shape)))]
 
 
-def calculate_ideal_number_of_chunks(variable_shape: List[int], float_size: int, chunk_size: int) -> float:
+def calculate_ideal_number_of_chunks(
+    variable_shape: List[int], float_size: int, chunk_size: int
+) -> float:
     """Calculate the ideal number of chunks based on the variable shape and chunk size"""
     # ideal_number_of_values = chunk_size / float_size if chunk_size > float_size else 1
     ideal_number_of_values = max(chunk_size // float_size, 1)
@@ -58,11 +60,18 @@ def calculate_ideal_number_of_chunks(variable_shape: List[int], float_size: int,
     return ideal_number_of_chunks
 
 
-def adjust_first_dimension(variable_shape: List[int], number_of_chunks_per_axis: float) -> float:
+def adjust_first_dimension(
+    variable_shape: List[int], number_of_chunks_per_axis: float
+) -> float:
     """Adjust the size of the first dimension of the chunk shape"""
-    if variable_shape[0] / (number_of_chunks_per_axis ** 2) < 1:
-        return 1.0, number_of_chunks_per_axis / math.sqrt(variable_shape[0] / (number_of_chunks_per_axis ** 2))
-    return variable_shape[0] // (number_of_chunks_per_axis ** 2), number_of_chunks_per_axis
+    if variable_shape[0] / (number_of_chunks_per_axis**2) < 1:
+        return 1.0, number_of_chunks_per_axis / math.sqrt(
+            variable_shape[0] / (number_of_chunks_per_axis**2)
+        )
+    return (
+        variable_shape[0] // (number_of_chunks_per_axis**2),
+        number_of_chunks_per_axis,
+    )
 
 
 def determine_chunking_shape(
@@ -71,7 +80,7 @@ def determine_chunking_shape(
     chunk_size: int = 4096,
     # dimensions: int = 3,
 ) -> List[int]:
-    """ Determine optimal chunk shape for a 3D array.
+    """Determine optimal chunk shape for a 3D array.
 
     Based on Python code and algorithm developed by Russ Rew, posted at
     "Chunking Data: Choosing Shapes",
@@ -90,7 +99,7 @@ def determine_chunking_shape(
     than the size of the physical block
     dimensions:
         Number of dimensions (should be 3 for a 3D array)
-    
+
     Returns
     -------
     Optimal chunk shape as a list of integers
@@ -200,22 +209,36 @@ def determine_chunking_shape_alternative(
     """
     # ideal number of chunks
     variable_size = np.prod(variable_shape) * float_size
-    ideal_chunk_volume = min(chunk_size, variable_size // max_chunks if max_chunks else variable_size)
+    ideal_chunk_volume = min(
+        chunk_size, variable_size // max_chunks if max_chunks else variable_size
+    )
     if min_chunk_size:
         ideal_chunk_volume = max(ideal_chunk_volume, min_chunk_size)
-    
+
     # initial chunk dimensions without considering power of two or specific divisors
-    chunk_dimensions = [int(np.round((ideal_chunk_volume / (float_size * np.prod(variable_shape[:i+1])))**(1/(len(variable_shape)-i)))) for i in range(len(variable_shape))]
-    chunk_dimensions = [max(1, min(dim, variable_shape[i])) for i, dim in enumerate(chunk_dimensions)]
+    chunk_dimensions = [
+        int(
+            np.round(
+                (ideal_chunk_volume / (float_size * np.prod(variable_shape[: i + 1])))
+                ** (1 / (len(variable_shape) - i))
+            )
+        )
+        for i in range(len(variable_shape))
+    ]
+    chunk_dimensions = [
+        max(1, min(dim, variable_shape[i])) for i, dim in enumerate(chunk_dimensions)
+    ]
 
     # Adjust dimensions to meet power of two constraint
     if force_power_of_two:
-        chunk_dimensions = [2**int(np.log2(dim)) for dim in chunk_dimensions]
+        chunk_dimensions = [2 ** int(np.log2(dim)) for dim in chunk_dimensions]
 
     # Adjust spatial dimensions to meet specific divisors constraint
     if spatial_divisors:
         for i in range(1, len(variable_shape)):
-            chunk_dimensions[i] = find_nearest_divisor(variable_shape[i], spatial_divisors)
+            chunk_dimensions[i] = find_nearest_divisor(
+                variable_shape[i], spatial_divisors
+            )
 
     # Ensure that the chunk size is within the limits
     chunk_volume = np.prod(chunk_dimensions) * float_size
@@ -227,11 +250,16 @@ def determine_chunking_shape_alternative(
         chunk_volume = np.prod(chunk_dimensions) * float_size
 
     # Ensure chunk dimensions do not exceed the variable dimensions
-    chunk_dimensions = [min(dim, variable_shape[i]) for i, dim in enumerate(chunk_dimensions)]
+    chunk_dimensions = [
+        min(dim, variable_shape[i]) for i, dim in enumerate(chunk_dimensions)
+    ]
 
     # Ensure the total number of chunks does not exceed max_chunks if set
     if max_chunks:
-        while np.prod(np.ceil(np.array(variable_shape) / np.array(chunk_dimensions))) > max_chunks:
+        while (
+            np.prod(np.ceil(np.array(variable_shape) / np.array(chunk_dimensions)))
+            > max_chunks
+        ):
             for i in range(len(chunk_dimensions)):
                 if chunk_dimensions[i] < variable_shape[i]:
                     chunk_dimensions[i] *= 2
@@ -285,6 +313,7 @@ def determine_chunking_shape_alternative_symmetrical(
         spatial_divisor=spatial_divisor_example
     )
     """
+
     def find_largest_divisor_in_list(n, divisors):
         """
         Find the largest divisor of 'n' within the provided list of 'divisors'.
@@ -306,13 +335,15 @@ def determine_chunking_shape_alternative_symmetrical(
     # Determine the largest spatial dimension that is less than or equal to the spatial_divisor
     # and is a divisor of the spatial dimensions of the variable
     if spatial_divisors:
-        max_spatial_divisor = find_largest_divisor_in_list(min(variable_shape[1:]), spatial_divisors)
+        max_spatial_divisor = find_largest_divisor_in_list(
+            min(variable_shape[1:]), spatial_divisors
+        )
     else:
         max_spatial_divisor = min(variable_shape[1:])
-    
+
     # If enforcing power of two, find the nearest power of two that is less than or equal to the max_spatial_divisor
     if force_power_of_two:
-        max_spatial_divisor = 2**int(np.floor(np.log2(max_spatial_divisor)))
+        max_spatial_divisor = 2 ** int(np.floor(np.log2(max_spatial_divisor)))
 
     # Calculate the maximum chunk volume given the constraints
     max_chunk_volume = chunk_size / float_size
@@ -346,9 +377,17 @@ def determine_chunking_shape_alternative_symmetrical(
             chunk_shape[0] = time_dimension
 
     # Adjust if the number of chunks exceeds max_chunks
-    if max_chunks and np.prod(np.ceil(np.array(variable_shape) / np.array(chunk_shape))) > max_chunks:
+    if (
+        max_chunks
+        and np.prod(np.ceil(np.array(variable_shape) / np.array(chunk_shape)))
+        > max_chunks
+    ):
         # Increase the chunk size by increasing the time dimension
-        while time_dimension < variable_shape[0] and np.prod(np.ceil(np.array(variable_shape) / np.array(chunk_shape))) > max_chunks:
+        while (
+            time_dimension < variable_shape[0]
+            and np.prod(np.ceil(np.array(variable_shape) / np.array(chunk_shape)))
+            > max_chunks
+        ):
             time_dimension *= 2
             chunk_shape[0] = time_dimension
 
@@ -364,7 +403,7 @@ def determine_chunking_shape_alternative_symmetrical(
 def suggest_chunking_shape(
     variable_shape: Annotated[VariableShapeModel, typer_argument_variable_shape],
     float_size: int = 4,
-    chunk_size: int = 4096
+    chunk_size: int = 4096,
 ) -> None:
     """ """
     good_chunking_shape = determine_chunking_shape(

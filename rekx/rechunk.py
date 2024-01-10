@@ -1,34 +1,32 @@
-from devtools import debug
-from typing_extensions import Annotated
-from typing import Any
-from typing import Optional
-from typing import List
-from datetime import datetime
-from threading import Lock
-import typer
-from .typer_parameters import OrderCommands
-from .log import logger
-from pathlib import Path
-import xarray as xr
-import netCDF4 as nc
-from netCDF4 import Dataset
-from enum import Enum
-from .typer_parameters import typer_option_dry_run
-from rekx.typer_parameters import typer_option_verbose
-from rekx.constants import VERBOSE_LEVEL_DEFAULT
-from .rich_help_panel_names import rich_help_panel_rechunking
-from rich import print
-from rekx.messages import NOT_IMPLEMENTED_CLI
-import subprocess
 import shlex
-from .models import XarrayVariableSet
-from .models import select_xarray_variable_set_from_dataset
+import subprocess
+from datetime import datetime
+from enum import Enum
+from pathlib import Path
+from threading import Lock
+from typing import Any, List, Optional
 
+import netCDF4 as nc
+import typer
+import xarray as xr
+from devtools import debug
+from netCDF4 import Dataset
+from rich import print
+from typing_extensions import Annotated
+
+from rekx.constants import VERBOSE_LEVEL_DEFAULT
+from rekx.messages import NOT_IMPLEMENTED_CLI
+from rekx.typer_parameters import typer_option_verbose
+
+from .log import logger
+from .models import XarrayVariableSet, select_xarray_variable_set_from_dataset
+from .rich_help_panel_names import rich_help_panel_rechunking
+from .typer_parameters import OrderCommands, typer_option_dry_run
 
 CACHE_SIZE_DEFAULT = 16777216
 CACHE_ELEMENTS_DEFAULT = 4133
 CACHE_PREEMPTION_DEFAULT = 0.75
-COMPRESSION_FILTER_DEFAULT = 'zlib'
+COMPRESSION_FILTER_DEFAULT = "zlib"
 COMPRESSION_LEVEL_DEFAULT = 4
 SHUFFLING_DEFAULT = None
 RECHUNK_IN_MEMORY_DEFAULT = False
@@ -57,24 +55,30 @@ def modify_chunk_size(
 ):
     """
     Modify the chunk size of a variable in a NetCDF file.
-    
+
     Parameters:
     - nc_file: path to the NetCDF file
     - variable_name: name of the variable to modify
     - new_chunk_size: tuple specifying the new chunk size, e.g., (2600, 2600)
     """
-    with nc.Dataset(netcdf_file, 'r+') as dataset:
+    with nc.Dataset(netcdf_file, "r+") as dataset:
         variable = dataset.variables[variable]
-        
+
         if variable.chunking() != [None]:
             variable.set_auto_chunking(chunk_size)
-            print(f"Modified chunk size for variable '{variable}' in file '{netcdf_file}' to {chunk_size}.")
+            print(
+                f"Modified chunk size for variable '{variable}' in file '{netcdf_file}' to {chunk_size}."
+            )
 
         else:
-            print(f"Variable '{variable}' in file '{netcdf_file}' is not chunked. Skipping.")
+            print(
+                f"Variable '{variable}' in file '{netcdf_file}' is not chunked. Skipping."
+            )
 
 
 from abc import ABC, abstractmethod
+
+
 class RechunkingBackendBase(ABC):
     @abstractmethod
     def rechunk(self, input, output_directory, **kwargs):
@@ -98,7 +102,7 @@ class nccopyBackend(RechunkingBackendBase):
         shuffling: bool = None,
         memory: bool = False,
         dry_run: bool = False,  # return command as a string ?
-    ):#**kwargs):
+    ):  # **kwargs):
         """
         Options considered for ``nccopy`` :
         [ ] [-k kind_name]
@@ -111,7 +115,7 @@ class nccopyBackend(RechunkingBackendBase):
         [x] [-[v|V] var1,...]
         [ ] [-[g|G] grp1,...]
         [ ] [-m bufsize]
-        [x] [-h chunk_cache]  # 
+        [x] [-h chunk_cache]  #
         [x] [-e cache_elems]  # Number of elements in cache
         [ ] [-r]
         [x] infile
@@ -128,13 +132,13 @@ class nccopyBackend(RechunkingBackendBase):
         cache_size = f"-h {cache_size} " if cache_size else ""  # cache size in bytes
         cache_elements = f"-e {cache_elements}" if cache_elements else ""
         # cache_preemption = f"-e {cache_preemption}" if cache_preemption else ""
-        cache_options = cache_size + cache_elements# + cache_preemption
+        cache_options = cache_size + cache_elements  # + cache_preemption
         memory_option = f"-w" if memory else ""
 
         # build the command
         command = "nccopy "
         # if variable_option:
-        #     variable_option = f"-v {','.join(variables + [XarrayVariableSet.time])}"  # 'time' required 
+        #     variable_option = f"-v {','.join(variables + [XarrayVariableSet.time])}"  # 'time' required
         #     command += f"{variable_option} "
         command += f"{chunking_shape} "
         command += f"{compression_options} "
@@ -166,8 +170,8 @@ class nccopyBackend(RechunkingBackendBase):
 
 class NetCDF4Backend(RechunkingBackendBase):
     def rechunk(
-        input_filepath: Path, 
-        output_filepath: Path, 
+        input_filepath: Path,
+        output_filepath: Path,
         time: int = None,
         lat: int = None,
         lon: int = None,
@@ -196,7 +200,9 @@ class NetCDF4Backend(RechunkingBackendBase):
         """
         # Check if any chunking has been requested
         if time is None and lat is None and lon is None:
-            logger.info(f"No chunking requested for {input_filepath}. Exiting function.")
+            logger.info(
+                f"No chunking requested for {input_filepath}. Exiting function."
+            )
             return
 
         # logger.info(f"Rechunking of {input_filepath} with chunk sizes: time={time}, lat={lat}, lon={lon}")
@@ -233,12 +239,16 @@ class NetCDF4Backend(RechunkingBackendBase):
                             output_dataset[name][:] = x
                         else:
                             # logger.debug(f"No chunk sizes specified for `{name}`, copying as is.")
-                            output_dataset.createVariable(name, variable.datatype, variable.dimensions)
+                            output_dataset.createVariable(
+                                name, variable.datatype, variable.dimensions
+                            )
                             output_dataset[name].setncatts(input_dataset[name].__dict__)
                             output_dataset[name][:] = variable[:]
                     else:
                         # logger.debug(f"Variable `{name}` not in chunking list, copying as is.")
-                        output_dataset.createVariable(name, variable.datatype, variable.dimensions)
+                        output_dataset.createVariable(
+                            name, variable.datatype, variable.dimensions
+                        )
                         output_dataset[name].setncatts(input_dataset[name].__dict__)
                         output_dataset[name][:] = variable[:]
 
@@ -247,8 +257,8 @@ class NetCDF4Backend(RechunkingBackendBase):
 
 class XarrayBackend(RechunkingBackendBase):
     def rechunk_netcdf_via_xarray(
-        input_filepath: Path, 
-        output_filepath: Path, 
+        input_filepath: Path,
+        output_filepath: Path,
         time: int = None,
         latitude: int = None,
         longitude: int = None,
@@ -263,9 +273,9 @@ class XarrayBackend(RechunkingBackendBase):
         output_filepath : Path
             The path to the output NetCDF file where the rechunked dataset will be saved.
         chunks : Dict[str, Union[int, None]]
-            A dictionary specifying the new chunk sizes for each dimension. 
+            A dictionary specifying the new chunk sizes for each dimension.
             Use `None` for dimensions that should not be chunked.
-        
+
         Returns
         -------
         None
@@ -276,18 +286,20 @@ class XarrayBackend(RechunkingBackendBase):
         # >>> rechunk_netcdf(Path("input.nc"), Path("output.nc"), {'time': 365, 'lat': 25, 'lon': 25})
         """
         dataset = xr.open_dataset(input_filepath)
-        chunks = {'time': time, 'lat': lat, 'lon': lon}
+        chunks = {"time": time, "lat": lat, "lon": lon}
         dataset_rechunked = dataset.chunk(chunks)
         dataset_rechunked.to_netcdf(output_filepath)
 
 
 import enum
+
+
 @enum.unique
 class RechunkingBackend(str, enum.Enum):
-    all = 'all'
-    netcdf4 = 'netCDF4'
-    xarray = 'xarray'
-    nccopy = 'nccopy'
+    all = "all"
+    netcdf4 = "netCDF4"
+    xarray = "xarray"
+    nccopy = "nccopy"
 
     @classmethod
     def default(cls) -> "RechunkingBackend":
@@ -295,16 +307,15 @@ class RechunkingBackend(str, enum.Enum):
         return cls.nccopy
 
     def get_backend(self) -> RechunkingBackendBase:
-
         """Array type associated to a backend."""
 
         if self.name == "nccopy":
             return nccopyBackend()
 
-        elif self.name == 'netcdf4':
+        elif self.name == "netcdf4":
             return NetCDF4Backend()
 
-        elif self.name == 'xarray':
+        elif self.name == "xarray":
             return XarrayBackend()
 
         else:
@@ -319,11 +330,19 @@ class RechunkingBackend(str, enum.Enum):
 # )
 def rechunk(
     input: Annotated[Optional[Path], typer.Argument(help="Input NetCDF file.")],
-    output_directory: Annotated[Optional[Path], typer.Argument(help="Path to the output NetCDF file.")],
+    output_directory: Annotated[
+        Optional[Path], typer.Argument(help="Path to the output NetCDF file.")
+    ],
     time: Annotated[int, typer.Option(help="New chunk size for the `time` dimension.")],
-    latitude: Annotated[int, typer.Option(help="New chunk size for the `lat` dimension.")],
-    longitude: Annotated[int, typer.Option(help="New chunk size for the `lon` dimension.")],
-    variable_set: Annotated[XarrayVariableSet, typer.Option(help="Set of Xarray variables to diagnose")] = XarrayVariableSet.all,
+    latitude: Annotated[
+        int, typer.Option(help="New chunk size for the `lat` dimension.")
+    ],
+    longitude: Annotated[
+        int, typer.Option(help="New chunk size for the `lon` dimension.")
+    ],
+    variable_set: Annotated[
+        XarrayVariableSet, typer.Option(help="Set of Xarray variables to diagnose")
+    ] = XarrayVariableSet.all,
     cache_size: Optional[int] = CACHE_SIZE_DEFAULT,
     cache_elements: Optional[int] = CACHE_ELEMENTS_DEFAULT,
     cache_preemption: Optional[float] = CACHE_PREEMPTION_DEFAULT,
@@ -332,8 +351,15 @@ def rechunk(
     shuffling: str = SHUFFLING_DEFAULT,
     memory: bool = RECHUNK_IN_MEMORY_DEFAULT,
     dry_run: Annotated[bool, typer_option_dry_run] = DRY_RUN_DEFAULT,
-    backend: Annotated[RechunkingBackend, typer.Option(help="Backend to use for rechunking. [code]nccopy[/code] [red]Not Implemented Yet![/red]")] = RechunkingBackend.nccopy,
-    dask_scheduler: Annotated[str, typer.Option(help="The port:ip of the dask scheduler")] = None,
+    backend: Annotated[
+        RechunkingBackend,
+        typer.Option(
+            help="Backend to use for rechunking. [code]nccopy[/code] [red]Not Implemented Yet![/red]"
+        ),
+    ] = RechunkingBackend.nccopy,
+    dask_scheduler: Annotated[
+        str, typer.Option(help="The port:ip of the dask scheduler")
+    ] = None,
     verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
 ):
     """
@@ -341,6 +367,7 @@ def rechunk(
     """
     if verbose:
         import time as timer
+
         rechunking_timer_start = timer.time()
 
     # if dask_scheduler:
@@ -349,7 +376,7 @@ def rechunk(
     #     typer.echo(f"Using Dask scheduler at {dask_scheduler}")
 
     with xr.open_dataset(input, engine="netcdf4") as dataset:
-    # with Dataset(input, 'r') as dataset:
+        # with Dataset(input, 'r') as dataset:
         selected_variables = select_xarray_variable_set_from_dataset(
             XarrayVariableSet, variable_set, dataset
         )
@@ -371,7 +398,9 @@ def rechunk(
         backend = backend.get_backend()
         command = backend.rechunk(**rechunk_parameters, dry_run=dry_run)
         if dry_run:
-            print(f"[bold]Dry run[/bold] the [bold]following command that would be executed[/bold]:")
+            print(
+                f"[bold]Dry run[/bold] the [bold]following command that would be executed[/bold]:"
+            )
             print(f"    {command}")
             # print(f"    {rechunk_parameters}")
             return  # Exit for a dry run
@@ -392,9 +421,11 @@ def rechunk(
 
 
 from typing import Union
+
+
 def parse_chunks(chunks: Union[int, str]) -> List[int]:
     if isinstance(chunks, str):
-        return [int(chunk_size) for chunk_size in chunks.split(',')]
+        return [int(chunk_size) for chunk_size in chunks.split(",")]
     elif isinstance(chunks, int):
         return [chunks]
     else:
@@ -403,7 +434,7 @@ def parse_chunks(chunks: Union[int, str]) -> List[int]:
 
 def parse_compression_filters(compressing_filters: str) -> List[str]:
     if isinstance(compressing_filters, str):
-        return compressing_filters.split(',')
+        return compressing_filters.split(",")
     else:
         raise typer.BadParameter("Compression filters input must be a string")
 
@@ -412,40 +443,91 @@ def parse_numerical_option(input: int) -> List[int]:
     if isinstance(input, int):
         return [input]
     elif isinstance(input, str):
-        return [int(property) for property in input.split(',')]
+        return [int(property) for property in input.split(",")]
     else:
-        raise typer.BadParameter("Input must be a either a single integer or float or a string of comma-separated values.")
+        raise typer.BadParameter(
+            "Input must be a either a single integer or float or a string of comma-separated values."
+        )
 
 
 def parse_float_option(input: float) -> List[float]:
     if isinstance(input, str):
-        print(f'This input is a string!')
-        return [float(string) for string in input.split(',')]
+        print(f"This input is a string!")
+        return [float(string) for string in input.split(",")]
     return [input]
 
 
 def callback_compression_filters():
-    return ['zlib']
+    return ["zlib"]
 
 
 def generate_rechunk_commands(
     input: Annotated[Optional[Path], typer.Argument(help="Input NetCDF file.")],
-    output: Annotated[Optional[Path], typer.Argument(help="Path to the output NetCDF file.")],
-    time: Annotated[int, typer.Option(help="New chunk size for the `time` dimension.", parser=parse_numerical_option)],
-    latitude: Annotated[int, typer.Option(help="New chunk size for the `lat` dimension.", parser=parse_numerical_option)],
-    longitude: Annotated[int, typer.Option(help="New chunk size for the `lon` dimension.", parser=parse_numerical_option)],
-    spatial_symmetry: Annotated[bool, typer.Option(help='Add command only for identical latitude and longitude chunk sizes')] = SPATIAL_SYMMETRY_DEFAULT,
-    variable_set: Annotated[XarrayVariableSet, typer.Option(help="Set of Xarray variables to diagnose")] = XarrayVariableSet.all,
-    cache_size: Annotated[int, typer.Option(help='Cache size', show_default=True, parser=parse_numerical_option)] = CACHE_SIZE_DEFAULT,
-    cache_elements: Annotated[int, typer.Option(help='Number of elements in cache', parser=parse_numerical_option)] = CACHE_ELEMENTS_DEFAULT,
-    cache_preemption: Annotated[float, typer.Option(help=f'Cache preemption strategy {NOT_IMPLEMENTED_CLI}', parser=parse_float_option)] = CACHE_PREEMPTION_DEFAULT,
-    compression: Annotated[str, typer.Option(help='Compression filter', parser=parse_compression_filters)] = COMPRESSION_FILTER_DEFAULT,
-    compression_level: Annotated[int, typer.Option(help='Compression level', parser=parse_numerical_option)] = COMPRESSION_LEVEL_DEFAULT,
+    output: Annotated[
+        Optional[Path], typer.Argument(help="Path to the output NetCDF file.")
+    ],
+    time: Annotated[
+        int,
+        typer.Option(
+            help="New chunk size for the `time` dimension.",
+            parser=parse_numerical_option,
+        ),
+    ],
+    latitude: Annotated[
+        int,
+        typer.Option(
+            help="New chunk size for the `lat` dimension.",
+            parser=parse_numerical_option,
+        ),
+    ],
+    longitude: Annotated[
+        int,
+        typer.Option(
+            help="New chunk size for the `lon` dimension.",
+            parser=parse_numerical_option,
+        ),
+    ],
+    spatial_symmetry: Annotated[
+        bool,
+        typer.Option(
+            help="Add command only for identical latitude and longitude chunk sizes"
+        ),
+    ] = SPATIAL_SYMMETRY_DEFAULT,
+    variable_set: Annotated[
+        XarrayVariableSet, typer.Option(help="Set of Xarray variables to diagnose")
+    ] = XarrayVariableSet.all,
+    cache_size: Annotated[
+        int,
+        typer.Option(
+            help="Cache size", show_default=True, parser=parse_numerical_option
+        ),
+    ] = CACHE_SIZE_DEFAULT,
+    cache_elements: Annotated[
+        int,
+        typer.Option(help="Number of elements in cache", parser=parse_numerical_option),
+    ] = CACHE_ELEMENTS_DEFAULT,
+    cache_preemption: Annotated[
+        float,
+        typer.Option(
+            help=f"Cache preemption strategy {NOT_IMPLEMENTED_CLI}",
+            parser=parse_float_option,
+        ),
+    ] = CACHE_PREEMPTION_DEFAULT,
+    compression: Annotated[
+        str, typer.Option(help="Compression filter", parser=parse_compression_filters)
+    ] = COMPRESSION_FILTER_DEFAULT,
+    compression_level: Annotated[
+        int, typer.Option(help="Compression level", parser=parse_numerical_option)
+    ] = COMPRESSION_LEVEL_DEFAULT,
     shuffling: Annotated[bool, typer.Option(help=f"Shuffle... ")] = SHUFFLING_DEFAULT,
-    memory: Annotated[bool, typer.Option(help='Use the -w flag to nccopy')] = RECHUNK_IN_MEMORY_DEFAULT,
+    memory: Annotated[
+        bool, typer.Option(help="Use the -w flag to nccopy")
+    ] = RECHUNK_IN_MEMORY_DEFAULT,
     # backend: Annotated[RechunkingBackend, typer.Option(help="Backend to use for rechunking. [code]nccopy[/code] [red]Not Implemented Yet![/red]")] = RechunkingBackend.nccopy,
-    dask_scheduler: Annotated[str, typer.Option(help="The port:ip of the dask scheduler")] = None,
-    commands_file: Path = 'rechunk_commands.txt',
+    dask_scheduler: Annotated[
+        str, typer.Option(help="The port:ip of the dask scheduler")
+    ] = None,
+    commands_file: Path = "rechunk_commands.txt",
     dry_run: Annotated[bool, typer_option_dry_run] = False,
     verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
 ):
@@ -462,6 +544,7 @@ def generate_rechunk_commands(
             XarrayVariableSet, variable_set, dataset
         )
         import itertools
+
         commands = []
         for (
             chunking_time,
@@ -508,42 +591,97 @@ def generate_rechunk_commands(
                 if not command in commands:
                     commands.append(command)
 
-    commands_file = Path(commands_file.stem + '_for_' + input.stem + commands_file.suffix)
-    if verbose: 
-        print(f'[bold]Writing generated commands into[/bold] [code]{commands_file}[/code]')
+    commands_file = Path(
+        commands_file.stem + "_for_" + input.stem + commands_file.suffix
+    )
+    if verbose:
+        print(
+            f"[bold]Writing generated commands into[/bold] [code]{commands_file}[/code]"
+        )
         for command in commands:
-            print(f'{command}')
+            print(f"{command}")
 
     if not dry_run:
-        with open(commands_file, 'w') as f:
+        with open(commands_file, "w") as f:
             for command in commands:
-                f.write(command + '\n')
+                f.write(command + "\n")
     # else:
     #     print(commands)
 
 
-from concurrent.futures import ProcessPoolExecutor
-from concurrent.futures import as_completed
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
 
 def generate_rechunk_commands_for_multiple_netcdf(
     file_paths: Annotated[List[Path], typer.Argument(help="Input NetCDF files.")],
-    output: Annotated[Optional[Path], typer.Argument(help="Path to the output NetCDF file.")],
-    time: Annotated[int, typer.Option(help="New chunk size for the `time` dimension.", parser=parse_numerical_option)],
-    latitude: Annotated[int, typer.Option(help="New chunk size for the `lat` dimension.", parser=parse_numerical_option)],
-    longitude: Annotated[int, typer.Option(help="New chunk size for the `lon` dimension.", parser=parse_numerical_option)],
-    spatial_symmetry: Annotated[bool, typer.Option(help='Add command only for identical latitude and longitude chunk sizes')] = SPATIAL_SYMMETRY_DEFAULT,
-    variable_set: Annotated[XarrayVariableSet, typer.Option(help="Set of Xarray variables to diagnose")] = XarrayVariableSet.all,
-    cache_size: Annotated[int, typer.Option(help='Cache size', show_default=True, parser=parse_numerical_option)] = CACHE_SIZE_DEFAULT,
-    cache_elements: Annotated[int, typer.Option(help='Number of elements in cache', parser=parse_numerical_option)] = CACHE_ELEMENTS_DEFAULT,
-    cache_preemption: Annotated[float, typer.Option(help=f'Cache preemption strategy {NOT_IMPLEMENTED_CLI}', parser=parse_float_option)] = CACHE_PREEMPTION_DEFAULT,
-    compression: Annotated[str, typer.Option(help='Compression filter', parser=parse_compression_filters)] = COMPRESSION_FILTER_DEFAULT,
-    compression_level: Annotated[int, typer.Option(help='Compression level', parser=parse_numerical_option)] = COMPRESSION_LEVEL_DEFAULT,
-    shuffling: Annotated[bool, typer.Option(help=f'Shuffle... [reverse bold orange] Testing [/reverse bold orange]')] = SHUFFLING_DEFAULT,
+    output: Annotated[
+        Optional[Path], typer.Argument(help="Path to the output NetCDF file.")
+    ],
+    time: Annotated[
+        int,
+        typer.Option(
+            help="New chunk size for the `time` dimension.",
+            parser=parse_numerical_option,
+        ),
+    ],
+    latitude: Annotated[
+        int,
+        typer.Option(
+            help="New chunk size for the `lat` dimension.",
+            parser=parse_numerical_option,
+        ),
+    ],
+    longitude: Annotated[
+        int,
+        typer.Option(
+            help="New chunk size for the `lon` dimension.",
+            parser=parse_numerical_option,
+        ),
+    ],
+    spatial_symmetry: Annotated[
+        bool,
+        typer.Option(
+            help="Add command only for identical latitude and longitude chunk sizes"
+        ),
+    ] = SPATIAL_SYMMETRY_DEFAULT,
+    variable_set: Annotated[
+        XarrayVariableSet, typer.Option(help="Set of Xarray variables to diagnose")
+    ] = XarrayVariableSet.all,
+    cache_size: Annotated[
+        int,
+        typer.Option(
+            help="Cache size", show_default=True, parser=parse_numerical_option
+        ),
+    ] = CACHE_SIZE_DEFAULT,
+    cache_elements: Annotated[
+        int,
+        typer.Option(help="Number of elements in cache", parser=parse_numerical_option),
+    ] = CACHE_ELEMENTS_DEFAULT,
+    cache_preemption: Annotated[
+        float,
+        typer.Option(
+            help=f"Cache preemption strategy {NOT_IMPLEMENTED_CLI}",
+            parser=parse_float_option,
+        ),
+    ] = CACHE_PREEMPTION_DEFAULT,
+    compression: Annotated[
+        str, typer.Option(help="Compression filter", parser=parse_compression_filters)
+    ] = COMPRESSION_FILTER_DEFAULT,
+    compression_level: Annotated[
+        int, typer.Option(help="Compression level", parser=parse_numerical_option)
+    ] = COMPRESSION_LEVEL_DEFAULT,
+    shuffling: Annotated[
+        bool,
+        typer.Option(
+            help=f"Shuffle... [reverse bold orange] Testing [/reverse bold orange]"
+        ),
+    ] = SHUFFLING_DEFAULT,
     memory: bool = RECHUNK_IN_MEMORY_DEFAULT,
     # backend: Annotated[RechunkingBackend, typer.Option(help="Backend to use for rechunking. [code]nccopy[/code] [red]Not Implemented Yet![/red]")] = RechunkingBackend.nccopy,
-    dask_scheduler: Annotated[str, typer.Option(help="The port:ip of the dask scheduler")] = None,
-    commands_file: Path = 'rechunk_commands.txt',
+    dask_scheduler: Annotated[
+        str, typer.Option(help="The port:ip of the dask scheduler")
+    ] = None,
+    commands_file: Path = "rechunk_commands.txt",
     dry_run: Annotated[bool, typer_option_dry_run] = False,
     verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
 ):

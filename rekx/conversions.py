@@ -1,17 +1,16 @@
-import typer
-from rich.table import Table
-from rich.progress import track
-from rich import box
-from math import degrees
-from math import radians
-from math import pi
+from math import degrees, pi, radians
+from typing import Any, List
+
 import numpy as np
-from typing import List
-from typing import Any
-from typing import List
+import typer
+from rich import box
+from rich.progress import track
+from rich.table import Table
 
 
-def convert_to_radians(ctx: typer.Context, param: typer.CallbackParam, angle: float) -> float:
+def convert_to_radians(
+    ctx: typer.Context, param: typer.CallbackParam, angle: float
+) -> float:
     """Convert floating point angular measurement from degrees to radians."""
     if ctx.resilient_parsing:
         return

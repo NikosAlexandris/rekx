@@ -1,22 +1,25 @@
-from .log import logger
-import typer
-from rekx.typer_parameters import OrderCommands
-from typing_extensions import Annotated
-from pathlib import Path
-from rekx.typer_parameters import typer_argument_source_directory
-from rekx.typer_parameters import typer_option_filename_pattern
-from typing import List
-from .models import XarrayVariableSet
-from rekx.typer_parameters import typer_option_verbose
-from rekx.constants import VERBOSE_LEVEL_DEFAULT
-from .progress import DisplayMode
-from .progress import display_context
-from rekx.hardcodings import check_mark
 import json
+from pathlib import Path
+from typing import List
+
+import typer
 import xarray as xr
 from rich import print
-from rekx.messages import NOT_IMPLEMENTED_CLI
+from typing_extensions import Annotated
 
+from rekx.constants import VERBOSE_LEVEL_DEFAULT
+from rekx.hardcodings import check_mark
+from rekx.messages import NOT_IMPLEMENTED_CLI
+from rekx.typer_parameters import (
+    OrderCommands,
+    typer_argument_source_directory,
+    typer_option_filename_pattern,
+    typer_option_verbose,
+)
+
+from .log import logger
+from .models import XarrayVariableSet
+from .progress import DisplayMode, display_context
 
 # app = typer.Typer(
 #     cls=OrderCommands,
@@ -36,15 +39,19 @@ from rekx.messages import NOT_IMPLEMENTED_CLI
 def check_chunk_consistency(
     source_directory: Annotated[Path, typer_argument_source_directory],
     pattern: Annotated[str, typer_option_filename_pattern] = "*.nc",
-    variable_set: Annotated[XarrayVariableSet, typer.Option(help=f"{NOT_IMPLEMENTED_CLI}")] = XarrayVariableSet.all,
+    variable_set: Annotated[
+        XarrayVariableSet, typer.Option(help=f"{NOT_IMPLEMENTED_CLI}")
+    ] = XarrayVariableSet.all,
     verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
 ):
     """ """
     source_directory = Path(source_directory)
     file_paths = list(source_directory.glob(pattern))
     files = list(map(str, file_paths))
-    if not files: 
-        print(f'[red]No files matching[/red] [code]{pattern}[/code] [red]found in[/red] [code]{source_directory}[/code]')
+    if not files:
+        print(
+            f"[red]No files matching[/red] [code]{pattern}[/code] [red]found in[/red] [code]{source_directory}[/code]"
+        )
         return
 
     mode = DisplayMode(verbose)
@@ -55,7 +62,9 @@ def check_chunk_consistency(
                 if not chunk_sizes:  # populate with chunk sizes
                     for variable in dataset.variables:
                         if dataset[variable].encoding.get("chunksizes"):
-                            chunk_sizes[variable] = dataset[variable].encoding["chunksizes"]
+                            chunk_sizes[variable] = dataset[variable].encoding[
+                                "chunksizes"
+                            ]
                         # logger.debug(f'File : {file}, Chunks : {chunk_sizes}')
                 else:
                     # For subsequent files, check if chunk sizes match the initial ones
@@ -69,7 +78,9 @@ def check_chunk_consistency(
                                 f"Chunk size mismatch in file '{file}' for variable '{variable}'. Expected {chunk_sizes[variable]} but got {dataset[variable].encoding['chunksizes']}"
                             )
                         else:
-                            logger.debug(f'Variable : {variable}, Chunks : {dataset[variable].encoding["chunksizes"]}')
+                            logger.debug(
+                                f'Variable : {variable}, Chunks : {dataset[variable].encoding["chunksizes"]}'
+                            )
                             # print(f'Variable : {variable}, Chunks : {dataset[variable].encoding["chunksizes"]}')
 
         # logger.info(f"{check_mark} [green]All files are consistently shaped in[/green] {chunk_sizes} chunks")
@@ -77,14 +88,15 @@ def check_chunk_consistency(
         print(f"{check_mark} [green]All files are consistently shaped![/green]")
         if verbose:
             from .print import print_chunking_shapes
+
             print_chunking_shapes(chunking_shapes=chunk_sizes)
 
 
 def get_chunk_sizes_from_json(file_path, variable):
     try:
-        with open(file_path, 'r') as f:
+        with open(file_path, "r") as f:
             data = json.load(f)
-            json_string = data['refs'].get(f'{variable}/.zarray')
+            json_string = data["refs"].get(f"{variable}/.zarray")
             if not json_string:
                 # logger.warning(f"'{variable}/.zarray' not found in file {file_path}. Skipping...")
                 return {}
@@ -105,7 +117,11 @@ def compare_chunk_sizes_json(
 ):
     # logger.info(f'Comparing file {file}')
     current_chunk_sizes = get_chunk_sizes_from_json(file, variable)
-    mismatched_vars = [(variable, size) for variable, size in current_chunk_sizes.items() if initial_chunk_sizes.get(variable) != size]
+    mismatched_vars = [
+        (variable, size)
+        for variable, size in current_chunk_sizes.items()
+        if initial_chunk_sizes.get(variable) != size
+    ]
     if mismatched_vars:
         var, size = mismatched_vars[0]
         expected_size = initial_chunk_sizes[var]
@@ -123,7 +139,7 @@ def compare_chunk_sizes_json(
 # )
 def check_chunk_consistency_json(
     source_directory: Annotated[Path, typer_argument_source_directory],
-    variable: Annotated[str, typer.Argument(help='Variable name to select from')],
+    variable: Annotated[str, typer.Argument(help="Variable name to select from")],
     pattern: Annotated[str, typer_option_filename_pattern] = "*.json",
     verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
 ):
@@ -135,7 +151,9 @@ def check_chunk_consistency_json(
     # Use as a comparison reference the chunk sizes from the first file
     initial_chunk_sizes = get_chunk_sizes_from_json(files[0], variable)
     if not initial_chunk_sizes:
-        logger.error(f"Cannot read chunk sizes from initial file {files[0]}. Exiting...")
+        logger.error(
+            f"Cannot read chunk sizes from initial file {files[0]}. Exiting..."
+        )
         print(f"Cannot read chunk sizes from initial file {files[0]}. Exiting...")
         return
 
@@ -147,9 +165,17 @@ def check_chunk_consistency_json(
                 all_match = False
 
     if all_match:
-        logger.info(f"[green]All files are consistently shaped in[/green] {initial_chunk_sizes[variable]} chunks")
-        print(f"{check_mark} [green]All files are consistently shaped in[/green] {initial_chunk_sizes[variable]} chunks")
+        logger.info(
+            f"[green]All files are consistently shaped in[/green] {initial_chunk_sizes[variable]} chunks"
+        )
+        print(
+            f"{check_mark} [green]All files are consistently shaped in[/green] {initial_chunk_sizes[variable]} chunks"
+        )
 
     else:
-        logger.warning("Not all files are chunked identically! Check the logs for details.")
-        print(f"[red]Not all files are chunked identically![/red] [bold]Check the logs for details.[/bold]")
+        logger.warning(
+            "Not all files are chunked identically! Check the logs for details."
+        )
+        print(
+            f"[red]Not all files are chunked identically![/red] [bold]Check the logs for details.[/bold]"
+        )

@@ -1,18 +1,20 @@
+# import xarray as xr
+from pathlib import Path
+
 from devtools import debug
 from rich import print
+
+from rekx.constants import VERBOSE_LEVEL_DEFAULT
+from rekx.hardcodings import check_mark, exclamation_mark
+
+# from rekx.hardcodings import x_mark
+from rekx.messages import ERROR_IN_SELECTING_DATA
+from rekx.models import MethodForInexactMatches
+
 # import warnings
 # import typer
 # import netCDF4
 from .log import logger
-# import xarray as xr
-from pathlib import Path
-from rekx.constants import VERBOSE_LEVEL_DEFAULT
-from rekx.models import MethodForInexactMatches
-from rekx.hardcodings import exclamation_mark
-from rekx.hardcodings import check_mark
-# from rekx.hardcodings import x_mark
-from rekx.messages import ERROR_IN_SELECTING_DATA
-
 
 # def load_or_open_dataarray(function, filename_or_object, mask_and_scale):
 #     try:
@@ -75,16 +77,20 @@ def get_scale_and_offset(netcdf):
     """Get scale and offset values from a netCDF file"""
     dataset = netCDF4.Dataset(netcdf)
     netcdf_dimensions = set(dataset.dimensions)
-    netcdf_dimensions.update({'lon', 'longitude', 'lat', 'latitude'})  # all space dimensions?
+    netcdf_dimensions.update(
+        {"lon", "longitude", "lat", "latitude"}
+    )  # all space dimensions?
     netcdf_variables = set(dataset.variables)
-    variable = str(list(netcdf_variables.difference(netcdf_dimensions))[0])  # single variable name!
+    variable = str(
+        list(netcdf_variables.difference(netcdf_dimensions))[0]
+    )  # single variable name!
 
-    if 'scale_factor' in dataset[variable].ncattrs():
+    if "scale_factor" in dataset[variable].ncattrs():
         scale_factor = dataset[variable].scale_factor
     else:
         scale_factor = None
 
-    if 'add_offset' in dataset[variable].ncattrs():
+    if "add_offset" in dataset[variable].ncattrs():
         add_offset = dataset[variable].add_offset
     else:
         add_offset = None
@@ -99,7 +105,7 @@ def set_location_indexers(
     verbose: int = VERBOSE_LEVEL_DEFAULT,
 ):
     """Select single pair of coordinates from a data array
-    
+
     Will select center coordinates if none of (longitude, latitude) are
     provided.
     """
@@ -107,42 +113,44 @@ def set_location_indexers(
     # Ugly hack for when dimensions 'longitude', 'latitude' are not spelled out!
     # Use `coords` : a time series of a single pair of coordinates has only a `time` dimension!
     indexers = {}
-    dimensions = [dimension for dimension in data_array.coords if isinstance(dimension, str)]
-    if set(['lon', 'lat']) & set(dimensions):
-        x = 'lon'
-        y = 'lat'
-    elif set(['longitude', 'latitude']) & set(dimensions):
-        x = 'longitude'
-        y = 'latitude'
+    dimensions = [
+        dimension for dimension in data_array.coords if isinstance(dimension, str)
+    ]
+    if set(["lon", "lat"]) & set(dimensions):
+        x = "lon"
+        y = "lat"
+    elif set(["longitude", "latitude"]) & set(dimensions):
+        x = "longitude"
+        y = "latitude"
 
-    if (x and y):
-        logger.info(f'Dimensions  : {x}, {y}')
+    if x and y:
+        logger.info(f"Dimensions  : {x}, {y}")
 
     if not (longitude and latitude):
-        warning = f'{exclamation_mark} Coordinates (longitude, latitude) not provided. Selecting center coordinates.'
+        warning = f"{exclamation_mark} Coordinates (longitude, latitude) not provided. Selecting center coordinates."
         logger.warning(warning)
         print(warning)
 
-        center_longitude = float(data_array[x][len(data_array[x])//2])
-        center_latitude = float(data_array[y][len(data_array[y])//2])
+        center_longitude = float(data_array[x][len(data_array[x]) // 2])
+        center_latitude = float(data_array[y][len(data_array[y]) // 2])
         indexers[x] = center_longitude
         indexers[y] = center_latitude
 
-        text_coordinates = f'{check_mark} Center coordinates (longitude, latitude) : {center_longitude}, {center_latitude}.'
+        text_coordinates = f"{check_mark} Center coordinates (longitude, latitude) : {center_longitude}, {center_latitude}."
 
     else:
         indexers[x] = longitude
         indexers[y] = latitude
-        text_coordinates = f'{check_mark} Coordinates : {longitude}, {latitude}.'
+        text_coordinates = f"{check_mark} Coordinates : {longitude}, {latitude}."
 
     logger.info(text_coordinates)
-    
+
     if verbose > 0:
         print(text_coordinates)
 
     if verbose == 3:
         debug(locals())
-    
+
     return indexers
 
 
@@ -156,7 +164,7 @@ def set_location_indexers(
 #     verbose: int = VERBOSE_LEVEL_DEFAULT,
 # ):
 #     """Select single pair of coordinates from a data array
-    
+
 #     Will select center coordinates if none of (longitude, latitude) are
 #     provided.
 #     """
