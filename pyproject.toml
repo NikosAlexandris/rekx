@@ -53,6 +53,7 @@ dev = [
   "pytest",
   "black",
   "flake8"
+  "isort",
 ]
 docs = [
   "mkdocs-material",
@@ -80,6 +81,23 @@ path = "rekx/_version.py"
 package = "rekx"
 package_dir = "rekx"
 name = "rekx"
+
+[tool.black]
+line-length = 88
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
 
 [tool.pylint.MASTER]
 # Ensure `duplicate-code` and any other errors that depend on not running in
