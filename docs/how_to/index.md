@@ -5,6 +5,27 @@ tags:
   - CLI
 ---
 
+!!! abstract "Learn how to ..."
+
+    :material-scan-helper: [**`diagnose`**][#Diagnose] structural characteristics of data packed in NetCDF/HDF5
+
+    consistency
+
+    :material-lightbulb-question: **`suggest`** good chunking shapes
+
+    :fontawesome-solid-cubes-stacked: :octicons-container-24: **`rechunk`**
+    NetCDF datasets
+
+    create **`parquet`** :simple-apacheparquet: and JSON :simple-json: Kerchunk **`reference`** sets
+
+    :material-vector-combine: **`combine`** Kerchunk reference sets
+
+    :material-select: **`select`** data from Kerchunk reference sets
+
+    :material-speedometer: get an idea about **`read-performance`** from
+    NetCDF/HDF data and Kerchunk reference sets
+
+
 # Help ?
 
 For each and every command, there is a `--help` option. Please consult it to
