@@ -8,7 +8,6 @@ tags:
 ## Command line interface
 
 ::: rekx.cli
-::: rekx.version
 ::: rekx.constants
 ::: rekx.hardcodings
 ::: rekx.typer_parameters
