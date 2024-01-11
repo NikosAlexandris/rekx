@@ -1,7 +1,7 @@
 import pytest
 from typer.testing import CliRunner
-from rekx.cli import app
 
+from rekx.cli import app
 
 runner = CliRunner()
 
