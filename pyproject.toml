@@ -97,6 +97,7 @@ exclude = '''
   | buck-out
   | build
   | dist
+  | .rekx_virtual_environment
 )/
 '''
 
