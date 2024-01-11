@@ -209,10 +209,6 @@ def get_multiple_netcdf_metadata(
         Number of repetitions for read operation
     humanize: bool
         Humanize measured quantities of bytes
-    csv: Path
-        Output file name for comma-separated values
-    verbose: int
-        Verbosity level
 
     Returns
     -------
@@ -267,7 +263,7 @@ def collect_netcdf_metadata(
     humanize: Annotated[bool, typer_option_humanize] = False,
     csv: Annotated[Path, typer_option_csv] = None,
     verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
-):
+) -> None:
     """Collect the metadata of a single or multiple NetCDF files.
 
     Scan the `source_directory` for files that match the given `pattern`,
@@ -303,8 +299,9 @@ def collect_netcdf_metadata(
 
     Returns
     -------
-    This function does not return anything. It either prints out the results in
-    the terminal or writes then in a CSV file if requested.
+    None
+        This function does not return anything. It either prints out the
+        results in the terminal or writes then in a CSV file if requested.
 
     """
     if input_path.is_file():
