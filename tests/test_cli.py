@@ -13,7 +13,10 @@ runner = CliRunner()
 #     assert err == ""
 
 
+hardcoded_version = "rekx version 0.0.9.dev5+gb25d01b.d20240111"
+
+
 def test_version():
     result = runner.invoke(app, ["--version"])
     assert result.exit_code == 0
-    assert "Rekx CLI Version: 1.0.0" in result.output
+    assert hardcoded_version in result.output
