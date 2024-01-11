@@ -1,7 +1,7 @@
 examples/
 notebooks/
 gitignore/
-version.py
+_version.py
 
 # Created by https://www.toptal.com/developers/gitignore/api/linux,direnv,venv,vim,python,pytest
 # Edit at https://www.toptal.com/developers/gitignore?templates=linux,direnv,venv,vim,python,pytest
