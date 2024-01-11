@@ -8,7 +8,7 @@ the chunking shapes of NetCDF files.
 import os
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
-from typing import Annotated, List, Optional
+from typing import Annotated, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -42,13 +42,11 @@ from .typer_parameters import (
     typer_option_verbose,
 )
 
-# from .rich_help_panel_names import rich_help_panel_diagnose
-
 
 def get_netcdf_metadata(
     input_netcdf_path: Annotated[Path, "Path to the NetCDF file"],
     variable: Annotated[
-        Optional[str], "Name of the variable to inspect, defaults to None"
+        None | str, "Name of the variable to inspect, defaults to None"
     ] = None,
     variable_set: Annotated[
         XarrayVariableSet, "Set of variables to diagnose"
@@ -59,47 +57,68 @@ def get_netcdf_metadata(
         int, "Number of repetitions for read operation"
     ] = REPETITIONS_DEFAULT,
     humanize: Annotated[bool, "Flag to humanize file size"] = False,
-    verbose: Annotated[int, "Verbosity level"] = VERBOSE_LEVEL_DEFAULT,
-):
-    """Get the metadata of a single NetCDF file
+) -> Tuple[dict, Path]:
+    """
+    Get the metadata of a single NetCDF file.
 
-    Get and report the metadata of a single NetCDF file, including :
-    file name, file size, dimensions, shape, chunks, cache, type, scale,
-    offset, compression, shuffling and lastly the read time (required to
-    retrieve data) for data variables.
+    Retrieve and report the metadata of a single NetCDF file, including :
+    file name, file size, dimensions, shape, chunks, cache, data type, scale
+    factor, offset, compression filter, compression level, shuffling
+    and lastly the read time (required to retrieve data and load them in memory)
+    for data variables.
 
     Parameters
     ----------
     input_netcdf_path: Path
         Path to the input NetCDF file
     variable: str
-        Name of the variable to query
-    variable_set: XarrayVariableSet
-        Name of the set of variables to query. See also docstring of
-        XarrayVariableSet
-    longitude: float
+    variable : None | str, optional
+        Name of the variable to query, by default None.
+    variable_set : XarrayVariableSet, optional
+        Set of variables to diagnose, by default XarrayVariableSet.all. See
+        also docstring of XarrayVariableSet.
+    longitude : float, optional
         The longitude of the location to read data
-    latitude: float
+    latitude : float, optional
         The latitude of the location to read data
-    humanize: bool
-        Humanize measured quantities of bytes
-    csv: Path
-        Output file name for comma-separated values
-    verbose: int
+    repetitions : int, optional
+        Number of repetitions for read operation, by default
+        REPETITIONS_DEFAULT.
+    humanize : bool, optional
+        Flag to humanize file size nominally measured in bytes, by default
+        False.
 
     Returns
     -------
-    metadata, input_netcdf_path : dict, Path
-        A tuple of a nested dictionary and a pathlib.Path object
+    Tuple[dict, Path]
+        A tuple containing a dictionary with the file metadata and the Path
+        object of the NetCDF file.
+
+    Raises
+    ------
+    FileNotFoundError
+        If the specified NetCDF file does not exist.
+
+    Examples
+    --------
+    Suppose we have a NetCDF file 'data.nc' in the current directory. To get its metadata, use:
+
+    >>> from pathlib import Path
+    >>> metadata, path = get_netcdf_metadata(Path('data.nc'))
+    >>> print(metadata)
+    { ...metadata output... }
+    >>> print(path)
+    Path('data.nc')
+
+    This will output the metadata of the 'data.nc' file and the Path object.
 
     """
-    if not os.path.exists(input_netcdf_path):
-        return "File not found: " + input_netcdf_path
+    if not input_netcdf_path.exists():
+        raise FileNotFoundError(f"File not found: {input_netcdf_path}")
 
     with Dataset(input_netcdf_path, "r") as dataset:
         filesize = os.path.getsize(input_netcdf_path)  # in Bytes
-        if humanize:
-            filesize = naturalsize(filesize, binary=True)
+        filesize = naturalsize(filesize, binary=True) if humanize else filesize
         metadata = {
             "File name": input_netcdf_path.name,
             "File size": filesize,
@@ -122,9 +141,9 @@ def get_netcdf_metadata(
             cache_metadata = variable.get_var_chunk_cache()
             variable_metadata = {
                 "Shape": " x ".join(map(str, variable.shape)),
-                "Chunks": variable.chunking()
-                if variable.chunking() == "contiguous"
-                else " x ".join(map(str, variable.chunking())),
+                "Chunks": " x ".join(map(str, variable.chunking()))
+                if variable.chunking() != "contiguous"
+                else "contiguous",
                 "Cache": cache_metadata[0] if cache_metadata[0] else NOT_AVAILABLE,
                 "Elements": cache_metadata[1] if cache_metadata[1] else NOT_AVAILABLE,
                 "Preemption": cache_metadata[2] if cache_metadata[2] else NOT_AVAILABLE,
