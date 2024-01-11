@@ -20,24 +20,27 @@ Before all, **create a [virtual environment][venv]!**
 
 [venv]: https://docs.python.org/3/library/venv.html
 
-Regardless of our favourite programming language
-or tool to manage environments,
-chances are high we'd benefit from using [`direnv`][direnv].
-In the context of a Python package, like [`rekx`][rekx], `direnv` supports all such
-well known tools from standard `venv`, `pyenv` and `pipenv`, to `anaconda`, `Poetry`, `Hatch`, `Rye` and `PDM`.
-Have a look at [direnv's Wiki page for Python][direnv-wiki-python].
+???+ tip
 
+    Regardless of our favourite programming language
+    or tool to manage environments,
+    chances are high we'd benefit from using [`direnv`][direnv].
+    In the context of a Python package, like [`rekx`][rekx],
+    `direnv` supports all such well known tools
+    from standard `venv`, `pyenv` and `pipenv`,
+    to `anaconda`, `Poetry`, `Hatch`, `Rye`
+    and `PDM`.
+    Have a look at [direnv's Wiki page for Python][direnv-wiki-python].
 
-???+ info
-
-    `rekx` is developed inside a virtual environment (re-)created and
-    (re-)activated via `direnv`. The following `.envrc` does all of it :
+    `rekx` is developed inside a virtual environment
+    (re-)created and (re-)activated via `direnv`.
+    The following `.envrc` does all of it :
     
     ``` title=".envrc"
     --8<-- ".envrc"
     ```
 
-    Finf more about `layout python` in
+    Find more about `layout python` in
     [direnv/wiki/Python#venv-stdlib-module](https://github.com/direnv/direnv/wiki/Python#venv-stdlib-module).
 
 
