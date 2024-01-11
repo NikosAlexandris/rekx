@@ -67,10 +67,9 @@ app = typer.Typer(
 
 def version_callback(flag: bool):
     if flag:
-        from rekx._version import get_versions
+        from ._version import __version__
 
-        __version__ = get_versions()["version"]
-        print(f"Rekx CLI Version: {__version__}")
+        print(f"rekx version {__version__}")
         raise typer.Exit()
 
 
