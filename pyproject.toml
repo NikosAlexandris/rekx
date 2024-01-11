@@ -51,6 +51,7 @@ keywords = [
 dev = [
   "devtools",  # move to optional dependencies ?
   "pytest",
+  "pre-commit",
   "black",
   "flake8",
   "isort",
