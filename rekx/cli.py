@@ -51,16 +51,6 @@ from .suggest import (
 )
 from .typer_parameters import OrderCommands
 
-
-def version_callback(version: bool):
-    if version:
-        from rekx._version import get_versions
-
-        __version__ = get_versions()["version"]
-        print(f"Rekx CLI Version : {__version__}")
-        raise typer.Exit()
-
-
 typer.rich_utils.Panel = Panel.fit
 app = typer.Typer(
     cls=OrderCommands,
@@ -73,6 +63,15 @@ app = typer.Typer(
 
 
 # callback
+
+
+def version_callback(flag: bool):
+    if flag:
+        from rekx._version import get_versions
+
+        __version__ = get_versions()["version"]
+        print(f"Rekx CLI Version: {__version__}")
+        raise typer.Exit()
 
 
 @app.callback()
