@@ -15,20 +15,20 @@ authors = [
 ]
 requires-python = "==3.11.*"
 dependencies = [
-    "loguru",
     "typer",
+    "numpy",
     "rich",
-    "kerchunk @ git+https://github.com/fsspec/kerchunk.git@b9659c32449539ef6addcb7a12520715cecf3253",
-    "fsspec @ git+https://github.com/NikosAlexandris/filesystem_spec",
-    "netcdf4",
-    "h5py",
     "pandas",
     "xarray",
-    "xarray_extras",
+    "fsspec @ git+https://github.com/NikosAlexandris/filesystem_spec",
+    "kerchunk @ git+https://github.com/fsspec/kerchunk.git@b9659c32449539ef6addcb7a12520715cecf3253",
+    "loguru",
     "humanize",
-    "dask",
+    "netcdf4",
+    "dask[dataframe]",
+    "xarray_extras",
+    "h5py",
     "pydantic",
-    "fastparquet",
 ]
 classifiers = [
     'Development Status :: 3 - Alpha',
