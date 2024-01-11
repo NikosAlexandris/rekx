@@ -79,10 +79,10 @@ rekx = "rekx.cli:app"
 
 [tool.hatch.version]
 source = "vcs"
-path = "_version.py"
+path = "rekx/_version.py"
 
 [tool.hatch.build.hooks.vcs]
-version-file = "_version.py"
+version-file = "rekx/_version.py"
 
 [tool.towncrier]
 # https://towncrier.readthedocs.io/en/stable/#quick-start
