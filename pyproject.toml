@@ -1,34 +1,34 @@
+[tool.hatch.metadata]
+allow-direct-references = true
+
 [build-system]
 requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
-
-[tool.hatch.metadata]
-allow-direct-references = true
 
 [project]
 name = "rekx"
 dynamic = ["version"]
 description = "Interactive command line interface to Kerchunk and tooling for data chunking"
-readme = "ReadMe.md"
+readme = {file = "ReadMe.md", content-type = "text/markdown"}
 authors = [
-  { name = 'Nikos Alexandris', email = 'nikosalexandris@duck.com' },
+    { name = 'Nikos Alexandris', email = 'nikosalexandris@duck.com' },
 ]
-requires-python = ">=3.11"
+requires-python = "==3.11.*"
 dependencies = [
-  "loguru",
-  "typer",  # Already included
-  "rich",   # Already included
-  "kerchunk @ git+https://github.com/fsspec/kerchunk.git@b9659c32449539ef6addcb7a12520715cecf3253",
-  "fsspec @ git+https://github.com/NikosAlexandris/filesystem_spec",
-  "netcdf4",
-  "h5py",
-  "pandas",
-  "xarray",
-  "xarray_extras",
-  "humanize",
-  "dask",
-  "pydantic",
-  "fastparquet",
+    "loguru",
+    "typer",
+    "rich",
+    "kerchunk @ git+https://github.com/fsspec/kerchunk.git@b9659c32449539ef6addcb7a12520715cecf3253",
+    "fsspec @ git+https://github.com/NikosAlexandris/filesystem_spec",
+    "netcdf4",
+    "h5py",
+    "pandas",
+    "xarray",
+    "xarray_extras",
+    "humanize",
+    "dask",
+    "pydantic",
+    "fastparquet",
 ]
 classifiers = [
     'Development Status :: 3 - Alpha',
@@ -39,22 +39,26 @@ classifiers = [
     'Programming Language :: Python :: 3',
     'Topic :: Scientific/Engineering :: Information Analysis'
 ]
-license = "EUPL-1.2"
+license = {text = "EUPL-1.2"}
 keywords = [
   "rekx",
   "Kerchunk",
   "chunks",
   "chunking",
+  "Xarray",
+  "netcdf4",
+  "NetCDF",
+  "HDF",
 ]
 
 [project.optional-dependencies]
 dev = [
   "devtools",  # move to optional dependencies ?
-  "pytest",
   "pre-commit",
   "black",
   "flake8",
   "isort",
+  "pytest",
 ]
 docs = [
   "mkdocs-material",
@@ -75,7 +79,10 @@ rekx = "rekx.cli:app"
 
 [tool.hatch.version]
 source = "vcs"
-path = "rekx/_version.py"
+path = "_version.py"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "_version.py"
 
 [tool.towncrier]
 # https://towncrier.readthedocs.io/en/stable/#quick-start

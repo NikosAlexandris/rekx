@@ -76,7 +76,7 @@ theme:
       scheme: lime
       toggle:
         icon: material/brightness-4
-        name: Switch to system preference
+        name: Switch to light mode
   name: material
   custom_dir: docs/overrides
   features:
