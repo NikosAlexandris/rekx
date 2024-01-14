@@ -43,6 +43,27 @@ def print_chunking_shapes(chunking_shapes):
     console.print(table)
 
 
+def print_chunking_shapes_consistency_validation_long_table(inconsistent_variables):
+    for variable, shapes_and_files in inconsistent_variables.items():
+        table = Table(
+            title=variable,
+            # caption=caption,
+            show_header=True,
+            header_style="bold magenta",
+            box=SIMPLE_HEAD,
+        )
+        table.add_column("Variable", style="dim", no_wrap=True)
+        table.add_column("Shape", style="dim", no_wrap=True)
+        table.add_column("Files", no_wrap=True)
+        for shape, files in shapes_and_files.items():
+            for file in files:
+                shape_string = " x ".join(map(str, shape))
+                table.add_row(variable, shape_string, file)
+
+        console = Console()
+        console.print(table)
+
+
 def print_common_chunk_layouts(common_chunk_layouts):
     # Create a table for 'variable' and the 'common shape'
     table = Table(show_header=True, header_style="bold magenta", box=SIMPLE_HEAD)
