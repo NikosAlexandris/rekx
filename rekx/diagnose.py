@@ -8,19 +8,19 @@ the chunking shapes of NetCDF files.
 import os
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
-from typing import Annotated, List, Optional, Tuple
+from typing import Annotated, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
 import typer
 import xarray as xr
 from humanize import naturalsize
-from loguru import logger
 from netCDF4 import Dataset
 from rich import print
 
 from .constants import NOT_AVAILABLE, REPETITIONS_DEFAULT, VERBOSE_LEVEL_DEFAULT
 from .csv import write_metadata_dictionary_to_csv, write_nested_dictionary_to_csv
+from .log import logger
 from .models import (
     XarrayVariableSet,
     select_netcdf_variable_set_from_dataset,
@@ -43,341 +43,11 @@ from .typer_parameters import (
 )
 
 
-def get_netcdf_metadata(
-    input_netcdf_path: Annotated[Path, "Path to the NetCDF file"],
-    variable: Annotated[
-        None | str, "Name of the variable to inspect, defaults to None"
-    ] = None,
-    variable_set: Annotated[
-        XarrayVariableSet, "Set of variables to diagnose"
-    ] = XarrayVariableSet.all,
-    longitude: Annotated[float, "Longitude in degrees"] = 8,
-    latitude: Annotated[float, "Latitude in degrees"] = 45,
-    repetitions: Annotated[
-        int, "Number of repetitions for read operation"
-    ] = REPETITIONS_DEFAULT,
-    humanize: Annotated[bool, "Flag to humanize file size"] = False,
-) -> Tuple[dict, Path]:
-    """
-    Get the metadata of a single NetCDF file.
-
-    Retrieve and report the metadata of a single NetCDF file, including :
-    file name, file size, dimensions, shape, chunks, cache, data type, scale
-    factor, offset, compression filter, compression level, shuffling
-    and lastly the read time (required to retrieve data and load them in memory)
-    for data variables.
-
-    Parameters
-    ----------
-    input_netcdf_path: Path
-        Path to the input NetCDF file
-    variable: str
-    variable : None | str, optional
-        Name of the variable to query, by default None.
-    variable_set : XarrayVariableSet, optional
-        Set of variables to diagnose, by default XarrayVariableSet.all. See
-        also docstring of XarrayVariableSet.
-    longitude : float, optional
-        The longitude of the location to read data
-    latitude : float, optional
-        The latitude of the location to read data
-    repetitions : int, optional
-        Number of repetitions for read operation, by default
-        REPETITIONS_DEFAULT.
-    humanize : bool, optional
-        Flag to humanize file size nominally measured in bytes, by default
-        False.
-
-    Returns
-    -------
-    Tuple[dict, Path]
-        A tuple containing a dictionary with the file metadata and the Path
-        object of the NetCDF file.
-
-    Raises
-    ------
-    FileNotFoundError
-        If the specified NetCDF file does not exist.
-
-    Examples
-    --------
-    Suppose we have a NetCDF file 'data.nc' in the current directory. To get its metadata, use:
-
-    >>> from pathlib import Path
-    >>> metadata, path = get_netcdf_metadata(Path('data.nc'))
-    >>> print(metadata)
-    { ...metadata output... }
-    >>> print(path)
-    Path('data.nc')
-
-    This will output the metadata of the 'data.nc' file and the Path object.
-
-    """
-    if not input_netcdf_path.exists():
-        raise FileNotFoundError(f"File not found: {input_netcdf_path}")
-
-    with Dataset(input_netcdf_path, "r") as dataset:
-        filesize = os.path.getsize(input_netcdf_path)  # in Bytes
-        filesize = naturalsize(filesize, binary=True) if humanize else filesize
-        metadata = {
-            "File name": input_netcdf_path.name,
-            "File size": filesize,
-            "Dimensions": {
-                dim: len(dataset.dimensions[dim]) for dim in dataset.dimensions
-            },
-            "Repetitions": repetitions,
-        }
-        selected_variables = select_netcdf_variable_set_from_dataset(
-            XarrayVariableSet, variable_set, dataset
-        )
-        data_variables = select_netcdf_variable_set_from_dataset(
-            XarrayVariableSet, "data", dataset
-        )
-        variables_metadata = {}
-        for variable_name in selected_variables:
-            variable = dataset[
-                variable_name
-            ]  # variable is not a simple string anymore!
-            cache_metadata = variable.get_var_chunk_cache()
-            variable_metadata = {
-                "Shape": " x ".join(map(str, variable.shape)),
-                "Chunks": " x ".join(map(str, variable.chunking()))
-                if variable.chunking() != "contiguous"
-                else "contiguous",
-                "Cache": cache_metadata[0] if cache_metadata[0] else NOT_AVAILABLE,
-                "Elements": cache_metadata[1] if cache_metadata[1] else NOT_AVAILABLE,
-                "Preemption": cache_metadata[2] if cache_metadata[2] else NOT_AVAILABLE,
-                "Type": str(variable.dtype),
-                "Scale": getattr(variable, "scale_factor", NOT_AVAILABLE),
-                "Offset": getattr(variable, "add_offset", NOT_AVAILABLE),
-                "Compression": variable.filters()
-                if "filters" in dir(variable)
-                else NOT_AVAILABLE,
-                "Level": NOT_AVAILABLE,
-                "Shuffling": variable.filters().get("shuffle", NOT_AVAILABLE),
-                "Read time": NOT_AVAILABLE,
-            }
-            variables_metadata[
-                variable_name
-            ] = variable_metadata  # Add info to variable_metadata
-            if variable_name in data_variables:
-                data_retrieval_time = read_performance(
-                    time_series=input_netcdf_path,
-                    variable=variable_name,
-                    longitude=longitude,
-                    latitude=latitude,
-                    repetitions=repetitions,
-                )
-            else:
-                data_retrieval_time = NOT_AVAILABLE
-            variables_metadata[variable_name]["Read time"] = data_retrieval_time
-
-    metadata["Variables"] = variables_metadata
-    return metadata, input_netcdf_path
-
-
-def get_multiple_netcdf_metadata(
-    file_paths: List[Path],
-    variable: str = None,
-    variable_set: XarrayVariableSet = XarrayVariableSet.all,
-    longitude: Annotated[float, typer_argument_longitude_in_degrees] = 8,
-    latitude: Annotated[float, typer_argument_latitude_in_degrees] = 45,
-    repetitions: Annotated[int, typer_option_repetitions] = REPETITIONS_DEFAULT,
-    humanize: Annotated[bool, typer_option_humanize] = False,
-):
-    """Get the metadata of multiple NetCDF files.
-
-    Get and report the metadata of multiple NetCDF files, including :
-    file name, file size, dimensions, shape, chunks, cache, type, scale,
-    offset, compression, shuffling and lastly the read time (required to
-    retrieve data) for data variables.
-
-    Parameters
-    ----------
-    file_paths: List[Path]
-        List of paths to the input NetCDF files
-    variable: str
-        Name of the variable to query
-    variable_set: XarrayVariableSet
-        Name of the set of variables to query. See also docstring of
-        XarrayVariableSet
-    longitude: float
-        The longitude of the location to read data
-    latitude: float
-        The latitude of the location to read data
-    repetitions: int
-        Number of repetitions for read operation
-    humanize: bool
-        Humanize measured quantities of bytes
-
-    Returns
-    -------
-    metadata_series: dict
-        A nested dictionary
-
-    """
-    metadata_series = {}
-    with ProcessPoolExecutor() as executor:
-        futures = [
-            executor.submit(
-                get_netcdf_metadata,
-                file_path,
-                variable,
-                variable_set.value,
-                longitude,
-                latitude,
-                repetitions,
-                humanize,
-            )
-            for file_path in file_paths
-        ]
-        for future in as_completed(futures):
-            try:
-                metadata, input_netcdf_path = future.result()
-                # logger.info(f'Metadata : {metadata}')
-                metadata_series[input_netcdf_path.name] = metadata
-            except Exception as e:
-                logger.error(f"Error processing file: {e}")
-
-    return metadata_series
-
-
-def collect_netcdf_metadata(
-    input_path: Annotated[Path, typer_argument_input_path] = ".",
-    pattern: Annotated[str, typer_option_filename_pattern] = "*.nc",
-    variable: str = None,
-    variable_set: Annotated[
-        XarrayVariableSet, typer.Option(help="Set of Xarray variables to diagnose")
-    ] = XarrayVariableSet.all,
-    long_table: Annotated[
-        Optional[bool],
-        "Group rows of metadata per input NetCDF file and variable in a long table",
-    ] = True,
-    group_metadata: Annotated[
-        Optional[bool],
-        "Visually cluster rows of metadata per input NetCDF file and variable",
-    ] = False,
-    longitude: Annotated[float, typer_argument_longitude_in_degrees] = 8,
-    latitude: Annotated[float, typer_argument_latitude_in_degrees] = 45,
-    repetitions: Annotated[int, typer_option_repetitions] = REPETITIONS_DEFAULT,
-    humanize: Annotated[bool, typer_option_humanize] = False,
-    csv: Annotated[Path, typer_option_csv] = None,
-    verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
-) -> None:
-    """Collect the metadata of a single or multiple NetCDF files.
-
-    Scan the `source_directory` for files that match the given `pattern`,
-    and collect their metadata, including : file name, file size, dimensions,
-    shape, chunks, cache, type, scale, offset, compression, shuffling and
-    lastly measure the time required to retrieve and load data variables (only)
-    in memory.
-
-    Parameters
-    ----------
-    input_path: Path
-        A singe path or a list of paths to the input NetCDF data
-    variable: str
-        Name of the variable to query
-    variable_set: XarrayVariableSet
-        Name of the set of variables to query. See also docstring of
-        XarrayVariableSet.
-    longitude: float
-        The longitude of the location to read data
-    latitude: float
-        The latitude of the location to read data
-    group_metadata: bool
-        Visually group metadata records per input file by using empty lines
-        in-between
-    repetitions: int
-        Number of repetitions for read operation
-    humanize: bool
-        Humanize measured quantities of bytes
-    csv: Path
-        Output file name for comma-separated values
-    verbose: int
-        Verbosity level
-
-    Returns
-    -------
-    None
-        This function does not return anything. It either prints out the
-        results in the terminal or writes then in a CSV file if requested.
-
-    """
-    if input_path.is_file():
-        metadata, _ = get_netcdf_metadata(
-            input_netcdf_path=input_path,
-            variable=variable,
-            variable_set=variable_set,
-            longitude=longitude,
-            latitude=latitude,
-            repetitions=repetitions,
-            humanize=humanize,
-            verbose=verbose,
-        )
-        if not csv:
-            from .print import print_metadata_table
-
-            print_metadata_table(metadata)
-        if csv:
-            write_metadata_dictionary_to_csv(
-                dictionary=metadata,
-                output_filename=csv,
-            )
-        return
-
-    if input_path.is_dir():
-        source_directory = Path(input_path)
-        if not any(source_directory.iterdir()):
-            print(f"[red]The directory [code]{source_directory}[/code] is empty[/red].")
-            return
-        file_paths = list(source_directory.glob(pattern))
-        if not file_paths:
-            print(
-                f"No files matching the pattern [code]{pattern}[/code] found in [code]{source_directory}[/code]!"
-            )
-            return
-        mode = DisplayMode(verbose)
-        with display_context[mode]:
-            try:
-                metadata_series = get_multiple_netcdf_metadata(
-                    file_paths=file_paths,
-                    variable_set=variable_set,
-                    longitude=longitude,
-                    latitude=latitude,
-                    repetitions=repetitions,
-                    humanize=humanize,
-                )
-            except TypeError as e:
-                raise ValueError("Error occurred:", e)
-
-        if csv:
-            write_nested_dictionary_to_csv(
-                nested_dictionary=metadata_series,
-                output_filename=csv,
-            )
-            return
-
-        if not long_table:
-            from .print import print_metadata_series_table
-
-            print_metadata_series_table(
-                metadata_series=metadata_series,
-                group_metadata=group_metadata,
-            )
-        else:
-            from .print import print_metadata_series_long_table
-
-            print_metadata_series_long_table(
-                metadata_series=metadata_series,
-                group_metadata=group_metadata,
-            )
-
-
 def detect_chunking_shapes(
     file_path: Path,
     variable_set: XarrayVariableSet = XarrayVariableSet.all,
-):
+    # ) -> Tuple[Dict[str, Set[int]], str]:
+) -> Tuple[Dict, str]:
     """
     Detect the chunking shapes of variables within single NetCDF file.
 
@@ -391,14 +61,23 @@ def detect_chunking_shapes(
 
     Returns
     -------
-    tuple
+    Tuple[Dict, str]
+    # Tuple[Dict[str, Set[int]], str]
         A tuple containing a dictionary `chunking_shape` and the name of the
         input file. The nested dictionary's first level keys are variable names,
         and the second level keys are the chunking shapes encountered, with the
         associated values being sets of file names where those chunking shapes
         are found.
 
+    Raises
+    ------
+    FileNotFoundError
+        If the specified NetCDF file does not exist.
+
     """
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+
     chunking_shapes = {}
     with xr.open_dataset(file_path, engine="netcdf4") as dataset:
         selected_variables = select_xarray_variable_set_from_dataset(
@@ -407,7 +86,16 @@ def detect_chunking_shapes(
         for variable in selected_variables:
             chunking_shape = dataset[variable].encoding.get("chunksizes")
             if chunking_shape and chunking_shape != "contiguous":
+                # Review Me ! ----------------------
+                # if variable not in chunking_shapes:
+                #     chunking_shapes[variable] = set()
+                # Review Me ! ----------------------
+
                 chunking_shapes[variable] = chunking_shape
+
+                # Review Me ! ----------------------
+                # chunking_shapes[variable].add(tuple(chunking_shape))
+                # Review Me ! ----------------------
 
     return chunking_shapes, file_path.name
 
@@ -415,7 +103,7 @@ def detect_chunking_shapes(
 def detect_chunking_shapes_parallel(
     file_paths: List[Path],
     variable_set: XarrayVariableSet = XarrayVariableSet.all,
-):
+) -> dict:
     """
     Detect and aggregate the chunking shapes of variables within a set of
     multiple NetCDF files in parallel.
@@ -461,91 +149,3 @@ def detect_chunking_shapes_parallel(
                 logger.error(f"Error processing file: {e}")
 
     return aggregated_chunking_shapes
-
-
-# functions for CLI commands
-
-
-def diagnose_chunking_shapes(
-    source_directory: Annotated[Path, typer_argument_source_directory],
-    pattern: Annotated[str, typer_option_filename_pattern] = "*.nc",
-    variable_set: Annotated[
-        XarrayVariableSet, typer.Option(help="Set of Xarray variables to diagnose")
-    ] = XarrayVariableSet.all,
-    common_shapes: Annotated[
-        bool, typer.Option(help="Report common maximum chunking shape")
-    ] = False,
-    csv: Annotated[Path, typer_option_csv] = None,
-    verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
-):
-    """Diagnose the chunking shapes of multiple Xarray-supported files.
-
-    Scan the `source_directory` for Xarray-supported files that match
-    the given `pattern` and diagnose the chunking shapes for each variable
-    or determine the maximum common chunking shape across the input data.
-
-    Parameters
-    ----------
-    source_directory: Path
-        The source directory to scan for files matching the `pattern`
-    pattern: str
-        The filename pattern to match files
-    variable_set: XarrayVariableSet
-        Name of the set of variables to query. See also docstring of
-        XarrayVariableSet
-    verbose: int
-        Verbosity level
-
-    Returns
-    -------
-    # common_chunking_shapes: dict
-    #     A dictionary with the common maximum chunking shapes for each variable
-    #     identified in the input data.
-
-    """
-    source_directory = Path(source_directory)
-    if not source_directory.exists() or not any(source_directory.iterdir()):
-        print(
-            f"[red]The directory [code]{source_directory}[/code] does not exist or is empty[/red]."
-        )
-        return
-    file_paths = list(source_directory.glob(pattern))
-    if not file_paths:
-        print(
-            f"No files matching the pattern [code]{pattern}[/code] found in [code]{source_directory}[/code]!"
-        )
-        return
-
-    mode = DisplayMode(verbose)
-    with display_context[mode]:
-        try:
-            chunking_shapes = detect_chunking_shapes_parallel(
-                file_paths=file_paths,
-                variable_set=variable_set,
-            )
-        except TypeError as e:
-            raise ValueError("Error occurred:", e)
-
-        if common_shapes:
-            common_chunking_shapes = {}
-            for variable, shapes in chunking_shapes.items():
-                import numpy as np
-
-                max_shape = np.array(next(iter(shapes)), dtype=int)
-                for shape in shapes:
-                    current_shape = np.array(shape, dtype=int)
-                    max_shape = np.maximum(max_shape, current_shape)
-                common_chunking_shapes[variable] = tuple(max_shape)
-
-            print_common_chunk_layouts(common_chunking_shapes)
-            # return common_chunking_shapes
-
-    print_chunk_shapes_table(chunking_shapes)  # , highlight_variables)  : Idea
-    if csv:
-        write_nested_dictionary_to_csv(
-            # nested_dictionary=chunking_shapes,
-            nested_dictionary=chunking_shapes
-            if not common_shapes
-            else common_chunking_shapes,
-            output_filename=csv,
-        )
