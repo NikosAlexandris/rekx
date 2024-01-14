@@ -8,12 +8,8 @@ from rich.panel import Panel
 from rekx.messages import NOT_IMPLEMENTED_CLI
 
 from .combine import combine_kerchunk_references, combine_kerchunk_references_to_parquet
-from .consistency import check_chunk_consistency, check_chunk_consistency_json
-from .diagnose import (
-    collect_netcdf_metadata,
-    diagnose_chunking_shapes,
-    get_netcdf_metadata,
-)
+from .consistency import check_chunk_consistency_json
+from .inspect import inspect_netcdf_data
 from .parquet import (
     combine_parquet_stores_to_parquet,
     parquet_multi_reference,
@@ -44,6 +40,7 @@ from .select import (
     select_time_series_from_json,
     select_time_series_from_json_in_memory,
 )
+from .shapes import diagnose_chunking_shapes
 from .suggest import (
     suggest_chunking_shape,
     suggest_chunking_shape_alternative,
@@ -74,7 +71,7 @@ def version_callback(flag: bool):
 
 
 @app.callback()
-def callback_app(
+def main(
     version: bool = typer.Option(
         None,
         "--version",
@@ -94,7 +91,7 @@ app.command(
     help="Inspect Xarray-supported data",
     no_args_is_help=True,
     rich_help_panel=rich_help_panel_diagnose,
-)(collect_netcdf_metadata)
+)(inspect_netcdf_data)
 app.command(
     name="shapes",
     help="Diagnose chunking shapes in multiple Xarray-supported data",
@@ -104,12 +101,6 @@ app.command(
 
 # validate chunking in series of data
 
-app.command(
-    name="validate",
-    help="Validate chunk size consistency along multiple Xarray-supported data",
-    no_args_is_help=True,
-    rich_help_panel=rich_help_panel_diagnose,
-)(check_chunk_consistency)
 app.command(
     name="validate-json",
     help="Validate chunk size consistency along multiple Kerchunk reference files [reverse]How to get available variables?[/reverse]",
@@ -202,7 +193,6 @@ app.command(
 )(combine_parquet_stores_to_parquet)
 
 # select
-
 
 app.command(
     name="select",
