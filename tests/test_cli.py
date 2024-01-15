@@ -13,7 +13,7 @@ runner = CliRunner()
 #     assert err == ""
 
 
-hardcoded_version = "rekx version 0.0.9.dev5+gb25d01b.d20240111"
+hardcoded_version = "rekx version 0.0.10.dev8+g005852e.d20240115"
 
 
 def test_version():
