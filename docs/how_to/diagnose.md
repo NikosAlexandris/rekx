@@ -19,36 +19,20 @@ can diagnose the structure of data stored in Xarray-supported file formats.
 
 Inspect a single NetCDF file
 
-``` bash
-❯ rekx inspect SISin202001010000004231000101MA.nc
-                                                              SISin202001010000004231000101MA.nc
-
-  Variable        Shape              Chunks         Cache      Elements   Preemption   Type      Scale   Offset   Compression   Level   Shuffling   Read Time
- ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-  lat_bnds        2600 x 2           2600 x 2       16777216   4133       0.75         float32   -       -        zlib          4       False       -
-  lon             2600               2600           16777216   4133       0.75         float32   -       -        zlib          4       False       -
-  record_status   48                 48             16777216   4133       0.75         int8      -       -        zlib          4       False       -
-  lon_bnds        2600 x 2           2600 x 2       16777216   4133       0.75         float32   -       -        zlib          4       False       -
-  lat             2600               2600           16777216   4133       0.75         float32   -       -        zlib          4       False       -
-  time            48                 512            16777216   4133       0.75         float64   -       -        zlib          4       False       -
-  SIS             48 x 2600 x 2600   1 x 1 x 2600   16777216   4133       0.75         int16     -       -        zlib          4       False       0.007
-
-                                        File size: 181550165 bytes, Dimensions: time: 48, lon: 2600, bnds: 2, lat: 2600
-                                           * Cache: Size in bytes, Number of elements, Preemption ranging in [0, 1]
+```{.shell linenums="0"}
+rekx inspect data/single_file/SISin202001010000004231000101MA.nc
+```
+``` bash exec="true" result="ansi"
+rekx inspect data/single_file/SISin202001010000004231000101MA.nc
 ```
 
 Perhaps restrict inspection on data variables only
 
-``` bash
-❯ rekx inspect SISin202001010000004231000101MA.nc --variable-set data
-                                                              SISin202001010000004231000101MA.nc
-
-  Variable   Shape              Chunks         Cache      Elements   Preemption   Type    Scale   Offset   Compression   Level   Shuffling   Read Time
- ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-  SIS        48 x 2600 x 2600   1 x 1 x 2600   16777216   4133       0.75         int16   -       -        zlib          4       False       0.007
-
-                                    File size: 181550165 bytes, Dimensions: time: 48, lon: 2600, bnds: 2, lat: 2600
-                                        * Cache: Size in bytes, Number of elements, Preemption ranging in [0, 1]
+```{.shell linenums="0"}
+❯ rekx inspect data/single_file/SISin202001010000004231000101MA.nc --variable-set data
+```
+``` bash exec="true" result="ansi"
+rekx inspect data/single_file/SISin202001010000004231000101MA.nc --variable-set data
 ```
 
 !!! hint
@@ -59,40 +43,33 @@ Perhaps restrict inspection on data variables only
 
 or even show _humanised_ size figures
 
-``` bash
-❯ rekx inspect SISin202001010000004231000101MA.nc --variable-set data --humanize
-                                                           SISin202001010000004231000101MA.nc
-
-  Variable   Shape              Chunks         Cache      Elements   Preemption   Type    Scale   Offset   Compression   Level   Shuffling   Read Time
- ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-  SIS        48 x 2600 x 2600   1 x 1 x 2600   16777216   4133       0.75         int16   -       -        zlib          4       False       0.010
-
-                                    File size: 173.1 MiB bytes, Dimensions: time: 48, lon: 2600, bnds: 2, lat: 2600
-                                        * Cache: Size in bytes, Number of elements, Preemption ranging in [0, 1]
+```{.shell linenums="0"}
+rekx inspect data/single_file/SISin202001010000004231000101MA.nc --variable-set data --humanize
+```
+``` bash exec="true" result="ansi"
+rekx inspect data/single_file/SISin202001010000004231000101MA.nc --variable-set data --humanize
 ```
 
 ### A directory with multiple files
 
 Let's consider a directory with 2 NetCDF files
 
-``` bash
-❯ ls -1
-SISin202001010000004231000101MA.nc
-SISin202001020000004231000101MA.nc
+```{.shell linenums="0"}
+❯ ls -1 data/multiple_files_unique_shape/
+```
+``` bash exec="true" result="ansi"
+ls -1 data/multiple_files_unique_shape/
 ```
 
 and inspect them all,
 in this case scanning only for data variables in the _current_ directory
 
-``` bash
+```{.shell linenums="0"}
+> cd data/multiple_files_unique_shape/
 ❯ rekx inspect . --variable-set data
-
-  Name                      Size        Dimensions             Variable   Shape              Chunks         Cache      Elements   Preemption   Type    Scale   Offset   Compression   Level   Shuffling   Read Time
- ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-  SISin20200101000000423…   181550165   2 x 48 x 2600 x 2600   SIS        48 x 2600 x 2600   1 x 1 x 2600   16777216   4133       0.75         int16   -       -        zlib          4       False       0.011
-  SISin20200102000000423…   182167423   2 x 48 x 2600 x 2600   SIS        48 x 2600 x 2600   1 x 1 x 2600   16777216   4133       0.75         int16   -       -        zlib          4       False       0.011
-
-                            Dimensions: lat x bnds x time x lon | Cache size in bytes | Number of elements | Preemption strategy ranging in [0, 1] | Average time of 10 reads in seconds
+```
+``` bash exec="true" result="ansi"
+rekx inspect data/multiple_files_unique_shape/ --variable-set data
 ```
 
 !!! info
@@ -104,24 +81,11 @@ multiple files are reported on a _long table_.
 For whatever the reason might be, we night not want this.
 We can instead ask for independent tables per input file :
 
-``` bash
-❯ rekx inspect . --variable-set data --no-long-table
-                                                           SISin202001010000004231000101MA.nc
-
-  Variable   Shape              Chunks         Cache      Elements   Preemption   Type    Scale   Offset   Compression   Level   Shuffling   Read Time
- ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-  SIS        48 x 2600 x 2600   1 x 1 x 2600   16777216   4133       0.75         int16   -       -        zlib          4       False       0.014
-
-                                    File size: 181550165 bytes, Dimensions: time: 48, lon: 2600, bnds: 2, lat: 2600
-                                        * Cache: Size in bytes, Number of elements, Preemption ranging in [0, 1]
-                                                           SISin202001020000004231000101MA.nc
-
-  Variable   Shape              Chunks         Cache      Elements   Preemption   Type    Scale   Offset   Compression   Level   Shuffling   Read Time
- ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-  SIS        48 x 2600 x 2600   1 x 1 x 2600   16777216   4133       0.75         int16   -       -        zlib          4       False       0.014
-
-                                    File size: 182167423 bytes, Dimensions: time: 48, lon: 2600, bnds: 2, lat: 2600
-                                        * Cache: Size in bytes, Number of elements, Preemption ranging in [0, 1]
+```{.shell linenums="0"}
+❯ rekx inspect data/multiple_files_unique_shape/ --variable-set data --no-long-table
+```
+``` bash exec="true" result="ansi"
+rekx inspect data/multiple_files_unique_shape/ --variable-set data --no-long-table
 ```
 
 ## Chunking shape
@@ -134,13 +98,18 @@ and report the chunking shapes across all of them.
 Following we scan the _current_ directory for filenames starting with `SIS` and
 having the suffix `.nc` :
 
-``` bash
-❯ rekx shapes . --pattern "SIS*.nc" --variable-set data 
+```{.shell linenums="0"}
+❯ ls -1 data/multiple_files_multiple_products/
+```
+``` bash exec="true" result="ansi"
+ls -1 data/multiple_files_multiple_products/
+```
 
-  Variable   Shapes            Files                                            Count
- ─────────────────────────────────────────────────────────────────────────────────────
-  SIS        1 x 1 x 2600      SISin202001040000004231000101MA.nc ..            4
-  SIS        1 x 2600 x 2600   SISin200001010000004231000101MA_1_2600_2600.nc   1
+```{.shell linenums="0"}
+❯ rekx shapes data/multiple_files_multiple_products/ --pattern "SIS*.nc" --variable-set data 
+```
+``` bash exec="true" result="ansi"
+ rekx shapes data/multiple_files_multiple_products/ --pattern "SIS*.nc" --variable-set data 
 ```
 
 ### Uniform chunking shape?
@@ -148,37 +117,32 @@ having the suffix `.nc` :
 We can also verify the uniqueness of one chunking shape across all input files.
 To exemplify, in a directory containing :
 
-``` bash
-❯ ls -1
-SISin202001010000004231000101MA.nc
-SISin202001020000004231000101MA.nc
+```{.shell linenums="0"}
+❯ ls -1 data/multiple_files_unique_shape/
+```
+``` bash exec="true" result="ansi"
+ls -1 data/multiple_files_unique_shape/
 ```
 
-we scan for chunking shapes in the _current_ directory
+we navigate to the directory in question
+and scan for chunking shapes in the _current_ directory
 
-```
+```{.shell linenums="0"}
+❯ cd data/multiple_files_unique_shape/
 ❯ rekx shapes .
-
-  Variable        Shapes         Files                                   Count
- ──────────────────────────────────────────────────────────────────────────────
-  lat             2600           SISin202001020000004231000101MA.nc ..   2
-  lat_bnds        2600 x 2       SISin202001020000004231000101MA.nc ..   2
-  lon_bnds        2600 x 2       SISin202001020000004231000101MA.nc ..   2
-  time            512            SISin202001020000004231000101MA.nc ..   2
-  lon             2600           SISin202001020000004231000101MA.nc ..   2
-  record_status   48             SISin202001020000004231000101MA.nc ..   2
-  SIS             1 x 1 x 2600   SISin202001020000004231000101MA.nc ..   2
+```
+``` bash exec="true" result="ansi"
+rekx shapes data/multiple_files_unique_shape/
 ```
 
 or restrict the scan to _data_ variables only,
 as in the `inspect` command example above
 
-``` bash
+```{.shell linenums="0"}
 ❯ rekx shapes . --variable-set data
-
-  Variable   Shapes         Files                                   Count
- ─────────────────────────────────────────────────────────────────────────
-  SIS        1 x 1 x 2600   SISin202001010000004231000101MA.nc ..   2
+```
+``` bash exec="true" result="ansi"
+rekx shapes data/multiple_files_unique_shape/ --variable-set data
 ```
 
 We can verify the one and only chunking shape via
@@ -190,44 +154,41 @@ We can verify the one and only chunking shape via
 
 Else, let's scan another directory containing
 
-``` bash
-❯ ls -1
-SISin200001010000004231000101MA_1_2600_2600.nc
-SISin202001010000004231000101MA.nc
-SISin202001020000004231000101MA.nc
+```{.shell linenums="0"}
+❯ ls data/multiple_files_multiple_shapes/
+```
+``` bash exec="true" result="ansi"
+ls data/multiple_files_multiple_shapes/
 ```
 
 For the following _shapes_
 
-``` bash
+```{.shell linenums="0"}
+❯ cd data/multiple_files_multiple_shapes/
 ❯ rekx shapes . --variable-set data
-
-  Variable   Shapes            Files                                            Count
- ─────────────────────────────────────────────────────────────────────────────────────
-  SIS        1 x 1 x 2600      SISin202001020000004231000101MA.nc ..            2
-  SIS        1 x 2600 x 2600   SISin200001010000004231000101MA_1_2600_2600.nc   1
+```
+``` bash exec="true" result="ansi"
+rekx shapes data/multiple_files_multiple_shapes/ --variable-set data
 ```
 
 and check for _chunking_ consistency and expect a negative response since we
 have more than one shape :
 
-``` bash
+```{.shell linenums="0"}
 ❯ rekx shapes . --variable-set data --validate-consistency
-🗴 Variables are not consistently shaped across all files!
+```
+``` bash exec="true" result="ansi"
+rekx shapes data/multiple_files_multiple_shapes/ --variable-set data --validate-consistency
 ```
 
 Interested for a long table ?
 Use the verbosity flag :
 
-``` bash
+```{.shell linenums="0"}
 ❯ rekx shapes . --variable-set data --validate-consistency -v
-🗴 Variables are not consistently shaped across all files!
-
-  Variable   Shape             Files
- ─────────────────────────────────────────────────────────────────────────────
-  SIS        1 x 1 x 2600      SISin202001020000004231000101MA.nc
-  SIS        1 x 1 x 2600      SISin202001010000004231000101MA.nc
-  SIS        1 x 2600 x 2600   SISin200001010000004231000101MA_1_2600_2600.nc
+```
+``` bash exec="true" result="ansi"
+rekx shapes data/multiple_files_multiple_shapes/ --variable-set data --validate-consistency -v
 ```
 
 ### Maximum common chunking shape
@@ -238,14 +199,11 @@ from the SARAH3 climate data records.
 
 Say for example a directory contains the following SARAH3 products :
 
-``` bash
-❯ ls -1 data/*.nc
-data/SISin200001010000004231000101MA_1_2600_2600.nc
-data/SISin202001010000004231000101MA.nc
-data/SISin202001020000004231000101MA.nc
-data/SISin202001030000004231000101MA.nc
-data/SISin202001040000004231000101MA.nc
-data/SRImm201301010000003231000101MA.nc
+```{.shell linenums="0"}
+❯ ls data/multiple_files_multiple_products/
+```
+``` bash exec="true" result="ansi"
+ls data/multiple_files_multiple_products/
 ```
 
 `rekx` will fetch the maximum common shapes like so :
@@ -255,22 +213,12 @@ data/SRImm201301010000003231000101MA.nc
     The output format will likely be modified in one single table
     that features both the _Shapes_ and _Common Shape_ columns
 
-``` bash
-❯ rekx shapes data --variable-set data --common-shapes
-
-  Variable    Common Shape
- ───────────────────────────────
-  SRI         1 x 4 x 401 x 401
-  kato_bnds   29 x 2
-  SIS         1 x 2600 x 2600
-
-
-  Variable    Shapes              Files                                            Count
- ────────────────────────────────────────────────────────────────────────────────────────
-  SRI         1 x 4 x 401 x 401   SRImm201301010000003231000101MA.nc               1
-  kato_bnds   29 x 2              SRImm201301010000003231000101MA.nc               1
-  SIS         1 x 1 x 2600        SISin202001030000004231000101MA.nc ..            4
-  SIS         1 x 2600 x 2600     SISin200001010000004231000101MA_1_2600_2600.nc   1
+```{.shell linenums="0"}
+❯ cd data/multiple_files_multiple_products/
+❯ rekx shapes . --variable-set data --common-shapes
+```
+``` bash exec="true" result="ansi"
+rekx shapes data/multiple_files_multiple_products/ --variable-set data --common-shapes
 ```
 
 ## Consistency
@@ -283,30 +231,33 @@ for a uniform chunking shape across multiple NetCDF files.
 
 Let's list some NetCDF files which differ in terms of their chunking shapes :
 
-``` bash
-❯ ls -1 *.nc
-SISin200001010000004231000101MA_1_2600_2600.nc
-SISin202001010000004231000101MA.nc
-SISin202001020000004231000101MA.nc
-SISin202001030000004231000101MA.nc
-SISin202001040000004231000101MA.nc
-SRImm201301010000003231000101MA.nc
+```{.shell linenums="0"}
+❯ ls data/multiple_files_multiple_products/*.nc
+```
+``` bash exec="true" result="ansi"
+ls data/multiple_files_multiple_products/*.nc
 ```
 
 From the file names, we expect to have at least two different chunking shapes.
 Let's try first with the files named after a common pattern :
 
-``` bash
-❯ rekx validate . --pattern "SIS*MA.nc"
-✓ All files are consistently shaped!
+```{.shell linenums="0"}
+❯ cd data/multiple_files_multiple_products/
+❯ rekx shapes . --pattern "SIS*MA.nc" --validate-consistency
+```
+``` bash exec="true" result="ansi"
+rekx shapes data/multiple_files_multiple_products/ --pattern "SIS*MA.nc" --validate-consistency
 ```
 
 Indeed, the requested files are chunked identically.
 What about the other file `SISin200001010000004231000101MA_1_2600_2600.nc` ?
 
-``` bash
-❯ rekx validate .
-ValueError: Chunk size mismatch in file 'SISin202001030000004231000101MA.nc' for variable 'time'. Expected (1,) but got (512,)
+```{.shell linenums="0"}
+❯ cd data/multiple_files_multiple_products/
+❯ rekx shapes . --validate-consistency
+```
+``` bash exec="true" result="ansi"
+rekx shapes data/multiple_files_multiple_products/ --validate-consistency
 ```
 
 Voilà, this is a _no_ !
