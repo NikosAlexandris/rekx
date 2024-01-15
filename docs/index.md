@@ -26,6 +26,9 @@ hide:
     **Everything is under heavy development and subject to change!**
     Interested ? Peek over at the [To Do](to_do.md) list !
 
+
+# What ?
+
 `rekx` seamlessly interfaces
 the [Kerchunk](https://fsspec.github.io/kerchunk/) library [@Durant2023]
 in an interactive way through the command line.
@@ -33,6 +36,9 @@ It assists in creating virtual aggregate datasets,
 also known as Kerchunk reference sets,
 which allows for an efficient, parallel and cloud-friendly way
 to access data in-situ without duplicating the original datasets.
+
+
+# How ?
 
 More than a functional tool,
 `rekx` serves an educational purpose on matters around
@@ -43,6 +49,9 @@ While there is abundant documentation on such topics,
 it is often highly technical
 and oriented towards developers,
 `rekx` tries to simplify these concepts through practical examples.
+
+
+# Why ?
 
 Similarly,
 existing tools for managing HDF and NetCDF data,
@@ -58,9 +67,10 @@ suggest good chunking shapes and parameterise the rechunking of datasets,
 create and aggregate Kerchunk reference sets
 and time data read operations.
 
+
 `rekx` dedicates to practicality, simplicity, and essence.
 
-!!! quote "The Zen of Chunking"
+!!! enso "The Zen of Chunking"
 
     Chunks are equal-sized data blocks.
 
@@ -70,7 +80,7 @@ and time data read operations.
     Small chunks lead to a large number of chunks.
     
     Large chunks lead to a small number of chunks.
-    
+
     Appropriately sized chunks can improve performance.
     
     Unthoughtfully sized chunks will decrease performance.
@@ -80,5 +90,4 @@ and time data read operations.
     Good chunk sizes balance read/write operations and computational efficiency.
     
     There is no _one size fits all_.
-    
-    ..
+

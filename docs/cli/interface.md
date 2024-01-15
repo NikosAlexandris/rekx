@@ -5,7 +5,7 @@ tags:
   - Reference
 ---
 
-## Command line interface
+# Command Line Interface
 
 ::: rekx.cli
 ::: rekx.constants

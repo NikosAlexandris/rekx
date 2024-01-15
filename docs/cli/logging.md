@@ -6,7 +6,7 @@ tags:
   - Logging
 ---
 
-## Logging & Verbosity
+# Logging & Verbosity
 
 ::: rekx.log
 ::: rekx.progress

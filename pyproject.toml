@@ -66,6 +66,7 @@ docs = [
   "mkdocs-exclude",
   "mkdocstrings[python]",
   "mkdocs-bibtex",
+  "markdown-exec[ansi]",
 ]
 
 

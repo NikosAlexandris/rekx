@@ -17,6 +17,7 @@ nav:
   - Installation: install/install.md
   - How To:
       - how_to/index.md
+      - Help: how_to/help.md
       - Diagnose: how_to/diagnose.md
       - Suggest: how_to/suggest.md
       - Rechunk: how_to/rechunk.md
@@ -37,9 +38,14 @@ nav:
       # - Glossary: ?
   - CLI Reference:
       - cli/index.md
+      - Tools:
+        - Inspect: cli/inspect.md
+        - Shapes: cli/shapes.md
+        - Suggest: cli/suggest.md
+        - Rechunk: cli/rechunk.md
+        - Kerchunking: cli/kerchunking.md
       - cli/interface.md
       - cli/logging.md
-      - cli/tools.md
   - Meta:
       - meta/index.md
       - License: license.md
@@ -61,6 +67,9 @@ theme:
       todo: octicons/tasklist-16
       seealso: material/eye
       # html: fontawesome/brands/html5
+    admonition:
+    #   scan: material/scan-helper
+      zen: material/circle-outline 
   palette:
     - primary: lime
     - accent: deep purple
@@ -92,7 +101,7 @@ theme:
     - navigation.tabs
     - navigation.tabs.sticky
     - navigation.sections
-    - navigation.expand
+    # - navigation.expand
     - navigation.path
     - navigation.indexes 
     - toc.follow
@@ -111,6 +120,7 @@ plugins:
       glob:
         - "*.py"  # Python scripts
         - "*.inc"  # includes
+  - markdown-exec
   - mkdocstrings:
       handlers:
         python:
@@ -197,6 +207,8 @@ markdown_extensions:
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.tabbed:
+      alternate_style: true 
 
 extra_css:
   - stylesheets/extra.css

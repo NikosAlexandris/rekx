@@ -81,7 +81,8 @@ SISin202001010000004231000101MA.nc
 SISin202001020000004231000101MA.nc
 ```
 
-and inspect them all, in this case scanning only for data variables
+and inspect them all,
+in this case scanning only for data variables in the _current_ directory
 
 ``` bash
 ❯ rekx inspect . --variable-set data
@@ -125,10 +126,13 @@ We can instead ask for independent tables per input file :
 
 ## Chunking shape
 
-The _chunking shape_ refers to the chunk _sizes_ of the variables typicall
+The _chunking shape_ refers to the chunk _sizes_ of the variables typically
 found in a NetCDF file, or else any Xarray-supported file format.
 `rekx` can scan a `source_directory` for files that match a given `pattern`
-and report the chunking shapes across all of them :
+and report the chunking shapes across all of them.
+
+Following we scan the _current_ directory for filenames starting with `SIS` and
+having the suffix `.nc` :
 
 ``` bash
 ❯ rekx shapes . --pattern "SIS*.nc" --variable-set data 
@@ -137,6 +141,93 @@ and report the chunking shapes across all of them :
  ─────────────────────────────────────────────────────────────────────────────────────
   SIS        1 x 1 x 2600      SISin202001040000004231000101MA.nc ..            4
   SIS        1 x 2600 x 2600   SISin200001010000004231000101MA_1_2600_2600.nc   1
+```
+
+### Uniform chunking shape?
+
+We can also verify the uniqueness of one chunking shape across all input files.
+To exemplify, in a directory containing :
+
+``` bash
+❯ ls -1
+SISin202001010000004231000101MA.nc
+SISin202001020000004231000101MA.nc
+```
+
+we scan for chunking shapes in the _current_ directory
+
+```
+❯ rekx shapes .
+
+  Variable        Shapes         Files                                   Count
+ ──────────────────────────────────────────────────────────────────────────────
+  lat             2600           SISin202001020000004231000101MA.nc ..   2
+  lat_bnds        2600 x 2       SISin202001020000004231000101MA.nc ..   2
+  lon_bnds        2600 x 2       SISin202001020000004231000101MA.nc ..   2
+  time            512            SISin202001020000004231000101MA.nc ..   2
+  lon             2600           SISin202001020000004231000101MA.nc ..   2
+  record_status   48             SISin202001020000004231000101MA.nc ..   2
+  SIS             1 x 1 x 2600   SISin202001020000004231000101MA.nc ..   2
+```
+
+or restrict the scan to _data_ variables only,
+as in the `inspect` command example above
+
+``` bash
+❯ rekx shapes . --variable-set data
+
+  Variable   Shapes         Files                                   Count
+ ─────────────────────────────────────────────────────────────────────────
+  SIS        1 x 1 x 2600   SISin202001010000004231000101MA.nc ..   2
+```
+
+We can verify the one and only chunking shape via
+
+``` bash
+❯ rekx shapes . --variable-set data --validate-consistency
+✓ Variables are consistently shaped across all files!
+```
+
+Else, let's scan another directory containing
+
+``` bash
+❯ ls -1
+SISin200001010000004231000101MA_1_2600_2600.nc
+SISin202001010000004231000101MA.nc
+SISin202001020000004231000101MA.nc
+```
+
+For the following _shapes_
+
+``` bash
+❯ rekx shapes . --variable-set data
+
+  Variable   Shapes            Files                                            Count
+ ─────────────────────────────────────────────────────────────────────────────────────
+  SIS        1 x 1 x 2600      SISin202001020000004231000101MA.nc ..            2
+  SIS        1 x 2600 x 2600   SISin200001010000004231000101MA_1_2600_2600.nc   1
+```
+
+and check for _chunking_ consistency and expect a negative response since we
+have more than one shape :
+
+``` bash
+❯ rekx shapes . --variable-set data --validate-consistency
+🗴 Variables are not consistently shaped across all files!
+```
+
+Interested for a long table ?
+Use the verbosity flag :
+
+``` bash
+❯ rekx shapes . --variable-set data --validate-consistency -v
+🗴 Variables are not consistently shaped across all files!
+
+  Variable   Shape             Files
+ ─────────────────────────────────────────────────────────────────────────────
+  SIS        1 x 1 x 2600      SISin202001020000004231000101MA.nc
+  SIS        1 x 1 x 2600      SISin202001010000004231000101MA.nc
+  SIS        1 x 2600 x 2600   SISin200001010000004231000101MA_1_2600_2600.nc
 ```
 
 ### Maximum common chunking shape

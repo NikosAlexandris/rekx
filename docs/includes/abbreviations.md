@@ -3,6 +3,7 @@
 *[EUPL]: European Public License
 *[SARAH]: Surface Solar Radiation Data records – Heliosat
 *[SARAH3]: Surface Solar Radiation Data records – Heliosat version 3
+*[SARAH-3]: Surface Solar Radiation Data records – Heliosat version 3
 *[CLI]: Command Line Interface
 *[GNU]: GNU is Not Unix
 *[CSV]: Comma Separated Values
@@ -13,5 +14,4 @@
 *[XML]: Extensible Markup Language
 *[HDF]: Hierarchical Data Format
 *[HDF5]: Hierarchical Data Format version 5
-*[pip]: 
-
+*[pip]: Package installer for Python.
