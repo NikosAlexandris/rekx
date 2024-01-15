@@ -24,6 +24,6 @@ jobs:
           path: .cache
           restore-keys: |
             mkdocs-material-
-      - run: pip install mkdocs-material mkdocs-material mkdocs-table-reader-plugin mkdocs-exclude mkdocstrings[python] mkdocs-bibtex
+      - run: pip install mkdocs-material mkdocs-material mkdocs-table-reader-plugin mkdocs-exclude mkdocstrings[python] mkdocs-bibtex markdown-exec[ansi]
       - run: pip install .[dev]
       - run: mkdocs gh-deploy --force
