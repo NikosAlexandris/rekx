@@ -26,4 +26,28 @@ jobs:
             mkdocs-material-
       - run: pip install mkdocs-material mkdocs-material mkdocs-table-reader-plugin mkdocs-exclude mkdocstrings[python] mkdocs-bibtex markdown-exec[ansi]
       - run: pip install .[dev]
+      - name: Create pool directory and download files
+        run: |
+          mkdir -p pool
+          {
+            curl -L -o pool/SISin202001010000004231000101MA.nc https://github.com/NikosAlexandris/rekx/releases/download/v0.0.10/SISin202001010000004231000101MA.nc &&
+            curl -L -o pool/SISin202001020000004231000101MA.nc https://github.com/NikosAlexandris/rekx/releases/download/v0.0.10/SISin202001020000004231000101MA.nc &&
+            curl -L -o pool/SISin200001010000004231000101MA_1_2600_2600.nc https://github.com/NikosAlexandris/rekx/releases/download/v0.0.10/SISin200001010000004231000101MA_1_2600_2600.nc &&
+            curl -L -o pool/SRImm201301010000003231000101MA.nc https://github.com/NikosAlexandris/rekx/releases/download/v0.0.10/SRImm201301010000003231000101MA.nc
+          } || {
+            echo "Error downloading files. Check the availability of the files in the release.";
+            exit 1;
+          }
+      - name: Create data directories and symlink files from pool
+        run: |
+          mkdir data
+          mkdir -p data/single_file data/multiple_files_unique_shape data/multiple_files_multiple_shapes data/multiple_files_multiple_products
+          ln -s ../../pool/SISin202001010000004231000101MA.nc data/single_file/
+          ln -s ../../pool/SISin202001010000004231000101MA.nc data/multiple_files_unique_shape/
+          ln -s ../../pool/SISin202001 020000004231000101MA.nc data/multiple_files_unique_shape/
+          ln -s ../../pool/SISin202001010000004231000101MA.nc data/multiple_files_multiple_shapes/
+          ln -s ../../pool/SISin200001010000004231000101MA_1_2600_2600.nc data/multiple_files_multiple_shapes/
+          ln -s ../../pool/SISin202001010000004231000101MA.nc data/multiple_files_multiple_products/
+          ln -s ../../pool/SISin200001010000004231000101MA_1_2600_2600.nc data/multiple_files_multiple_products/
+          ln -s ../../pool/SRImm201301010000003231000101MA.nc data/multiple_files_multiple_products/
       - run: mkdocs gh-deploy --force
