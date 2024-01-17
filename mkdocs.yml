@@ -134,6 +134,8 @@ plugins:
           #   domains: [std, py]
           - https://docs.python.org/3/objects.inv
           - https://mkdocstrings.github.io/autorefs/objects.inv
+          - https://mkdocstrings.github.io/objects.inv
+          - https://mkdocstrings.github.io/griffe/objects.inv
           paths: [.]
           options:
           #   docstring_options:
@@ -141,9 +143,11 @@ plugins:
             docstring_style: numpy
             docstring_section_style: table
             filters: ["!^_"]
-            heading_level: 2
+            # heading_level: 2
+            heading_level: 1
             inherited_members: true
             merge_init_into_class: true
+            preload_modules: [mkdocstrings]
             separate_signature: true
             line_length: 60
             show_root_heading: true
@@ -151,10 +155,12 @@ plugins:
             # show_root_toc_entry: true
             show_signature_annotations: true
             # show_category_heading: true
+            # show_source: false
             show_symbol_type_heading: true
             show_symbol_type_toc: true
             signature_crossrefs: true
             summary: true
+            unwrap_annotated: true
 
 extra:
   tags:

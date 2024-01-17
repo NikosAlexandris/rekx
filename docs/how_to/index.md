@@ -10,8 +10,9 @@ hide:
 
 !!! abstract "Learn how to ..."
 
-    :material-scan-helper: [**`diagnose`**](diagnose.md)
-    structural characteristics of data packed in NetCDF/HDF5
+    :material-magnify: Diagnose the structural characteristics of data
+    packed in NetCDF/HDF5 with [**`inspect`**](inspect.md) and 
+    [**`shapes`**](shapes.md)
 
     :material-check-all: **`validate`** uniform chunking across multiple files
 
@@ -21,8 +22,8 @@ hide:
     :fontawesome-solid-cubes-stacked: [**`rechunk`**](rechunk.md)
     NetCDF datasets
 
-    Create **`parquet`** :simple-apacheparquet: and JSON :simple-json:
-    [Kerchunk **`reference`** sets](kerchunking.md)
+    Create [**`parquet`**](kerchunk_to_parquet.md) :simple-apacheparquet:
+    and JSON :simple-json: [Kerchunk **`reference`** sets](kerchunk_to_json.md)
 
     :material-vector-combine: **`combine`** Kerchunk reference sets
 

@@ -15,22 +15,27 @@ tags:
 
 !!! danger "Proof-of-Concept with an issue pending software updates"
 
-    The example works with :
+    The example works with not-yet-released versions of :
 
-    - a _suggested_ update for [fsspec][fsspec-git-pull-1492]
-    - and a not-yet-released version of [Kerchunk][kerchunk-git@b9659c32449539ef6addcb7a12520715cecf3253]
+    - [filesystem_spec][filesystem_spec] post [commit 2e3f022][ffspec-commit-2e3f022]
+    - [Kerchunk][Kerchunk] post [commit b9659c3][kerchunk-git@b9659c3]
 
 
-[fsspec-git-pull-1492]: https://github.com/fsspec/filesystem_spec/pull/1492
+[filesystem_spec]: https://github.com/fsspec/filesystem_spec
 
-[kerchunk-git@b9659c32449539ef6addcb7a12520715cecf3253]: https://github.com/fsspec/kerchunk.git@b9659c32449539ef6addcb7a12520715cecf3253
+[fsspec-commit-2e3f022]: https://github.com/fsspec/filesystem_spec/commit/2e3f0221a5b9d2d3489c85058d388387a1235de3
+
+[Kerchunk]: https://github.com/fsspec/kerchunk
+
+[kerchunk-git@b9659c3]: https://github.com/fsspec/kerchunk.git@b9659c32449539ef6addcb7a12520715cecf3253
 
 ## Example data
 
-This goes on with the same example data as in [Kerchunking to JSON](kerchunk_to_json.md#example-data).
+This goes on with the same example data
+as in [Kerchunking to JSON](kerchunk_to_json.md#example-data).
 
 ``` bash
-❯ ls -1
+ls -1
 SISin202001010000004231000101MA.nc
 SISin202001020000004231000101MA.nc
 SISin202001030000004231000101MA.nc
@@ -42,7 +47,7 @@ SISin202001040000004231000101MA.nc
 We create Parquet stores using the Kerchunk engine 
 
 ``` bash
-❯ rekx reference-multi-parquet . -v
+rekx reference-multi-parquet . -v
 Creating the following Parquet stores in . :
   SISin202001020000004231000101MA.parquet
   SISin202001030000004231000101MA.parquet
@@ -54,7 +59,7 @@ Done!
 Let's check for the new files :
 
 ``` bash
-❯ ls -1
+ls -1
 SISin202001010000004231000101MA.nc
 SISin202001010000004231000101MA.parquet
 SISin202001020000004231000101MA.nc
@@ -73,14 +78,14 @@ There is one `.parquet` store for each input file.
 We then combine the multiple Parquet stores into a single one
 
 ``` bash
-❯ rekx combine-parquet-stores . -v
+rekx combine-parquet-stores . -v
 Combined reference name : combined_kerchunk.parquet
 ```
 
 We verify the new file is there :
 
 ``` bash
-❯ ls -1tr
+ls -1tr
 SISin202001030000004231000101MA.nc
 SISin202001010000004231000101MA.nc
 SISin202001020000004231000101MA.nc
@@ -98,7 +103,7 @@ Does it work ?
 We verify the aggregated Parquet store is readable
 
 ``` bash
-❯ rekx read-performance combined_kerchunk.parquet SIS 8 45 -v
+rekx read-performance combined_kerchunk.parquet SIS 8 45 -v
 Data read in memory in : 0.132 ⚡⚡
 ```
 
@@ -106,7 +111,7 @@ Data read in memory in : 0.132 ⚡⚡
 in memory.  Let's go a step further and print out the values :
 
 ``` bash
-❯ rekx select-parquet combined_kerchunk.parquet SIS 8 45
+rekx select-parquet combined_kerchunk.parquet SIS 8 45
 🗴 Something went wrong in selecting the data : "not all values found in index 'lon'. Try setting the
 `method` keyword argument (example: method='nearest')."
 ```
@@ -121,7 +126,7 @@ Let's get the closest pair of coordinates that really exists in the data by
 instructing the `--neighbor-lookup nearest` option :
 
 ``` bash
-❯ rekx select-parquet combined_kerchunk.parquet SIS 8 45 --neighbor-lookup nearest
+rekx select-parquet combined_kerchunk.parquet SIS 8 45 --neighbor-lookup nearest
 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 46.0, 114.0, 179.0, 238.0,
 290.0, 333.0, 359.0, 379.0, 377.0, 372.0, 344.0, 306.0, 262.0, 206.0, 137.0, 69.0, 0.0, 0.0, 0.0, 0.0,
 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
@@ -138,7 +143,7 @@ instructing the `--neighbor-lookup nearest` option :
 or add `-v` for a Xarray-styled output
 
 ``` bash
-❯ rekx select-parquet combined_kerchunk.parquet SIS 8 45 --neighbor-lookup nearest -v
+rekx select-parquet combined_kerchunk.parquet SIS 8 45 --neighbor-lookup nearest -v
 ✓ Coordinates : 8.0, 45.0.
 <xarray.DataArray 'SIS' (time: 192)>
 array([  0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,   0.,
@@ -173,7 +178,7 @@ Attributes:
 Now it worked!  One more option : let's get a statistical overview instead :
 
 ``` bash
-❯ rekx select-parquet combined_kerchunk.parquet SIS 8 45 --neighbor-lookup nearest --statistics
+rekx select-parquet combined_kerchunk.parquet SIS 8 45 --neighbor-lookup nearest --statistics
                    Selected series
 
            Statistic   Value
