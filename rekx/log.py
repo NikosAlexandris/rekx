@@ -19,9 +19,8 @@ def filter_function(record):
 
 
 def initialize_logger():
-    logger.add(
-        "kerchunking_{time}.log", filter=filter_function
-    )  # , compression="tar.gz")
+    log_file_name = "kerchunking_{time}.log"
+    logger.add(log_file_name, filter=filter_function)  # , compression="tar.gz")
 
 
 def print_log_messages(start_time, end_time, log_file_name):
