@@ -37,3 +37,11 @@ hide:
     Many examples in this documentation
     use NetCDF files from
     the Surface Solar Radiation Climate Data Record (SARAH-3)[@EUM_SAF_CM_SARAH_V003].
+
+!!! note "Literage programming!"
+
+    The How-To examples are real commands executed at the time of building this
+    very documentation.  This ensures that the command output, is indeed what
+    you'd really get by installing `rekx`!  This literate programming
+    experience is achieved with the use of the wonderful plugin
+    [markdown-exec](https://pawamoy.github.io/markdown-exec/).

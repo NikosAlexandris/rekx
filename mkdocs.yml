@@ -1,8 +1,9 @@
 site_name: rekx
 site_description: rekx dynamically interfaces Kerchunk and informs on chunked data structures
 site_author: Nikos Alexandris
-repo_url: https://github.com/NikosAlexandris/rekx
+# site_url:
 repo_name: NikosAlexandris/rekx
+repo_url: https://github.com/NikosAlexandris/rekx
 edit_uri: edit/main/docs/
 # Keep this in sync with pyproject.toml and index.md
 copyright: Copyright &copy; 2023 Nikos Alexandris. Licensed under the EUPL-1.2 or later
@@ -18,13 +19,15 @@ nav:
   - How To:
       - how_to/index.md
       - Help: how_to/help.md
-      - Diagnose: how_to/diagnose.md
+      - Inspect: how_to/inspect.md
+      - Shapes: how_to/shapes.md
       - Suggest: how_to/suggest.md
       - Rechunk: how_to/rechunk.md
       - Chunk appropriately ?: how_to/chunking_parameterisation.md
       - Kerchunk to JSON: how_to/kerchunk_to_json.md
       - Kerchunk to Parquet: how_to/kerchunk_to_parquet.md
       - Performance: how_to/read_performance.md
+      - Select: how_to/select.md
   - Tutorials:
       # - SARAH3: tutorials/sarah3/chunking_sarah3_time_series.md
       - Time in SARAH3 SID: tutorials/sarah3/sarah3_sid_time_variables.md
@@ -44,6 +47,7 @@ nav:
         - Suggest: cli/suggest.md
         - Rechunk: cli/rechunk.md
         - Kerchunking: cli/kerchunking.md
+        - Select: cli/select.md
       - cli/interface.md
       - cli/logging.md
   - Meta:
@@ -120,7 +124,8 @@ plugins:
       glob:
         - "*.py"  # Python scripts
         - "*.inc"  # includes
-  - markdown-exec
+  - markdown-exec:
+      ansi: required
   - mkdocstrings:
       handlers:
         python:
@@ -141,10 +146,10 @@ plugins:
             merge_init_into_class: true
             separate_signature: true
             line_length: 60
-            show_signature_annotations: true
             show_root_heading: true
-            show_root_toc_entry: true
-          #   show_root_full_path: false
+            show_root_full_path: false
+            # show_root_toc_entry: true
+            show_signature_annotations: true
             # show_category_heading: true
             show_symbol_type_heading: true
             show_symbol_type_toc: true
@@ -186,7 +191,7 @@ markdown_extensions:
       use_pygments: true
       anchor_linenums: true
       pygments_lang_class: true
-      linenums: true
+      # linenums: true
       line_spans: __span
       linenums_style: pymdownx-inline
   - pymdownx.inlinehilite
