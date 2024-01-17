@@ -26,6 +26,7 @@ jobs:
             mkdocs-material-
       - run: pip install mkdocs-material mkdocs-material mkdocs-table-reader-plugin mkdocs-exclude mkdocstrings[python] mkdocs-bibtex markdown-exec[ansi]
       - run: pip install .[dev]
+      - run: pip install --upgrade dask
       - name: Create pool directory and download files
         run: |
           mkdir -p pool
@@ -44,7 +45,7 @@ jobs:
           mkdir -p data/single_file data/multiple_files_unique_shape data/multiple_files_multiple_shapes data/multiple_files_multiple_products
           ln -s ../../pool/SISin202001010000004231000101MA.nc data/single_file/
           ln -s ../../pool/SISin202001010000004231000101MA.nc data/multiple_files_unique_shape/
-          ln -s ../../pool/SISin202001 020000004231000101MA.nc data/multiple_files_unique_shape/
+          ln -s ../../pool/SISin202001020000004231000101MA.nc data/multiple_files_unique_shape/
           ln -s ../../pool/SISin202001010000004231000101MA.nc data/multiple_files_multiple_shapes/
           ln -s ../../pool/SISin200001010000004231000101MA_1_2600_2600.nc data/multiple_files_multiple_shapes/
           ln -s ../../pool/SISin202001010000004231000101MA.nc data/multiple_files_multiple_products/
