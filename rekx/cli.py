@@ -39,7 +39,6 @@ from .select import (
     select_fast,
     select_time_series,
     select_time_series_from_json,
-    select_time_series_from_json_in_memory,
 )
 from .shapes import diagnose_chunking_shapes
 from .suggest import (
