@@ -18,11 +18,11 @@ hide:
     :material-lightbulb-question: [**`suggest`**](suggest.md)
     good chunking shapes
 
-    :fontawesome-solid-cubes-stacked: [**`rechunk`**](rechunk)
+    :fontawesome-solid-cubes-stacked: [**`rechunk`**](rechunk.md)
     NetCDF datasets
 
     Create **`parquet`** :simple-apacheparquet: and JSON :simple-json:
-    Kerchunk **`reference`** sets
+    [Kerchunk **`reference`** sets](kerchunking.md)
 
     :material-vector-combine: **`combine`** Kerchunk reference sets
 
