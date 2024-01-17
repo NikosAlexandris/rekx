@@ -10,6 +10,7 @@ from rekx.messages import NOT_IMPLEMENTED_CLI
 from .combine import combine_kerchunk_references, combine_kerchunk_references_to_parquet
 from .consistency import check_chunk_consistency_json
 from .inspect import inspect_netcdf_data
+from .log import initialize_logger, logger
 from .parquet import (
     combine_parquet_stores_to_parquet,
     parquet_multi_reference,
@@ -79,8 +80,17 @@ def main(
         callback=version_callback,
         is_flag=True,
         is_eager=True,
-    )
+    ),
+    log: bool = typer.Option(
+        False,  # Default value is False, so logging is off by default
+        "--log",
+        help="Enable logging.",
+        is_flag=True,
+    ),
 ):
+    if log:
+        initialize_logger()
+        logger.info("Logging initialized")
     pass
 
 

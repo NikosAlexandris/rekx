@@ -213,7 +213,7 @@ def get_multiple_netcdf_metadata(
         for future in as_completed(futures):
             try:
                 metadata, input_netcdf_path = future.result()
-                # logger.info(f'Metadata : {metadata}')
+                logger.info(f"Metadata : {metadata}")
                 metadata_series[input_netcdf_path.name] = metadata
             except Exception as e:
                 logger.error(f"Error processing file: {e}")

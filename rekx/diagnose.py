@@ -130,19 +130,19 @@ def detect_chunking_shapes_parallel(
         for future in as_completed(futures):
             try:
                 chunking_shapes, file_name = future.result()
-                # logger.info(f"Scanned file: {file_name}")
+                logger.info(f"Scanned file: {file_name}")
 
                 for variable, chunking_shape in chunking_shapes.items():
                     if variable not in aggregated_chunking_shapes:
                         aggregated_chunking_shapes[variable] = {}
-                        # logger.info(
-                        #     f"Initial chunk sizes set for {variable} in {file_name}"
-                        # )
+                        logger.info(
+                            f"Initial chunk sizes set for {variable} in {file_name}"
+                        )
                     if chunking_shape not in aggregated_chunking_shapes[variable]:
                         aggregated_chunking_shapes[variable][chunking_shape] = set()
-                        # logger.info(
-                        #     f"New chunking shape {chunking_shape} found for variable {variable} in {file_name}"
-                        # )
+                        logger.info(
+                            f"New chunking shape {chunking_shape} found for variable {variable} in {file_name}"
+                        )
                     aggregated_chunking_shapes[variable][chunking_shape].add(file_name)
 
             except Exception as e:

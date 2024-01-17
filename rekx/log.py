@@ -18,7 +18,10 @@ def filter_function(record):
     return record["level"].name == "INFO" if verbosity_level == 1 else True
 
 
-logger.add("kerchunking_{time}.log", filter=filter_function)  # , compression="tar.gz")
+def initialize_logger():
+    logger.add(
+        "kerchunking_{time}.log", filter=filter_function
+    )  # , compression="tar.gz")
 
 
 def print_log_messages(start_time, end_time, log_file_name):
