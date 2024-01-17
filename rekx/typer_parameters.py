@@ -44,22 +44,28 @@ typer_option_dry_run = typer.Option(
     # default_factory = False,
 )
 
+humanize_typer_help = "Convert byte sizes into human-readable formats"
+# humanize_typer_help = "Flag to humanize file size"
+humanize_help = humanize_typer_help
 typer_option_humanize = typer.Option(
     "--humanize",
     "-h",
-    help="Convert byte sizes into human-readable formats",
+    help=humanize_typer_help,
     # default = False,
 )
 
 # Where?
 
 longitude_typer_help = f"Longitude in decimal degrees ranging in [-180, 360]. [yellow]If ranging in [0, 360], consider the `--convert-longitude-360` option.[/yellow]"
+longitude_in_degrees_help = longitude_typer_help
 typer_argument_longitude_in_degrees = typer.Argument(
     help=longitude_typer_help,
     min=LONGITUDE_MINIMUM,
     max=LONGITUDE_MAXIMUM,
 )
+
 latitude_typer_help = "Latitude in decimal degrees ranging in [-90, 90]"
+latitude_in_degrees_help = latitude_typer_help
 typer_argument_latitude_in_degrees = typer.Argument(
     help=latitude_typer_help,
     min=LATITUDE_MINIMUM,
@@ -206,8 +212,13 @@ typer_option_tolerance = typer.Option(
     rich_help_panel=rich_help_panel_select,
     # default_factory=0.1,
 )
+repetitions_typer_help = (
+    "Times to repeat the read operation to calculate the average read time."
+)
+# repetitions_typer_help = "Number of repetitions for read operation"
+repetitions_help = repetitions_typer_help
 typer_option_repetitions = typer.Option(
-    help=f"Times to repeat the reading operation and calculate the average read time.",
+    help=repetitions_help,
     rich_help_panel=rich_help_panel_select,
     # default = 10,
 )

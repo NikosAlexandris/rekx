@@ -14,11 +14,12 @@ from .models import (
     select_xarray_variable_set_from_dataset,
 )
 from .select import read_performance
-
-option_longitude_in_degrees_help = "Longitude in degrees"
-option_latitude_in_degrees_help = "Latitude in degrees"
-option_repetitions_help = "Number of repetitions for read operation"
-option_humanize_help = "Flag to humanize file size"
+from .typer_parameters import (
+    humanize_help,
+    latitude_in_degrees_help,
+    longitude_in_degrees_help,
+    repetitions_help,
+)
 
 
 def get_netcdf_metadata(
@@ -158,10 +159,10 @@ def get_multiple_netcdf_metadata(
     file_paths: List[Path],
     variable: str = None,
     variable_set: XarrayVariableSet = XarrayVariableSet.all,
-    longitude: Annotated[float, option_longitude_in_degrees_help] = 8,
-    latitude: Annotated[float, option_latitude_in_degrees_help] = 45,
-    repetitions: Annotated[int, option_repetitions_help] = REPETITIONS_DEFAULT,
-    humanize: Annotated[bool, option_humanize_help] = False,
+    longitude: Annotated[float, longitude_in_degrees_help] = 8,
+    latitude: Annotated[float, latitude_in_degrees_help] = 45,
+    repetitions: Annotated[int, repetitions_help] = REPETITIONS_DEFAULT,
+    humanize: Annotated[bool, humanize_help] = False,
 ):
     """Get the metadata of multiple NetCDF files.
 
