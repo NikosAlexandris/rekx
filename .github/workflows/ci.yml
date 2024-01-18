@@ -1,4 +1,5 @@
-name: ci 
+name: Continuous Integration for rekx
+
 on:
   push:
     branches:
@@ -8,47 +9,80 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      FILE_URL_BASE: https://github.com/NikosAlexandris/rekx/releases/download/v0.0.10
+      FILE_1: SISin202001010000004231000101MA.nc
+      FILE_2: SISin202001020000004231000101MA.nc
+      FILE_3: SISin200001010000004231000101MA_1_2600_2600.nc
+      FILE_4: SRImm201301010000003231000101MA.nc
+
     steps:
       - uses: actions/checkout@v4
+
       - name: Configure Git Credentials
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-      - uses: actions/setup-python@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
         with:
           python-version: 3.11
+
       - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV 
-      - uses: actions/cache@v3
+
+      - name: Cache Dependencies
+        uses: actions/cache@v3
         with:
           key: mkdocs-material-${{ env.cache_id }}
           path: .cache
           restore-keys: |
             mkdocs-material-
-      - run: pip install mkdocs-material mkdocs-material mkdocs-table-reader-plugin mkdocs-exclude mkdocstrings[python] mkdocs-bibtex markdown-exec[ansi]
-      - run: pip install .[dev]
-      - run: pip install --upgrade dask
-      - name: Create pool directory and download files
+ 
+      - name: Install Material for MkDocs & extensions
+        run: |
+          pip install \
+          mkdocs-material \
+          mkdocs-table-reader-plugin \
+          mkdocs-exclude \
+          mkdocstrings[python] \
+          mkdocs-bibtex \
+          markdown-exec[ansi] \
+          mkdocs-git-revision-date-localized-plugin
+
+      - name: Install 'dev' dependencies
+        run: pip install .[dev]
+
+      - name: Upgrade Dask to workaround old np.float deprecation
+      # `rekx` requires/installs "dask[dataframe]" which installs many versions !
+      # Upgrade to latest Dask, else some old Xarray version (?) complains for np.float !
+        run: pip install --upgrade dask
+
+      - name: Create pool directory & download files
         run: |
           mkdir -p pool
           {
-            curl -L -o pool/SISin202001010000004231000101MA.nc https://github.com/NikosAlexandris/rekx/releases/download/v0.0.10/SISin202001010000004231000101MA.nc &&
-            curl -L -o pool/SISin202001020000004231000101MA.nc https://github.com/NikosAlexandris/rekx/releases/download/v0.0.10/SISin202001020000004231000101MA.nc &&
-            curl -L -o pool/SISin200001010000004231000101MA_1_2600_2600.nc https://github.com/NikosAlexandris/rekx/releases/download/v0.0.10/SISin200001010000004231000101MA_1_2600_2600.nc &&
-            curl -L -o pool/SRImm201301010000003231000101MA.nc https://github.com/NikosAlexandris/rekx/releases/download/v0.0.10/SRImm201301010000003231000101MA.nc
+            curl -L -o pool/$FILE_1 $FILE_URL_BASE/$FILE_1 &&
+            curl -L -o pool/$FILE_2 $FILE_URL_BASE/$FILE_2 &&
+            curl -L -o pool/$FILE_3 $FILE_URL_BASE/$FILE_3 &&
+            curl -L -o pool/$FILE_4 $FILE_URL_BASE/$FILE_4
           } || {
             echo "Error downloading files. Check the availability of the files in the release.";
             exit 1;
           }
-      - name: Create data directories and symlink files from pool
+
+      - name: Create data directories & symlink files from pool
         run: |
           mkdir data
           mkdir -p data/single_file data/multiple_files_unique_shape data/multiple_files_multiple_shapes data/multiple_files_multiple_products
-          ln -s ../../pool/SISin202001010000004231000101MA.nc data/single_file/
-          ln -s ../../pool/SISin202001010000004231000101MA.nc data/multiple_files_unique_shape/
-          ln -s ../../pool/SISin202001020000004231000101MA.nc data/multiple_files_unique_shape/
-          ln -s ../../pool/SISin202001010000004231000101MA.nc data/multiple_files_multiple_shapes/
-          ln -s ../../pool/SISin200001010000004231000101MA_1_2600_2600.nc data/multiple_files_multiple_shapes/
-          ln -s ../../pool/SISin202001010000004231000101MA.nc data/multiple_files_multiple_products/
-          ln -s ../../pool/SISin200001010000004231000101MA_1_2600_2600.nc data/multiple_files_multiple_products/
-          ln -s ../../pool/SRImm201301010000003231000101MA.nc data/multiple_files_multiple_products/
-      - run: mkdocs gh-deploy --force
+          ln -s ../../pool/$FILE_1 data/single_file/
+          ln -s ../../pool/$FILE_1 data/multiple_files_unique_shape/
+          ln -s ../../pool/$FILE_2 data/multiple_files_unique_shape/
+          ln -s ../../pool/$FILE_1 data/multiple_files_multiple_shapes/
+          ln -s ../../pool/$FILE_3 data/multiple_files_multiple_shapes/
+          ln -s ../../pool/$FILE_1 data/multiple_files_multiple_products/
+          ln -s ../../pool/$FILE_3 data/multiple_files_multiple_products/
+          ln -s ../../pool/$FILE_4 data/multiple_files_multiple_products/
+
+      - name: Deploy
+        run: mkdocs gh-deploy --force
