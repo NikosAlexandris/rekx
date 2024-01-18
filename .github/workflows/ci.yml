@@ -84,5 +84,8 @@ jobs:
           ln -s ../../pool/$FILE_3 data/multiple_files_multiple_products/
           ln -s ../../pool/$FILE_4 data/multiple_files_multiple_products/
 
+      - name: List files in data directory
+        run: ls -R data/
+
       - name: Deploy
         run: mkdocs gh-deploy --force
