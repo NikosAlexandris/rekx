@@ -10,14 +10,18 @@ hide:
 
 !!! abstract "Learn how to ..."
 
-    :material-magnify: Diagnose the structural characteristics of data
-    packed in NetCDF/HDF5 with [**`inspect`**](inspect.md) and 
-    [**`shapes`**](shapes.md)
+    :material-scan-helper: Diagnose structural characteristics of data packed
+    in NetCDF/HDF5 files
 
-    :material-check-all: **`validate`** uniform chunking across multiple files
+      - :material-magnify: [**`inspect`**](inspect.md)
+    
+      - :fontawesome-solid-cubes: [**`shapes`**](shapes.md)
+        
+      - :material-check-all: [**`validate`** uniform chunking](shapes.md#uniform-chunking-shape) across multiple files
 
-    :material-lightbulb-question: [**`suggest`**](suggest.md)
-    good chunking shapes
+    !!! danger "Experimental"
+
+        :material-lightbulb-question: [**`suggest`**](suggest.md) good chunking shapes
 
     :fontawesome-solid-cubes-stacked: [**`rechunk`**](rechunk.md)
     NetCDF datasets

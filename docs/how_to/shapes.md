@@ -24,6 +24,12 @@ we scan for filenames starting with `SIS`
 and having the suffix `.nc` :
 
 ``` bash exec="true" result="ansi" source="above"
+rekx shapes data/multiple_files_multiple_products/ --pattern "SIS*.nc"
+```
+
+or restrict the same scan to _data_ variables only
+
+``` bash exec="true" result="ansi" source="above"
 rekx shapes data/multiple_files_multiple_products/ --pattern "SIS*.nc" --variable-set data 
 ```
 
@@ -41,14 +47,6 @@ and scan for chunking shapes in the _current_ directory
 
 ``` bash exec="true" result="ansi" source="above"
 cd data/multiple_files_unique_shape/
-rekx shapes .
-```
-
-or restrict the scan to _data_ variables only,
-as in the `inspect` command example above
-
-``` bash exec="true" result="ansi" source="above"
-cd data/multiple_files_unique_shape/  # markdown-exec: hide
 rekx shapes . --variable-set data
 ```
 

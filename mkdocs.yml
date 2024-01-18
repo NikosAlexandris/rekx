@@ -115,6 +115,7 @@ theme:
 
 plugins:
   - search
+  - git-revision-date-localized
   - bibtex:
       bib_file: "references.bib"
   - tags:

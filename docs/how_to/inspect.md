@@ -12,9 +12,7 @@ tags:
 `#!bash rekx`
 can diagnose the structure of data stored in Xarray-supported file formats.
 
-## Data structure
-
-### A single file
+## A single file
 
 Inspect a single NetCDF file
 
@@ -40,7 +38,7 @@ or even show _humanised_ size figures
 rekx inspect data/single_file/SISin202001010000004231000101MA.nc --variable-set data --humanize
 ```
 
-### A directory with multiple files
+## A directory with multiple files
 
 Let's consider a directory with 2 NetCDF files
 
@@ -71,3 +69,26 @@ We can instead ask for independent tables per input file :
 ``` bash exec="true" result="ansi" source="above"
 rekx inspect data/multiple_files_unique_shape/ --variable-set data --no-long-table
 ```
+
+## CSV Output
+
+We all need machine readable output.
+Here's how to get one for `rekx`' `inspect` command
+
+``` bash exec="true" result="ansi" source="above"
+cd data/multiple_files_unique_shape/  # markdown-exec: hide
+rekx inspect SISin202001010000004231000101MA.nc --csv SISin202001010000004231000101MA_structure.csv
+```
+
+Let's verify it worked well
+
+``` bash exec="true" result="ansi" source="above"
+cd data/multiple_files_unique_shape/  # markdown-exec: hide
+file SISin202001010000004231000101MA_structure.csv
+```
+
+!!! note
+
+    Here's how it render's in this documentation page using [mkdocs-table-reader-plugin](https://timvink.github.io/mkdocs-table-reader-plugin/)
+
+    {{ read_csv('data/multiple_files_unique_shape/SISin202001010000004231000101MA_structure.csv') }}
