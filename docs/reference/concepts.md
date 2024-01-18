@@ -61,6 +61,12 @@ Reading a chunk?
 |  Selection |          `[3, 4, 5, 6]`          |
 
 
+## Compression
+
+!!! warning
+
+    To Do !
+
 ## Descriptive metadata
 
 |  Compression | Size                             |  % |
@@ -83,6 +89,15 @@ A single indexible aggregate dataset
 |------------------------:|:------:|:------:|:-------:|
 |                    File |    A   |    B   |    V    |
 | Points to $\rightarrow$ |    A   |    B   |   A, B  |
+
+Metadata _consolidation_ in a Zarr context,
+is the _combination of all separate metadata files_
+associated with the different arrays and groups within a Zarr hierarchy
+_into a single metadata file_.
+It is a _performance optimization_ technique
+that reduces the number of read operations required to access metadata.
+It can be particularly beneficial
+when working with remote or distributed storage systems.
 
 
 ## Asynchronous

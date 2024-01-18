@@ -33,9 +33,10 @@ nav:
       - Time in SARAH3 SID: tutorials/sarah3/sarah3_sid_time_variables.md
       - Massive JSON Kerchunking: tutorials/massive_json_kerchunking.md
   - Reference:
-      - Overview: reference/reference.md
-      - Concepts: reference/concepts.md
+      - reference/index.md
+      - Chunking: reference/chunking.md
       - Kerchunking: reference/kerchunking.md
+      - Concepts: reference/concepts.md
       - Notes: reference/notes.md
       - Xarray: reference/xarray.md
       # - Glossary: ?

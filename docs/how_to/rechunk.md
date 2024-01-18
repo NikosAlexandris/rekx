@@ -40,7 +40,16 @@ by creating the output in memory before writing it to disk on close:
 nccopy -w -c time/1000,lat/40,lon/40 slow.nc fast.nc
 ```
 
-## Duration of `nccopy` operations
+## Rechunking Performance
+
+Rechunking existing dataset can be time-consuming
+especially for large datasets.
+Tools like `nccopy` for netCDF-4 and `h5repack` for both HDF5 and netCDF-4
+are available for rechunking.
+Usually it takes a small multiple of the time to copy the data
+from one file to another.
+
+### Example of `nccopy` operations
 
 Timing the rechunking of SID files from the SARAH3 collection using
 `nccopy` on a laptop-with-ssd [^laptop-with-ssd]
