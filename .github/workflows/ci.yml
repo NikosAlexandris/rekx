@@ -84,6 +84,11 @@ jobs:
           ln -s ../../pool/$FILE_3 data/multiple_files_multiple_products/
           ln -s ../../pool/$FILE_4 data/multiple_files_multiple_products/
 
+      - name: Create CSV output file required for docs/how_to/inspect.md
+        run: |
+          cd data/multiple_files_unique_shape/
+          rekx inspect SISin202001010000004231000101MA.nc --csv SISin202001010000004231000101MA_structure.csv
+
       - name: List files in data directory
         run: ls -R data/
 
