@@ -1,10 +1,9 @@
 import pytest
-from typer.testing import CliRunner
 
+from rekx._version import __version__
 from rekx.cli import app
 
-runner = CliRunner()
-
+from .conftest import cli_runner
 
 # def test_help_command(capfd):
 #     app(['--help'])
@@ -13,10 +12,9 @@ runner = CliRunner()
 #     assert err == ""
 
 
-hardcoded_version = "rekx version 0.0.10.dev8+g005852e.d20240115"
-
-
-def test_version():
-    result = runner.invoke(app, ["--version"])
-    assert result.exit_code == 0
-    assert hardcoded_version in result.output
+def test_version(cli_runner):
+    runner_result = cli_runner.invoke(app, ["--version"])
+    print(f"CLI output {runner_result.output}")
+    expected_output = f"rekx version {__version__}\n"  # Assuming standard output format
+    assert runner_result.exit_code == 0
+    assert expected_output == runner_result.output
