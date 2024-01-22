@@ -20,7 +20,9 @@ dependencies = [
     "rich",
     "pandas",
     "xarray",
-    "fsspec @ git+https://github.com/NikosAlexandris/filesystem_spec",
+    # "fsspec @ git+https://github.com/fsspec/filesystem_spec.git@2e3f0221a5b9d2d3489c85058d388387a1235de3",
+    "fsspec @ git+https://github.com/fsspec/filesystem_spec",
+    "fastparquet",
     "kerchunk @ git+https://github.com/fsspec/kerchunk.git@b9659c32449539ef6addcb7a12520715cecf3253",
     "loguru",
     "humanize",
@@ -67,6 +69,7 @@ docs = [
   "mkdocstrings[python]",
   "mkdocs-bibtex",
   "markdown-exec[ansi]",
+  "mkdocs-git-revision-date-localized-plugin",
 ]
 
 
