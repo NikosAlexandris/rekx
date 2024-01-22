@@ -16,6 +16,10 @@ nav:
       - '': index.md
       - To Do: to_do.md
   - Installation: install/install.md
+  - Tutorials:
+      # - SARAH3: tutorials/sarah3/chunking_sarah3_time_series.md
+      - Time in SARAH3 SID: tutorials/sarah3/sarah3_sid_time_variables.md
+      - Massive JSON Kerchunking: tutorials/massive_json_kerchunking.md
   - How To:
       - how_to/index.md
       - Help: how_to/help.md
@@ -28,10 +32,6 @@ nav:
       - Kerchunk to Parquet: how_to/kerchunk_to_parquet.md
       - Performance: how_to/read_performance.md
       - Select: how_to/select.md
-  - Tutorials:
-      # - SARAH3: tutorials/sarah3/chunking_sarah3_time_series.md
-      - Time in SARAH3 SID: tutorials/sarah3/sarah3_sid_time_variables.md
-      - Massive JSON Kerchunking: tutorials/massive_json_kerchunking.md
   - Reference:
       - reference/index.md
       - Chunking: reference/chunking.md

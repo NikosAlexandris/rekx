@@ -27,6 +27,7 @@ The help for the command `shapes`
 ``` bash exec="true" result="ansi" source="above"
 rekx shapes --help
 ```
+
 # Verbosity
 
 Most of the commands feature an extra `--verbose` or shortly `-v` flag. It'll
