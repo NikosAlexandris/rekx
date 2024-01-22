@@ -37,9 +37,6 @@ also known as Kerchunk reference sets,
 which allows for an efficient, parallel and cloud-friendly way
 to access data in-situ without duplicating the original datasets.
 
-
-# How ?
-
 More than a functional tool,
 `rekx` serves an educational purpose on matters around
 chunking, compression and efficient data reading
@@ -60,12 +57,15 @@ often have overlapping functionalities
 and present a steep learning curve for non-experts.
 `rekx` focuses on practical aspects of efficient data access
 trying to simplify these processes.
-It features simple command line tools
-to diagnose data structures,
-validate uniform chunking across files,
-suggest good chunking shapes and parameterise the rechunking of datasets,
-create and aggregate Kerchunk reference sets
-and time data read operations.
+
+It features simple command line tools to:
+
+- diagnose data structures
+- validate uniform chunking across files
+- suggest good chunking shapes
+- parameterise the rechunking of datasets.
+- create and aggregate Kerchunk reference sets
+- time data read operations for performance analysis
 
 
 `rekx` dedicates to practicality, simplicity, and essence.
