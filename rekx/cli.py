@@ -233,7 +233,7 @@ app.command(
 
 app.command(
     name="read-performance",
-    help="  Bare read time series from Xarray-supported data",
+    help="  Measure read and load in-memory operations of a point time series from Xarray-supported data",
     no_args_is_help=True,
     rich_help_panel=rich_help_panel_read_performance,
 )(read_performance_cli)

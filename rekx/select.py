@@ -74,8 +74,9 @@ def read_performance(
     repetitions: Annotated[int, typer_option_repetitions] = REPETITIONS_DEFAULT,
 ) -> str:
     """
-    Count the median time of repeated read and load operations of the data over
-    a geographic location from an Xarray-supported file format.
+    Count the median time of repeated read and load operations of the time
+    series data over a geographic location from an Xarray-supported file
+    format.
 
     Parameters
     ----------
