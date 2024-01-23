@@ -12,8 +12,10 @@
 <!-- ![rekx](rekx_draft_logo_72dpi.png)[^*] -->
 [^*]: <a href="https://www.freepik.com/free-vector/hand-drawn-dinosaur-outline-illustration_58593460.htm#query=trex&position=47&from_view=search&track=sph&uuid=27caf12e-35ea-47ad-a113-2d4f5981f58f">Original T-Rex drawn by pikisuperstar</a> on Freepik
 
+# What ?
+
 `rekx` seamlessly interfaces
-the [Kerchunk](https://fsspec.github.io/kerchunk/) library
+the [Kerchunk](https://fsspec.github.io/kerchunk/) library [@Durant2023]
 in an interactive way through the command line.
 It assists in creating virtual aggregate datasets,
 also known as Kerchunk reference sets,
@@ -30,6 +32,9 @@ it is often highly technical
 and oriented towards developers,
 `rekx` tries to simplify these concepts through practical examples.
 
+
+# Why ?
+
 Similarly,
 existing tools for managing HDF and NetCDF data,
 such as `cdo`, `nco`, and others,
@@ -37,14 +42,18 @@ often have overlapping functionalities
 and present a steep learning curve for non-experts.
 `rekx` focuses on practical aspects of efficient data access
 trying to simplify these processes.
-It features simple command line tools
-to diagnose data structures,
-validate uniform chunking across files,
-suggest good chunking shapes and parameterise the rechunking of datasets,
-create and aggregate Kerchunk reference sets
-and time data read operations.
+
+It features simple command line tools to:
+
+- diagnose data structures
+- validate uniform chunking across files
+- suggest good chunking shapes
+- parameterise the rechunking of datasets.
+- create and aggregate Kerchunk reference sets
+- time data read operations for performance analysis
 
 `rekx` dedicates to practicality, simplicity, and essence.
+
 
 ***Interested ? Head over to the [documentation](https://nikosalexandris.github.io/rekx/).***
 
