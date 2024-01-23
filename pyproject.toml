@@ -60,6 +60,7 @@ dev = [
   "black",
   "flake8",
   "isort",
+  "netCDF4",
   "pytest",
 ]
 docs = [

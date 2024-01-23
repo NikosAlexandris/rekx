@@ -67,7 +67,6 @@ It features simple command line tools to:
 - create and aggregate Kerchunk reference sets
 - time data read operations for performance analysis
 
-
 `rekx` dedicates to practicality, simplicity, and essence.
 
 !!! enso "The Zen of Chunking"
