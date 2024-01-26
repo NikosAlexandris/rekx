@@ -17,12 +17,14 @@ can diagnose the structure of data stored in Xarray-supported file formats.
 Inspect a single NetCDF file
 
 ``` bash exec="true" result="ansi" source="above"
+export COLUMNS=1000  # markdown-exec: hide
 rekx inspect data/single_file/SISin202001010000004231000101MA.nc
 ```
 
 Perhaps restrict inspection on data variables only
 
 ``` bash exec="true" result="ansi" source="above"
+export COLUMNS=1000  # markdown-exec: hide
 rekx inspect data/single_file/SISin202001010000004231000101MA.nc --variable-set data
 ```
 
@@ -35,6 +37,7 @@ rekx inspect data/single_file/SISin202001010000004231000101MA.nc --variable-set 
 or even show _humanised_ size figures
 
 ``` bash exec="true" result="ansi" source="above"
+export COLUMNS=1000  # markdown-exec: hide
 rekx inspect data/single_file/SISin202001010000004231000101MA.nc --variable-set data --humanize
 ```
 
@@ -54,6 +57,7 @@ cd data/multiple_files_unique_shape/
 rekx inspect . --variable-set data
 ```
 ``` bash exec="true" result="ansi"
+export COLUMNS=1000  # markdown-exec: hide
 rekx inspect data/multiple_files_unique_shape/ --variable-set data
 ```
 
@@ -67,6 +71,7 @@ For whatever the reason might be, we night not want this.
 We can instead ask for independent tables per input file :
 
 ``` bash exec="true" result="ansi" source="above"
+export COLUMNS=1000  # markdown-exec: hide
 rekx inspect data/multiple_files_unique_shape/ --variable-set data --no-long-table
 ```
 
