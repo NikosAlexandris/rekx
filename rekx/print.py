@@ -79,10 +79,6 @@ def print_common_chunk_layouts(common_chunk_layouts):
     console.print(table)
 
 
-from rich.console import Console
-from rich.table import Table
-
-
 def format_compression(compression_dictionary):
     if isinstance(compression_dictionary, dict):
         filters = [

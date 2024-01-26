@@ -8,7 +8,8 @@ hide:
   - navigation
   - toc
 ---
-# rekx 🦖
+
+# rekx :fontawesome-solid-cubes:🦖
 
 ![License](https://img.shields.io/badge/License-EUPL--1.2-blue.svg)
 ![GitHub tag (with filter)](https://img.shields.io/github/v/tag/NikosAlexandris/rekx)

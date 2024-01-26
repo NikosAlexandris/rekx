@@ -94,12 +94,13 @@ theme:
   name: material
   custom_dir: docs/overrides
   features:
+    - announce.dismiss
+    - header.autohide
     - search.highlight
     - search.share
     - content.tooltips
     - content.action.edit
     - content.action.view
-    - header.autohide
     - navigation.instant
     - navigation.instant.progress
     - navigation.tracking
