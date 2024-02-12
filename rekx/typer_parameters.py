@@ -32,10 +32,29 @@ class OrderCommands(TyperGroup):
 # Generic
 
 
-def _version_callback(value: bool) -> None:
-    if value:
-        typer.echo(f"Rekx prototype version: {version('rekx')}")
+def version_callback(flag: bool) -> None:
+    if flag:
+        from ._version import __version__
+
+        print(f"rekx version {__version__}")
         raise typer.Exit(code=0)
+
+
+typer_option_version = typer.Option(
+    "--version",
+    help="Show the version and exit.",
+    callback=version_callback,
+    is_flag=True,
+    is_eager=True,
+)
+
+
+typer_option_log = typer.Option(
+    "--log",
+    help="Enable logging.",
+    is_flag=True,
+    # default=False,  # Default value is False, so logging is off by default
+)
 
 
 typer_option_dry_run = typer.Option(

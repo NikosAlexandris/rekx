@@ -1,6 +1,8 @@
 """
 Rekx is a command line interface to Kerchunk
 """
+from typing import Annotated
+
 import typer
 from rich import print
 from rich.panel import Panel
@@ -46,7 +48,7 @@ from .suggest import (
     suggest_chunking_shape_alternative,
     suggest_chunking_shape_alternative_symmetrical,
 )
-from .typer_parameters import OrderCommands
+from .typer_parameters import OrderCommands, typer_option_log, typer_option_version
 
 typer.rich_utils.Panel = Panel.fit
 app = typer.Typer(
@@ -62,30 +64,10 @@ app = typer.Typer(
 # callback
 
 
-def version_callback(flag: bool):
-    if flag:
-        from ._version import __version__
-
-        print(f"rekx version {__version__}")
-        raise typer.Exit()
-
-
 @app.callback()
 def main(
-    version: bool = typer.Option(
-        None,
-        "--version",
-        help="Show the version and exit.",
-        callback=version_callback,
-        is_flag=True,
-        is_eager=True,
-    ),
-    log: bool = typer.Option(
-        False,  # Default value is False, so logging is off by default
-        "--log",
-        help="Enable logging.",
-        is_flag=True,
-    ),
+    version: Annotated[bool, typer_option_version] = False,
+    log: Annotated[bool, typer_option_log] = False,
 ):
     if log:
         initialize_logger()
