@@ -38,6 +38,7 @@ from .rich_help_panel_names import (
 )
 from .select import (
     read_performance_cli,
+    read_performance_multiple_cli,
     select_fast,
     select_time_series,
     select_time_series_from_json,
@@ -219,6 +220,12 @@ app.command(
     no_args_is_help=True,
     rich_help_panel=rich_help_panel_read_performance,
 )(read_performance_cli)
+app.command(
+    name="read-performance-multiple",
+    help="  Measure in-parallel read and load in-memory operations of a point time series from mulitple Xarray-supported data",
+    no_args_is_help=True,
+    rich_help_panel=rich_help_panel_read_performance,
+)(read_performance_multiple_cli)
 
 
 if __name__ == "__main__":

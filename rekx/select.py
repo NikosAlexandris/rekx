@@ -3,7 +3,7 @@ import time as timer
 from datetime import datetime
 from pathlib import Path
 from threading import Lock
-from typing import Any, Optional
+from typing import Any, List, Optional, Tuple
 
 import fsspec
 import kerchunk
@@ -147,6 +147,42 @@ def read_performance(
         return "-"
 
 
+def read_performance_multiple(
+    time_series: Annotated[List[Tuple[Path, str]], typer_argument_time_series],
+    # variable: Annotated[str, typer.Argument(help="Variable to select data from")],
+    longitude: Annotated[float, typer_argument_longitude_in_degrees],
+    latitude: Annotated[float, typer_argument_latitude_in_degrees],
+    # window: Annotated[int, typer_option_spatial_window_in_degrees] = None,
+    tolerance: Annotated[
+        Optional[float], typer_option_tolerance
+    ] = DATASET_SELECT_TOLERANCE_DEFAULT,
+    repetitions: Annotated[int, typer_option_repetitions] = REPETITIONS_DEFAULT,
+) -> str:
+    """ """
+    for single_time_series in time_series:
+        if not single_time_series.exists():
+            raise FileNotFoundError(f"File not found: {single_time_series}")
+
+    from concurrent.futures import ThreadPoolExecutor
+
+    with ThreadPoolExecutor() as executor:
+        futures = [
+            executor.submit(
+                read_performance,
+                time_series,
+                variable,
+                longitude,
+                latitude,
+                tolerance,
+                repetitions,
+            )
+            for time_series in time_series
+        ]
+        results = [future.result() for future in futures]
+
+    return results
+
+
 def read_performance_spatial(
     time_series: Annotated[Path, typer_argument_time_series],
     variable: Annotated[str, typer.Argument(help="Variable to select data from")],
@@ -190,8 +226,8 @@ def read_performance_spatial(
 
 
 def read_performance_cli(
-    time_series: Annotated[Path, typer_argument_time_series],
-    variable: Annotated[str, typer.Argument(help="Variable to select data from")],
+    time_series: Annotated[Tuple[Path, str], typer_argument_time_series],
+    # variable: Annotated[str, typer.Argument(help="Variable to select data from")],
     longitude: Annotated[float, typer_argument_longitude_in_degrees],
     latitude: Annotated[float, typer_argument_latitude_in_degrees],
     tolerance: Annotated[
@@ -234,7 +270,69 @@ def read_performance_cli(
     decoding timestamps.
 
     """
+    data, variable = time_series
     average_data_retrieval_time = read_performance(
+        time_series=data,
+        variable=variable,
+        longitude=longitude,
+        latitude=latitude,
+        tolerance=tolerance,
+        repetitions=repetitions,
+    )
+    if not verbose:
+        print(average_data_retrieval_time)
+    else:
+        print(
+            f"[bold green]Data read in memory in[/bold green] : {average_data_retrieval_time} :high_voltage::high_voltage:"
+        )
+
+
+def read_performance_multiple_cli(
+    time_series: Annotated[List[Tuple[str, str]], typer_argument_time_series],
+    # variable: Annotated[str, typer.Argument(help="Variable to select data from")],
+    longitude: Annotated[float, typer_argument_longitude_in_degrees],
+    latitude: Annotated[float, typer_argument_latitude_in_degrees],
+    tolerance: Annotated[
+        Optional[float], typer_option_tolerance
+    ] = DATASET_SELECT_TOLERANCE_DEFAULT,
+    repetitions: Annotated[int, typer_option_repetitions] = REPETITIONS_DEFAULT,
+    verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
+) -> str:
+    """
+    Command line interface to `read_performance()` to count the time to read
+    and load data over a geographic location from an Xarray-supported file
+    format.
+
+    Parameters
+    ----------
+    time_series:
+        Path to Xarray-supported input file
+    variable: str
+        Name of the variable to query
+    longitude: float
+        The longitude of the location to read data
+    latitude: float
+        The latitude of the location to read data
+    tolerance: float
+        Maximum distance between original and new labels for inexact matches.
+        Read Xarray manual on nearest-neighbor-lookups
+    repetitions: int
+        Number of times to repeat read operation
+    verbose: int
+        Verbosity level
+
+    Returns
+    -------
+    data_retrieval_time : float or None ?
+        The time it took to retrieve data over the requested location
+
+    Notes
+    -----
+    ``mask_and_scale`` is always set to ``False`` to avoid errors related with
+    decoding timestamps.
+
+    """
+    average_data_retrieval_time = read_performance_multiple(
         time_series=time_series,
         variable=variable,
         longitude=longitude,
@@ -587,7 +685,7 @@ def select_time_series(
 
 def select_time_series_from_json(
     reference_file: Annotated[
-        Path, typer.Argument(..., help="Path to the kerchunk reference file")
+        Path, typer.Argument(help="Path to the kerchunk reference file")
     ],
     variable: Annotated[str, typer.Argument(..., help="Variable name to select from")],
     longitude: Annotated[float, typer_argument_longitude_in_degrees],
