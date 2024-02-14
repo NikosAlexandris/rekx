@@ -12,7 +12,7 @@
 <!-- ![rekx](rekx_draft_logo_72dpi.png)[^*] -->
 [^*]: <a href="https://www.freepik.com/free-vector/hand-drawn-dinosaur-outline-illustration_58593460.htm#query=trex&position=47&from_view=search&track=sph&uuid=27caf12e-35ea-47ad-a113-2d4f5981f58f">Original T-Rex drawn by pikisuperstar</a> on Freepik
 
-# What ?
+# What is rekx ?
 
 `rekx` seamlessly interfaces
 the [Kerchunk](https://fsspec.github.io/kerchunk/) library [@Durant2023]
@@ -33,7 +33,7 @@ and oriented towards developers,
 `rekx` tries to simplify these concepts through practical examples.
 
 
-# Why ?
+# Why and how can be rekx useful ?
 
 Similarly,
 existing tools for managing HDF and NetCDF data,
