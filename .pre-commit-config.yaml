@@ -1,12 +1,19 @@
 repos:
+  - repo: https://github.com/pycqa/flake8
+    rev: ''  # Specify a tag or commit hash
+    hooks:
+      - id: flake8
   - repo: https://github.com/psf/black
     rev: 23.12.1
     hooks:
       - id: black
         language_version: python3
-
   - repo: https://github.com/pre-commit/mirrors-isort
     rev: v5.10.1
     hooks:
       - id: isort
         language_version: python3
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: ''  # Specify a tag or commit hash
+    hooks:
+      - id: mypy
