@@ -4,8 +4,6 @@ repos:
     hooks:
       # lint
       - id: ruff
-      # format
-      - id: ruff-format
   - repo: https://github.com/psf/black
     rev: 24.2.0
     hooks:
