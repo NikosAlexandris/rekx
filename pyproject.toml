@@ -57,9 +57,8 @@ keywords = [
 dev = [
   "devtools",  # move to optional dependencies ?
   "pre-commit",
+  "ruff",
   "black",
-  "flake8",
-  "isort",
   "netCDF4",
   "pytest",
 ]
@@ -113,34 +112,53 @@ exclude = '''
 )/
 '''
 
-[tool.pylint.MASTER]
-# Ensure `duplicate-code` and any other errors that depend on not running in
-# parallel are reported:
-jobs = 1
-enable-all-extensions = true
-output-format = "colorized"
-ignore-paths = [
-# Managed by tools, best to use `# pylint: disable=...` inline comments for any
-# other ignores.
-    ".+/version.py",
-    ".*/.+/version.py",
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+select = [
+    "D",
+    # Pyflakes
+    "F",
+    # Pycodestyle
+    "E",
+    "W",
+    # isort
+    "I001"
 ]
-# Extend linting to usage of trusted extension packages
-extension-pkg-allow-list = ["lxml"]
+extend-select = ["E501"]
 
-[tool.pylint.TYPECHECK]
-# Ignore false negatives from external packages
-ignored-classes = ["lxml.etree.QName.localname"]
-# Match Black's defaults
-# https://black.readthedocs.io/en/stable/guides/using_black_with_other_tools.html#pylint
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
 
-[tool.pylint.format]
-max-line-length = "88"
+# [tool.pylint.MASTER]
+# # Ensure `duplicate-code` and any other errors that depend on not running in
+# # parallel are reported:
+# jobs = 1
+# enable-all-extensions = true
+# output-format = "colorized"
+# ignore-paths = [
+# # Managed by tools, best to use `# pylint: disable=...` inline comments for any
+# # other ignores.
+#     ".+/version.py",
+#     ".*/.+/version.py",
+# ]
+# # Extend linting to usage of trusted extension packages
+# extension-pkg-allow-list = ["lxml"]
 
-[tool.pylint."messages control"]
-# Workaround Prospector bug with PyLint:
-# https://github.com/PyCQA/prospector/issues/596#issue-1592499675
-disable = ["relative-beyond-top-level"]
+# [tool.pylint.TYPECHECK]
+# # Ignore false negatives from external packages
+# ignored-classes = ["lxml.etree.QName.localname"]
+# # Match Black's defaults
+# # https://black.readthedocs.io/en/stable/guides/using_black_with_other_tools.html#pylint
+
+# [tool.pylint.format]
+# max-line-length = "88"
+
+# [tool.pylint."messages control"]
+# # Workaround Prospector bug with PyLint:
+# # https://github.com/PyCQA/prospector/issues/596#issue-1592499675
+# disable = ["relative-beyond-top-level"]
 
 [[tool.mypy.overrides]]
 module = ["argcomplete"]
