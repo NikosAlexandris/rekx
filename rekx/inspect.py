@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Annotated, Dict, List, Optional, Tuple
+from typing import Annotated, Optional
 
 import typer
 
@@ -9,11 +9,9 @@ from .models import XarrayVariableSet
 from .netcdf_metadata import get_multiple_netcdf_metadata, get_netcdf_metadata
 from .progress import DisplayMode, display_context
 from .typer_parameters import (
-    OrderCommands,
     typer_argument_input_path,
     typer_argument_latitude_in_degrees,
     typer_argument_longitude_in_degrees,
-    typer_argument_source_directory,
     typer_option_csv,
     typer_option_filename_pattern,
     typer_option_humanize,
@@ -23,9 +21,9 @@ from .typer_parameters import (
 
 
 def inspect_netcdf_data(
-    input_path: Annotated[Path, typer_argument_input_path] = ".",
+    input_path: Annotated[Path, typer_argument_input_path] = Path("."),
     pattern: Annotated[str, typer_option_filename_pattern] = "*.nc",
-    variable: str = None,
+    variable: str = str(),
     variable_set: Annotated[
         XarrayVariableSet, typer.Option(help="Set of Xarray variables to diagnose")
     ] = XarrayVariableSet.all,
@@ -41,7 +39,7 @@ def inspect_netcdf_data(
     latitude: Annotated[float, typer_argument_latitude_in_degrees] = 45,
     repetitions: Annotated[int, typer_option_repetitions] = REPETITIONS_DEFAULT,
     humanize: Annotated[bool, typer_option_humanize] = False,
-    csv: Annotated[Path, typer_option_csv] = None,
+    csv: Annotated[Optional[Path], typer_option_csv] = None,
     verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
 ) -> None:
     """Collect the metadata of a single or multiple NetCDF files.

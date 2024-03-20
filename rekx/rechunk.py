@@ -1,12 +1,11 @@
 import shlex
 import subprocess
-from datetime import datetime
+import enum
 from enum import Enum
 from pathlib import Path
-from threading import Lock
-from typing import Any, List, Optional
+from typing import Union, Any, List, Optional
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
-import netCDF4 as nc
 import typer
 import xarray as xr
 from devtools import debug
@@ -16,12 +15,12 @@ from typing_extensions import Annotated
 
 from rekx.constants import VERBOSE_LEVEL_DEFAULT
 from rekx.messages import NOT_IMPLEMENTED_CLI
+from rekx.typer_parameters import typer_argument_input_path
 from rekx.typer_parameters import typer_option_verbose
 
 from .log import logger
 from .models import XarrayVariableSet, select_xarray_variable_set_from_dataset
-from .rich_help_panel_names import rich_help_panel_rechunking
-from .typer_parameters import OrderCommands, typer_option_dry_run
+from .typer_parameters import typer_option_dry_run
 
 CACHE_SIZE_DEFAULT = 16777216
 CACHE_ELEMENTS_DEFAULT = 4133
@@ -34,20 +33,6 @@ DRY_RUN_DEFAULT = True
 SPATIAL_SYMMETRY_DEFAULT = True
 
 
-# app = typer.Typer(
-#     cls=OrderCommands,
-#     add_completion=True,
-#     add_help_option=True,
-#     rich_markup_mode="rich",
-#     help=f'Rechunk data',
-# )
-
-
-# @app.command(
-#     'modify-chunk-size',
-#     no_args_is_help=True,
-#     help=f'Modify chunk size in NetCDF files {NOT_IMPLEMENTED_CLI}',
-# )
 def modify_chunk_size(
     netcdf_file,
     variable,
@@ -61,7 +46,7 @@ def modify_chunk_size(
     - variable_name: name of the variable to modify
     - new_chunk_size: tuple specifying the new chunk size, e.g., (2600, 2600)
     """
-    with nc.Dataset(netcdf_file, "r+") as dataset:
+    with Dataset(netcdf_file, "r+") as dataset:
         variable = dataset.variables[variable]
 
         if variable.chunking() != [None]:
@@ -207,8 +192,8 @@ class NetCDF4Backend(RechunkingBackendBase):
 
         # logger.info(f"Rechunking of {input_filepath} with chunk sizes: time={time}, lat={lat}, lon={lon}")
         new_chunks = {"time": time, "lat": lat, "lon": lon}
-        with nc.Dataset(input_filepath, mode="r") as input_dataset:
-            with nc.Dataset(output_filepath, mode="w") as output_dataset:
+        with Dataset(input_filepath, mode="r") as input_dataset:
+            with Dataset(output_filepath, mode="w") as output_dataset:
                 for name in input_dataset.ncattrs():
                     output_dataset.setncattr(name, input_dataset.getncattr(name))
                 for name, dimension in input_dataset.dimensions.items():
@@ -286,16 +271,15 @@ class XarrayBackend(RechunkingBackendBase):
         # >>> rechunk_netcdf(Path("input.nc"), Path("output.nc"), {'time': 365, 'lat': 25, 'lon': 25})
         """
         dataset = xr.open_dataset(input_filepath)
-        chunks = {"time": time, "lat": lat, "lon": lon}
+        chunks = {"time": time, "lat": latitude, "lon": longitude}
         dataset_rechunked = dataset.chunk(chunks)
         dataset_rechunked.to_netcdf(output_filepath)
 
 
-import enum
 
 
 @enum.unique
-class RechunkingBackend(str, enum.Enum):
+class RechunkingBackend(str, Enum):
     all = "all"
     netcdf4 = "netCDF4"
     xarray = "xarray"
@@ -322,12 +306,6 @@ class RechunkingBackend(str, enum.Enum):
             raise ValueError(f"No known backend for {self.name}.")
 
 
-# @app.command(
-#     "rechunk",
-#     no_args_is_help=True,
-#     help="Rechunk a NetCDF file and save it to a new file.",
-#     rich_help_panel=rich_help_panel_rechunking,
-# )
 def rechunk(
     input: Annotated[Optional[Path], typer.Argument(help="Input NetCDF file.")],
     output_directory: Annotated[
@@ -420,9 +398,6 @@ def rechunk(
             print(f"Rechunking took {elapsed_time:.2f} seconds.")
 
 
-from typing import Union
-
-
 def parse_chunks(chunks: Union[int, str]) -> List[int]:
     if isinstance(chunks, str):
         return [int(chunk_size) for chunk_size in chunks.split(",")]
@@ -462,7 +437,7 @@ def callback_compression_filters():
 
 
 def generate_rechunk_commands(
-    input: Annotated[Optional[Path], typer.Argument(help="Input NetCDF file.")],
+    input: Annotated[Path, typer_argument_input_path],
     output: Annotated[
         Optional[Path], typer.Argument(help="Path to the output NetCDF file.")
     ],
@@ -588,7 +563,7 @@ def generate_rechunk_commands(
                     memory=memory,
                     dry_run=True,  # just return the command!
                 )
-                if not command in commands:
+                if command not in commands:
                     commands.append(command)
 
     commands_file = Path(
@@ -607,9 +582,6 @@ def generate_rechunk_commands(
                 f.write(command + "\n")
     # else:
     #     print(commands)
-
-
-from concurrent.futures import ProcessPoolExecutor, as_completed
 
 
 def generate_rechunk_commands_for_multiple_netcdf(
@@ -688,7 +660,6 @@ def generate_rechunk_commands_for_multiple_netcdf(
     """
     Generate variations of rechunking commands based on `nccopy`.
     """
-    command_series = {}
     with ProcessPoolExecutor() as executor:
         futures = [
             executor.submit(
@@ -720,7 +691,3 @@ def generate_rechunk_commands_for_multiple_netcdf(
 
             except Exception as e:
                 logger.error(f"Error processing : {e}")
-
-
-if __name__ == "__main__":
-    app()
