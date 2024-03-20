@@ -5,41 +5,16 @@ and specifically diagnose and validate
 the chunking shapes of NetCDF files.
 """
 
-import os
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
-from typing import Annotated, Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 
-import numpy as np
-import pandas as pd
-import typer
 import xarray as xr
-from humanize import naturalsize
-from netCDF4 import Dataset
-from rich import print
 
-from .constants import NOT_AVAILABLE, REPETITIONS_DEFAULT, VERBOSE_LEVEL_DEFAULT
-from .csv import write_metadata_dictionary_to_csv, write_nested_dictionary_to_csv
 from .log import logger
 from .models import (
     XarrayVariableSet,
-    select_netcdf_variable_set_from_dataset,
     select_xarray_variable_set_from_dataset,
-)
-from .print import print_chunk_shapes_table, print_common_chunk_layouts
-from .progress import DisplayMode, display_context
-from .select import read_performance
-from .typer_parameters import (
-    OrderCommands,
-    typer_argument_input_path,
-    typer_argument_latitude_in_degrees,
-    typer_argument_longitude_in_degrees,
-    typer_argument_source_directory,
-    typer_option_csv,
-    typer_option_filename_pattern,
-    typer_option_humanize,
-    typer_option_repetitions,
-    typer_option_verbose,
 )
 
 
@@ -81,7 +56,9 @@ def detect_chunking_shapes(
     chunking_shapes = {}
     with xr.open_dataset(file_path, engine="netcdf4") as dataset:
         selected_variables = select_xarray_variable_set_from_dataset(
-            XarrayVariableSet, variable_set, dataset
+            netcdf4_variable_set=XarrayVariableSet,
+            variable_set=variable_set,
+            dataset=dataset,
         )
         for variable in selected_variables:
             chunking_shape = dataset[variable].encoding.get("chunksizes")
@@ -104,7 +81,8 @@ def detect_chunking_shapes_parallel(
     file_paths: List[Path],
     variable_set: XarrayVariableSet = XarrayVariableSet.all,
 ) -> dict:
-    """
+    """Detect the chunking shapes of variables in NetCDF files.
+
     Detect and aggregate the chunking shapes of variables within a set of
     multiple NetCDF files in parallel.
 
@@ -119,6 +97,7 @@ def detect_chunking_shapes_parallel(
         A nested dictionary where the first level keys are variable names, and the
         second level keys are the chunking shapes encountered, with the associated
         values being sets of file names where those chunking shapes are found.
+
     """
     aggregated_chunking_shapes = {}
     with ProcessPoolExecutor() as executor:
