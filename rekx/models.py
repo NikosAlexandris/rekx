@@ -25,7 +25,7 @@ class XarrayVariableSet(str, enum.Enum):
 
 
 def select_xarray_variable_set_from_dataset(
-    xarray_variable_set: Type[enum.Enum],
+    xarray_variable_set: XarrayVariableSet,
     variable_set: List[enum.Enum],
     dataset: xr.Dataset,
 ):
