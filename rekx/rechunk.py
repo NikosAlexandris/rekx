@@ -123,7 +123,7 @@ class nccopyBackend(RechunkingBackendBase):
         """
         chunking_shape = (
             f"-c time/{time},lat/{latitude},lon/{longitude}"
-            if all([time, latitude, longitude])
+            if all(value is not None for value in [time, latitude, longitude])
             else ""
         )
         compression_options = f"-d {compression_level}" if compression == "zlib" else ""
