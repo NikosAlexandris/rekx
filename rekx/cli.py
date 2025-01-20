@@ -7,6 +7,7 @@ import typer
 from rich import print
 from rich.panel import Panel
 
+from rekx.clip import clip_netcdf_file, clip_netcdf_file_cli
 from rekx.messages import NOT_IMPLEMENTED_CLI
 
 from .combine import combine_kerchunk_references, combine_kerchunk_references_to_parquet
@@ -184,6 +185,13 @@ app.command(
 )(combine_parquet_stores_to_parquet)
 
 # select
+
+app.command(
+    name="clip",
+    help="%< Select time series over a location",
+    no_args_is_help=True,
+    rich_help_panel=rich_help_panel_select,
+)(clip_netcdf_file_cli)
 
 app.command(
     name="select",

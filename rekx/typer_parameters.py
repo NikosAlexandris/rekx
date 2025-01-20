@@ -1,3 +1,4 @@
+from rich import print
 import typer
 from click import Context
 from typer.core import TyperGroup
@@ -207,6 +208,11 @@ typer_option_time_series = typer.Option(
     help=time_series_typer_help,
     rich_help_panel=rich_help_panel_time_series,
 )
+typer_argument_variable = typer.Argument(
+    show_default=True,
+    help=f"Variables to select data from",
+    default_factory=False,
+)
 typer_option_list_variables = typer.Option(
     show_default=True,
     help=f"List variables in the Kerchunk reference set",
@@ -286,6 +292,10 @@ typer_option_variable_name_as_suffix = typer.Option(
     help="Suffix the output filename with the variable name",
     rich_help_panel=rich_help_panel_output,
     # default=False
+)
+typer_option_output_filename = typer.Option(
+    help="Output filename [underline]with [bold]appropriate[/bold] extension[/underline] for selected data. [code].nc[/code] for NetCDF, [code].csv[/code] for CSV, [code]png[/code] for PNG",
+    rich_help_panel=rich_help_panel_output,
 )
 typer_option_csv = typer.Option(
     help="CSV output filename",
