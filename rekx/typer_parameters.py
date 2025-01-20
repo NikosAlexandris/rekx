@@ -1,6 +1,6 @@
+from typing import List
 from rich import print
 import typer
-from click import Context
 from typer.core import TyperGroup
 
 from rekx.constants import (
@@ -19,7 +19,7 @@ from rekx.timestamp import callback_generate_datetime_series, parse_timestamp_se
 
 
 class OrderCommands(TyperGroup):
-    def list_commands(self, ctx: Context):
+    def list_commands(self, ctx: typer.Context):
         """Return list of commands in the order they appear.
 
         See also
@@ -135,7 +135,7 @@ typer_option_end_time = typer.Option(
 from pathlib import Path
 
 
-def callback_input_path(input_path: Path):
+def callback_source_path(input_path: Path):
     """ """
     from rich import print
 
@@ -144,7 +144,7 @@ def callback_input_path(input_path: Path):
         raise typer.Exit()
 
     if not input_path.is_file() and not input_path.is_dir():
-        print(f"[red]The path: [code]{input_path}[/code] is not valid[/red].")
+        print(f"[red]The path [code]{input_path}[/code] is not valid[/red].")
         raise typer.Exit()
 
     return input_path
@@ -159,11 +159,25 @@ def callback_source_directory(directory: Path):
     return directory
 
 
-typer_argument_input_path = typer.Argument(
+def callback_source_path_with_pattern(path: Path, ctx: typer.Context):
+    """ """
+    if not path.exists():
+        raise typer.BadParameter("Path does not exist.")
+
+    if not path.is_file() and not path.is_dir():
+        raise typer.BadParameter("Path is not a file.")
+
+    # if not path.is_readable():
+    #     raise typer.BadParameter("File is not readable.")
+
+    return path.resolve()
+
+
+typer_argument_source_path = typer.Argument(
     show_default=True,
     help="Input filename or directory path",
     rich_help_panel=rich_help_panel_time_series,
-    callback=callback_input_path,
+    callback=callback_source_path,
     # default_factory = None
 )
 typer_argument_source_directory = typer.Argument(
@@ -173,7 +187,20 @@ typer_argument_source_directory = typer.Argument(
     callback=callback_source_directory,
     # default_factory = None
 )
+typer_argument_source_path_with_pattern = typer.Argument(
+    show_default=True,
+    help="List source file paths",
+    rich_help_panel=rich_help_panel_time_series,
+    callback=callback_source_path_with_pattern,
+    # default_factory = None
+)
 typer_argument_output_directory = typer.Argument(
+    show_default=True,
+    help="Output directory path for reference files. Will create if inexistent.",
+    rich_help_panel=rich_help_panel_time_series,
+    # default_factory = None
+)
+typer_option_output_directory = typer.Option(
     show_default=True,
     help="Output directory path for reference files. Will create if inexistent.",
     rich_help_panel=rich_help_panel_time_series,

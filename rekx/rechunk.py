@@ -1,16 +1,15 @@
+import multiprocessing
+from functools import partial
 import shlex
 import subprocess
-from datetime import datetime
-from enum import Enum
+import enum
 from pathlib import Path
-from threading import Lock
-from typing import Any, List, Optional
-
+from typing import List, Optional
+from abc import ABC, abstractmethod
 import netCDF4 as nc
 import typer
 import xarray as xr
 from devtools import debug
-from netCDF4 import Dataset
 from rich import print
 from typing_extensions import Annotated
 
@@ -20,8 +19,13 @@ from rekx.typer_parameters import typer_option_verbose
 
 from .log import logger
 from .models import XarrayVariableSet, select_xarray_variable_set_from_dataset
-from .rich_help_panel_names import rich_help_panel_rechunking
-from .typer_parameters import OrderCommands, typer_option_dry_run
+from .typer_parameters import (
+    typer_option_dry_run,
+    typer_argument_source_path_with_pattern,
+    typer_option_output_directory,
+    typer_option_filename_pattern,
+)
+
 
 CACHE_SIZE_DEFAULT = 16777216
 CACHE_ELEMENTS_DEFAULT = 4133
@@ -74,9 +78,6 @@ def modify_chunk_size(
             print(
                 f"Variable '{variable}' in file '{netcdf_file}' is not chunked. Skipping."
             )
-
-
-from abc import ABC, abstractmethod
 
 
 class RechunkingBackendBase(ABC):
@@ -291,9 +292,6 @@ class XarrayBackend(RechunkingBackendBase):
         dataset_rechunked.to_netcdf(output_filepath)
 
 
-import enum
-
-
 @enum.unique
 class RechunkingBackend(str, enum.Enum):
     all = "all"
@@ -322,12 +320,6 @@ class RechunkingBackend(str, enum.Enum):
             raise ValueError(f"No known backend for {self.name}.")
 
 
-# @app.command(
-#     "rechunk",
-#     no_args_is_help=True,
-#     help="Rechunk a NetCDF file and save it to a new file.",
-#     rich_help_panel=rich_help_panel_rechunking,
-# )
 def rechunk(
     input: Annotated[Optional[Path], typer.Argument(help="Input NetCDF file.")],
     output_directory: Annotated[
@@ -462,26 +454,26 @@ def callback_compression_filters():
 
 
 def generate_rechunk_commands(
-    input: Annotated[Optional[Path], typer.Argument(help="Input NetCDF file.")],
+    input: Annotated[Path | None, typer.Argument(help="Input NetCDF file.")],
     output: Annotated[
-        Optional[Path], typer.Argument(help="Path to the output NetCDF file.")
+        Path | None, typer.Argument(help="Path to the output NetCDF file.")
     ],
     time: Annotated[
-        int,
+        int | None,
         typer.Option(
             help="New chunk size for the `time` dimension.",
             parser=parse_numerical_option,
         ),
     ],
     latitude: Annotated[
-        int,
+        int | None,
         typer.Option(
             help="New chunk size for the `lat` dimension.",
             parser=parse_numerical_option,
         ),
     ],
     longitude: Annotated[
-        int,
+        int | None,
         typer.Option(
             help="New chunk size for the `lon` dimension.",
             parser=parse_numerical_option,
@@ -599,7 +591,7 @@ def generate_rechunk_commands(
             f"[bold]Writing generated commands into[/bold] [code]{commands_file}[/code]"
         )
         for command in commands:
-            print(f"{command}")
+            print(f" [green]>[/green] [code dim]{command}[/code dim]")
 
     if not dry_run:
         with open(commands_file, "w") as f:
@@ -609,14 +601,8 @@ def generate_rechunk_commands(
     #     print(commands)
 
 
-from concurrent.futures import ProcessPoolExecutor, as_completed
-
-
 def generate_rechunk_commands_for_multiple_netcdf(
-    file_paths: Annotated[List[Path], typer.Argument(help="Input NetCDF files.")],
-    output: Annotated[
-        Optional[Path], typer.Argument(help="Path to the output NetCDF file.")
-    ],
+    source_path: Annotated[Path, typer_argument_source_path_with_pattern],
     time: Annotated[
         int,
         typer.Option(
@@ -638,6 +624,8 @@ def generate_rechunk_commands_for_multiple_netcdf(
             parser=parse_numerical_option,
         ),
     ],
+    pattern: Annotated[str, typer_option_filename_pattern] = "*.nc",
+    output_directory: Annotated[Path, typer_option_output_directory] = Path('.'),
     spatial_symmetry: Annotated[
         bool,
         typer.Option(
@@ -682,45 +670,61 @@ def generate_rechunk_commands_for_multiple_netcdf(
         str, typer.Option(help="The port:ip of the dask scheduler")
     ] = None,
     commands_file: Path = "rechunk_commands.txt",
+    workers: Annotated[int, typer.Option(help="Number of worker processes.")] = 4,
     dry_run: Annotated[bool, typer_option_dry_run] = False,
     verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
 ):
     """
     Generate variations of rechunking commands based on `nccopy`.
     """
-    command_series = {}
-    with ProcessPoolExecutor() as executor:
-        futures = [
-            executor.submit(
-                generate_rechunk_commands,
-                file_path,  # input
-                output,
-                time,
-                latitude,
-                longitude,
-                spatial_symmetry,
-                variable_set,
-                cache_size,
-                cache_elements,
-                cache_preemption,
-                compression,
-                compression_level,
-                shuffling,
-                memory,
-                dask_scheduler,
-                commands_file,
-                dry_run,
-                verbose,
+    input_file_paths = []
+    if source_path.is_file():
+        input_file_paths.append(source_path)
+    elif source_path.is_dir():
+        input_file_paths = (source_path.glob(pattern))
+        if not input_file_paths:
+            print(
+                "No files found in [code]{source_directory}[/code] matching the pattern [code]{pattern}[/code]!"
             )
-            for file_path in file_paths
-        ]
-        for future in as_completed(futures):
-            try:
-                future.result()
+            return
+    else:
+        print(f'Something is wrong with the [code]source_path[/code] input.')
+        return
 
-            except Exception as e:
-                logger.error(f"Error processing : {e}")
+    if dry_run:
+        print(f"[bold]Dry running operations that would be performed[/bold]:")
+        print(
+            f"> Reading files in [code]{source_path}[/code] matching the pattern [code]{pattern}[/code]"
+        )
+        print(f"> Number of files matched : {len(list(input_file_paths))}")
+        print(f"> Writing rechunking commands in [code]{commands_file}[/code]")
+        return  # Exit for a dry run
 
-
-if __name__ == "__main__":
-    app()
+    if not output_directory.exists():
+        output_directory.mkdir(parents=True, exist_ok=True)
+        if verbose > 0:
+            print(f"[yellow]Convenience action[/yellow] : creating the requested output directory [code]{output_directory}[/code].")
+    with multiprocessing.Pool(processes=workers) as pool:
+        partial_generate_rechunk_commands = partial(
+                generate_rechunk_commands,
+                output=output_directory,
+                time=time,
+                latitude=latitude,
+                longitude=longitude,
+                spatial_symmetry=spatial_symmetry,
+                variable_set=variable_set,
+                cache_size=cache_size,
+                cache_elements=cache_elements,
+                cache_preemption=cache_preemption,
+                compression=compression,
+                compression_level=compression_level,
+                shuffling=shuffling,
+                memory=memory,
+                dask_scheduler=dask_scheduler,
+                commands_file=commands_file,
+                dry_run=dry_run,
+                verbose=verbose,
+        )
+        pool.map(partial_generate_rechunk_commands, input_file_paths)
+    if verbose:
+        print(f"[bold green]Done![/bold green]")
