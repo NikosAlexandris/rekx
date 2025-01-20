@@ -680,15 +680,16 @@ def generate_rechunk_commands_for_multiple_netcdf(
     input_file_paths = []
     if source_path.is_file():
         input_file_paths.append(source_path)
+
     elif source_path.is_dir():
         input_file_paths = (source_path.glob(pattern))
-        if not input_file_paths:
-            print(
-                "No files found in [code]{source_directory}[/code] matching the pattern [code]{pattern}[/code]!"
-            )
-            return
     else:
         print(f'Something is wrong with the [code]source_path[/code] input.')
+        return
+    if not list(input_file_paths):
+        print(
+            f"No files found in [code]{source_path}[/code] matching the pattern [code]{pattern}[/code]!"
+        )
         return
 
     if dry_run:
@@ -700,7 +701,7 @@ def generate_rechunk_commands_for_multiple_netcdf(
         print(f"> Writing rechunking commands in [code]{commands_file}[/code]")
         return  # Exit for a dry run
 
-    if not output_directory.exists():
+    if input_file_paths and not output_directory.exists():
         output_directory.mkdir(parents=True, exist_ok=True)
         if verbose > 0:
             print(f"[yellow]Convenience action[/yellow] : creating the requested output directory [code]{output_directory}[/code].")
