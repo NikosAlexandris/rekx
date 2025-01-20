@@ -131,7 +131,7 @@ app.command(
 )(modify_chunk_size)
 app.command(
     name="rechunk",
-    help=f"Rechunk data",
+    help=f"Rechunk NetCDF file",
     no_args_is_help=True,
     rich_help_panel=rich_help_panel_rechunking,
 )(rechunk)

@@ -10,10 +10,9 @@ from .netcdf_metadata import get_multiple_netcdf_metadata, get_netcdf_metadata
 from .progress import DisplayMode, display_context
 from .typer_parameters import (
     OrderCommands,
-    typer_argument_input_path,
+    typer_argument_source_path,
     typer_argument_latitude_in_degrees,
     typer_argument_longitude_in_degrees,
-    typer_argument_source_directory,
     typer_option_csv,
     typer_option_filename_pattern,
     typer_option_humanize,
@@ -23,7 +22,7 @@ from .typer_parameters import (
 
 
 def inspect_netcdf_data(
-    input_path: Annotated[Path, typer_argument_input_path] = ".",
+    input_path: Annotated[Path, typer_argument_source_path] = ".",
     pattern: Annotated[str, typer_option_filename_pattern] = "*.nc",
     variable: str = None,
     variable_set: Annotated[

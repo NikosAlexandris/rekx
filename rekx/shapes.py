@@ -1,18 +1,16 @@
 from pathlib import Path
-from typing import Annotated, Dict, List, Optional, Tuple
+from typing import Annotated
 
 import typer
 from rich import print
 
 from rekx.hardcodings import check_mark, x_mark
 
-from .constants import NOT_AVAILABLE, REPETITIONS_DEFAULT, VERBOSE_LEVEL_DEFAULT
+from .constants import VERBOSE_LEVEL_DEFAULT
 from .csv import write_nested_dictionary_to_csv
 from .diagnose import detect_chunking_shapes_parallel
 from .models import (
     XarrayVariableSet,
-    select_netcdf_variable_set_from_dataset,
-    select_xarray_variable_set_from_dataset,
 )
 from .print import (
     print_chunk_shapes_table,
@@ -21,15 +19,9 @@ from .print import (
 )
 from .progress import DisplayMode, display_context
 from .typer_parameters import (
-    OrderCommands,
-    typer_argument_input_path,
-    typer_argument_latitude_in_degrees,
-    typer_argument_longitude_in_degrees,
     typer_argument_source_directory,
     typer_option_csv,
     typer_option_filename_pattern,
-    typer_option_humanize,
-    typer_option_repetitions,
     typer_option_verbose,
 )
 

@@ -8,38 +8,12 @@ the chunking shapes of NetCDF files.
 import os
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
-from typing import Annotated, Dict, List, Optional, Tuple
-
-import numpy as np
-import pandas as pd
-import typer
+from typing import Dict, List, Tuple
 import xarray as xr
-from humanize import naturalsize
-from netCDF4 import Dataset
-from rich import print
-
-from .constants import NOT_AVAILABLE, REPETITIONS_DEFAULT, VERBOSE_LEVEL_DEFAULT
-from .csv import write_metadata_dictionary_to_csv, write_nested_dictionary_to_csv
 from .log import logger
 from .models import (
     XarrayVariableSet,
-    select_netcdf_variable_set_from_dataset,
     select_xarray_variable_set_from_dataset,
-)
-from .print import print_chunk_shapes_table, print_common_chunk_layouts
-from .progress import DisplayMode, display_context
-from .read import read_performance
-from .typer_parameters import (
-    OrderCommands,
-    typer_argument_input_path,
-    typer_argument_latitude_in_degrees,
-    typer_argument_longitude_in_degrees,
-    typer_argument_source_directory,
-    typer_option_csv,
-    typer_option_filename_pattern,
-    typer_option_humanize,
-    typer_option_repetitions,
-    typer_option_verbose,
 )
 
 

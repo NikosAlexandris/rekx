@@ -28,9 +28,6 @@ from .log import logger
 from .messages import ERROR_IN_SELECTING_DATA
 from .models import MethodForInexactMatches
 from .progress import DisplayMode, display_context
-from .rich_help_panel_names import (
-    rich_help_panel_combine,
-)
 from .typer_parameters import (
     typer_argument_kerchunk_combined_reference,
     typer_argument_latitude_in_degrees,
