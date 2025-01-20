@@ -7,7 +7,6 @@ from pathlib import Path
 from typing import Any, Optional
 
 import fsspec
-import kerchunk
 import typer
 import xarray as xr
 from fsspec.implementations.reference import LazyReferenceMapper
@@ -16,10 +15,8 @@ from kerchunk.hdf import SingleHdf5ToZarr
 from rich import print
 from typing_extensions import Annotated
 
-from rekx.constants import REPETITIONS_DEFAULT
 from rekx.hardcodings import exclamation_mark
 from rekx.statistics import print_series_statistics
-from rekx.typer_parameters import OrderCommands
 
 from .constants import (
     DEFAULT_RECORD_SIZE,
@@ -33,8 +30,6 @@ from .models import MethodForInexactMatches
 from .progress import DisplayMode, display_context
 from .rich_help_panel_names import (
     rich_help_panel_combine,
-    rich_help_panel_reference,
-    rich_help_panel_select,
 )
 from .typer_parameters import (
     typer_argument_kerchunk_combined_reference,
@@ -49,7 +44,6 @@ from .typer_parameters import (
     typer_option_in_memory,
     typer_option_mask_and_scale,
     typer_option_neighbor_lookup,
-    typer_option_repetitions,
     typer_option_rounding_places,
     typer_option_start_time,
     typer_option_statistics,
@@ -222,7 +216,7 @@ def parquet_reference(
         )
         return  # Exit for a dry run
 
-    create_parquet_store(
+    create_single_parquet_store(
         input_file_path=input_file,
         output_directory=output_directory,
         record_size=record_size,

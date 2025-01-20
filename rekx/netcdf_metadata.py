@@ -1,19 +1,18 @@
 import os
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
-from typing import Annotated, Dict, List, Optional, Tuple
+from typing import Annotated, List, Tuple
 
 from humanize import naturalsize
 from netCDF4 import Dataset
 
-from .constants import NOT_AVAILABLE, REPETITIONS_DEFAULT, VERBOSE_LEVEL_DEFAULT
+from .constants import NOT_AVAILABLE, REPETITIONS_DEFAULT
 from .log import logger
 from .models import (
     XarrayVariableSet,
     select_netcdf_variable_set_from_dataset,
-    select_xarray_variable_set_from_dataset,
 )
-from .select import read_performance
+from .read import read_performance
 from .typer_parameters import (
     humanize_help,
     latitude_in_degrees_help,

@@ -36,8 +36,8 @@ from .rich_help_panel_names import (
     rich_help_panel_select_references,
     rich_help_panel_suggest,
 )
+from .read import read_performance_cli, read_performance_area_cli
 from .select import (
-    read_performance_cli,
     select_fast,
     select_time_series,
     select_time_series_from_json,
@@ -219,6 +219,12 @@ app.command(
     no_args_is_help=True,
     rich_help_panel=rich_help_panel_read_performance,
 )(read_performance_cli)
+app.command(
+    name="read-performance-area",
+    help="  Measure read and load in-memory operations of an area time series from Xarray-supported data",
+    no_args_is_help=True,
+    rich_help_panel=rich_help_panel_read_performance,
+)(read_performance_area_cli)
 
 
 if __name__ == "__main__":

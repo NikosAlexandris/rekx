@@ -28,7 +28,7 @@ from .models import (
 )
 from .print import print_chunk_shapes_table, print_common_chunk_layouts
 from .progress import DisplayMode, display_context
-from .select import read_performance
+from .read import read_performance
 from .typer_parameters import (
     OrderCommands,
     typer_argument_input_path,

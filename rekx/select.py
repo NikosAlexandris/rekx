@@ -1,253 +1,44 @@
-import multiprocessing
 import time as timer
 from datetime import datetime
 from pathlib import Path
-from threading import Lock
 from typing import Any, Optional
 
 import fsspec
-import kerchunk
 import typer
-import ujson
 import xarray as xr
-from devtools import debug
-from kerchunk.hdf import SingleHdf5ToZarr
 from rich import print
-from rich.progress import BarColumn, Progress, TaskID, TextColumn, TimeRemainingColumn
 from typing_extensions import Annotated
 
 from rekx.constants import (
-    DATASET_SELECT_TOLERANCE_DEFAULT,
-    REPETITIONS_DEFAULT,
     VERBOSE_LEVEL_DEFAULT,
 )
-from rekx.hardcodings import check_mark, exclamation_mark, x_mark
 from rekx.models import MethodForInexactMatches
-from rekx.utilities import get_scale_and_offset, select_location_time_series
-
-from .constants import ROUNDING_PLACES_DEFAULT, VERBOSE_LEVEL_DEFAULT
+from .constants import VERBOSE_LEVEL_DEFAULT
 from .csv import to_csv
-from .hardcodings import check_mark, exclamation_mark, x_mark
+from .hardcodings import exclamation_mark
 from .log import logger
 from .messages import ERROR_IN_SELECTING_DATA
-from .progress import DisplayMode, display_context
 from .statistics import print_series_statistics
+from .write import write_to_netcdf
 from .typer_parameters import (
-    OrderCommands,
-    typer_argument_kerchunk_combined_reference,
     typer_argument_latitude_in_degrees,
     typer_argument_longitude_in_degrees,
-    typer_argument_output_directory,
-    typer_argument_source_directory,
     typer_argument_time_series,
     typer_argument_timestamps,
-    typer_option_convert_longitude_360,
+    typer_option_output_filename,
     typer_option_csv,
     typer_option_end_time,
-    typer_option_filename_pattern,
     typer_option_in_memory,
     typer_option_list_variables,
     typer_option_mask_and_scale,
     typer_option_neighbor_lookup,
-    typer_option_number_of_workers,
-    typer_option_repetitions,
-    typer_option_rounding_places,
     typer_option_start_time,
     typer_option_statistics,
     typer_option_time_series,
     typer_option_tolerance,
-    typer_option_variable_name_as_suffix,
     typer_option_verbose,
 )
 from .utilities import set_location_indexers
-
-
-def read_performance(
-    time_series: Annotated[Path, typer_argument_time_series],
-    variable: Annotated[str, typer.Argument(help="Variable to select data from")],
-    longitude: Annotated[float, typer_argument_longitude_in_degrees],
-    latitude: Annotated[float, typer_argument_latitude_in_degrees],
-    # window: Annotated[int, typer_option_spatial_window_in_degrees] = None,
-    tolerance: Annotated[
-        Optional[float], typer_option_tolerance
-    ] = DATASET_SELECT_TOLERANCE_DEFAULT,
-    repetitions: Annotated[int, typer_option_repetitions] = REPETITIONS_DEFAULT,
-) -> str:
-    """
-    Count the median time of repeated read and load operations of the time
-    series data over a geographic location from an Xarray-supported file
-    format.
-
-    Parameters
-    ----------
-    time_series:
-        Path to Xarray-supported input file
-    variable: str
-        Name of the variable to query
-    longitude: float
-        The longitude of the location to read data
-    latitude: float
-        The latitude of the location to read data
-    # window:
-    tolerance: float
-        Maximum distance between original and new labels for inexact matches.
-        Read Xarray manual on nearest-neighbor-lookups
-    repetitions: int
-        Number of times to repeat read operation
-
-    Returns
-    -------
-    data_retrieval_time : str
-        The median time of repeated operations it took to retrieve data over
-        the requested location
-
-    Notes
-    -----
-    ``mask_and_scale`` is always set to ``False`` to avoid errors related with
-    decoding timestamps. See also ...
-
-    """
-    from .models import get_file_format
-
-    file_format = get_file_format(time_series)
-    open_dataset_options = file_format.open_dataset_options()
-    dataset_select_options = file_format.dataset_select_options(tolerance)
-
-    # indexers = set_location_indexers(
-    #     data_array=time_series,
-    #     longitude=longitude,
-    #     latitude=latitude,
-    #     verbose=verbose,
-    # )
-    try:
-        timings = []
-        for _ in range(repetitions):
-            data_retrieval_start_time = timer.perf_counter()
-            with xr.open_dataset(str(time_series), **open_dataset_options) as dataset:
-                _ = (
-                    dataset[variable]
-                    .sel(
-                        lon=longitude,
-                        lat=latitude,
-                        method="nearest",
-                        **dataset_select_options,
-                    )
-                    .load()
-                )
-            timings.append(timer.perf_counter() - data_retrieval_start_time)
-
-        average_data_retrieval_time = sum(timings) / len(timings)
-        return f"{average_data_retrieval_time:.3f}"
-
-    except Exception as exception:
-        print(
-            f"Cannot open [code]{variable}[/code] from [code]{time_series}[/code] via Xarray: {exception}"
-        )
-        # raise SystemExit(33)
-        return "-"
-
-
-def read_performance_spatial(
-    time_series: Annotated[Path, typer_argument_time_series],
-    variable: Annotated[str, typer.Argument(help="Variable to select data from")],
-    longitude: Annotated[float, typer_argument_longitude_in_degrees],
-    latitude: Annotated[float, typer_argument_latitude_in_degrees],
-    max_longitude: Annotated[float, typer_argument_longitude_in_degrees],
-    max_latitude: Annotated[float, typer_argument_latitude_in_degrees],
-    tolerance: Annotated[
-        Optional[float], typer_option_tolerance
-    ] = DATASET_SELECT_TOLERANCE_DEFAULT,
-    repetitions: Annotated[int, typer_option_repetitions] = REPETITIONS_DEFAULT,
-    verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
-):
-    from .models import get_file_format
-
-    file_format = get_file_format(time_series)
-    open_dataset_options = file_format.open_dataset_options()
-    dataset_select_options = file_format.dataset_select_options(tolerance)
-    try:
-        timings = []
-        for _ in range(repetitions):
-            data_retrieval_start_time = timer.perf_counter()
-            with xr.open_dataset(str(time_series), **open_dataset_options) as dataset:
-                _ = (
-                    dataset[variable]
-                    .sel(
-                        lon=slice(min_longitude, max_longitude),
-                        lat=slice(min_latitude, max_latitude),
-                        **dataset_select_options,
-                    )
-                    .load()
-                )
-            timings.append(timer.perf_counter() - data_retrieval_start_time)
-
-    except Exception as exception:
-        print(
-            f"Cannot open [code]{variable}[/code] from [code]{time_series}[/code] via Xarray: {exception}"
-        )
-        # raise SystemExit(33)
-        return "-"
-
-
-def read_performance_cli(
-    time_series: Annotated[Path, typer_argument_time_series],
-    variable: Annotated[str, typer.Argument(help="Variable to select data from")],
-    longitude: Annotated[float, typer_argument_longitude_in_degrees],
-    latitude: Annotated[float, typer_argument_latitude_in_degrees],
-    tolerance: Annotated[
-        Optional[float], typer_option_tolerance
-    ] = DATASET_SELECT_TOLERANCE_DEFAULT,
-    repetitions: Annotated[int, typer_option_repetitions] = REPETITIONS_DEFAULT,
-    verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
-) -> str:
-    """
-    Command line interface to `read_performance()` to count the time to read
-    and load data over a geographic location from an Xarray-supported file
-    format.
-
-    Parameters
-    ----------
-    time_series:
-        Path to Xarray-supported input file
-    variable: str
-        Name of the variable to query
-    longitude: float
-        The longitude of the location to read data
-    latitude: float
-        The latitude of the location to read data
-    tolerance: float
-        Maximum distance between original and new labels for inexact matches.
-        Read Xarray manual on nearest-neighbor-lookups
-    repetitions: int
-        Number of times to repeat read operation
-    verbose: int
-        Verbosity level
-
-    Returns
-    -------
-    data_retrieval_time : float or None ?
-        The time it took to retrieve data over the requested location
-
-    Notes
-    -----
-    ``mask_and_scale`` is always set to ``False`` to avoid errors related with
-    decoding timestamps.
-
-    """
-    average_data_retrieval_time = read_performance(
-        time_series=time_series,
-        variable=variable,
-        longitude=longitude,
-        latitude=latitude,
-        tolerance=tolerance,
-        repetitions=repetitions,
-    )
-    if not verbose:
-        print(average_data_retrieval_time)
-    else:
-        print(
-            f"[bold green]Data read in memory in[/bold green] : {average_data_retrieval_time} :high_voltage::high_voltage:"
-        )
 
 
 def select_fast(
@@ -359,7 +150,9 @@ def select_time_series(
     ] = 0.1,  # Customize default if needed
     in_memory: Annotated[bool, typer_option_in_memory] = False,
     statistics: Annotated[bool, typer_option_statistics] = False,
-    csv: Annotated[Path, typer_option_csv] = None,
+    output_filename: Annotated[
+        Path|None, typer_option_output_filename
+    ] = None,
     # output_filename: Annotated[Path, typer_option_output_filename] = 'series_in',  #Path(),
     # variable_name_as_suffix: Annotated[bool, typer_option_variable_name_as_suffix] = True,
     # rounding_places: Annotated[Optional[int], typer_option_rounding_places] = ROUNDING_PLACES_DEFAULT,
@@ -578,11 +371,23 @@ def select_time_series(
             data_array=location_time_series,
             title="Selected series",
         )
-    if csv:
-        to_csv(
-            x=location_time_series,
-            path=csv,
-        )
+    output_handlers = {
+        ".nc": lambda location_time_series, path: write_to_netcdf(
+            location_time_series=location_time_series,
+            path=path,
+            longitude=longitude,
+            latitude=latitude
+        ),
+        ".csv": lambda location_time_series, path: to_csv(
+            x=location_time_series, path=path
+        ),
+    }
+    if output_filename:
+        extension = output_filename.suffix.lower()
+        if extension in output_handlers:
+            output_handlers[extension](location_time_series, output_filename)
+        else:
+            raise ValueError(f"Unsupported file extension: {extension}")
 
 
 def select_time_series_from_json(
