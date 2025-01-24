@@ -18,6 +18,7 @@ from .typer_parameters import (
 from typing import Optional
 from typing_extensions import Annotated
 import xarray as xr
+from statistics import median
 
 
 def read_performance(
@@ -94,8 +95,7 @@ def read_performance(
                 )
             timings.append(timer.perf_counter() - data_retrieval_start_time)
 
-        average_data_retrieval_time = sum(timings) / len(timings)
-        return f"{average_data_retrieval_time:.3f}"
+        return f"{median(timings):.3f}"
 
     except Exception as exception:
         print(
@@ -140,8 +140,7 @@ def read_performance_area(
                 )
             timings.append(timer.perf_counter() - data_retrieval_start_time)
 
-        average_data_retrieval_time = sum(timings) / len(timings)
-        return f"{average_data_retrieval_time:.3f}"
+        return f"{median(timings):.3f}"
 
     except Exception as exception:
         print(
@@ -163,9 +162,9 @@ def read_performance_cli(
     verbose: Annotated[int, typer_option_verbose] = VERBOSE_LEVEL_DEFAULT,
 ) -> None:
     """
-    Command line interface to `read_performance()` to count the time to read
-    and load data over a geographic location from an Xarray-supported file
-    format.
+    Command line interface to `read_performance()` to measure the median time
+    to read and load data over a geographic location from an Xarray-supported
+    file format.
 
     Parameters
     ----------
@@ -188,7 +187,7 @@ def read_performance_cli(
     Returns
     -------
     data_retrieval_time : float or None ?
-        The time it took to retrieve data over the requested location
+        The median time it took to retrieve data over the requested location
 
     Notes
     -----
@@ -196,7 +195,7 @@ def read_performance_cli(
     decoding timestamps.
 
     """
-    average_data_retrieval_time = read_performance(
+    median_data_retrieval_time = read_performance(
         time_series=time_series,
         variable=variable,
         longitude=longitude,
@@ -205,10 +204,10 @@ def read_performance_cli(
         repetitions=repetitions,
     )
     if not verbose:
-        print(average_data_retrieval_time)
+        print(median_data_retrieval_time)
     else:
         print(
-            f"[bold green]Data read in memory in[/bold green] : {average_data_retrieval_time} :high_voltage::high_voltage:"
+            f"Data read in memory [bold]{repetitions} times[/bold] with a [bold]median[/bold] time of : {median_data_retrieval_time} :high_voltage::high_voltage:"
         )
 
 
@@ -259,7 +258,7 @@ def read_performance_area_cli(
     decoding timestamps.
 
     """
-    average_data_retrieval_time = read_performance_area(
+    median_data_retrieval_time = read_performance_area(
         time_series=time_series,
         variable=variable,
         longitude=longitude,
@@ -270,8 +269,8 @@ def read_performance_area_cli(
         repetitions=repetitions,
     )
     if not verbose:
-        print(average_data_retrieval_time)
+        print(median_data_retrieval_time)
     else:
         print(
-            f"[bold green]Data read in memory in[/bold green] : {average_data_retrieval_time} :high_voltage::high_voltage:"
+            f"[bold green]Data read in memory in[/bold green] : {median_data_retrieval_time} :high_voltage::high_voltage:"
         )
