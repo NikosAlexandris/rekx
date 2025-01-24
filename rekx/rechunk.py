@@ -122,6 +122,7 @@ class nccopyBackend(RechunkingBackendBase):
         [x] infile
         [x] outfile
         """
+        variable_option = f"-v {','.join(variables + [XarrayVariableSet.time])}" if variables else "" # 'time' required
         chunking_shape = (
             f"-c time/{time},lat/{latitude},lon/{longitude}"
             if all([time, latitude, longitude])
@@ -131,25 +132,30 @@ class nccopyBackend(RechunkingBackendBase):
         compression_options = f"-d {compression_level}" if compression == "zlib" else ""
         shuffling_option = f"-s" if shuffling and compression_level > 0 else ""
         # --------------------------------------------------------------------
-        cache_size = f"-h {cache_size} " if cache_size else ""  # cache size in bytes
-        cache_elements = f"-e {cache_elements}" if cache_elements else ""
+        cache_size_option = f"-h {cache_size} " if cache_size else ""  # cache size in bytes
+        cache_elements_option = f"-e {cache_elements}" if cache_elements else ""
         # cache_preemption = f"-e {cache_preemption}" if cache_preemption else ""
-        cache_options = cache_size + cache_elements  # + cache_preemption
         memory_option = f"-w" if memory else ""
 
         # build the command
-        command = "nccopy "  # trailing space is important !
-        # if variable_option:
-        #     variable_option = f"-v {','.join(variables + [XarrayVariableSet.time])}"  # 'time' required
-        #     command += f"{variable_option} "
-        command += f"{chunking_shape} "  # trailing space is important !
-        command += f"{fixing_unlimited_dimensions} "  # trailing space is important !
-        command += f"{compression_options} "  # trailing space is important !
-        command += f"{shuffling_option} "  # trailing space is important !
-        command += f"{cache_options} "  # trailing space is important !
-        command += f"{memory_option} "  # trailing space is important !
-        command += f"{input} "  # trailing space is important !
-        output_filename = f"{input.stem}"
+
+        # Collect all non-empty options into a list
+        options = [
+            variable_option,
+            chunking_shape,
+            fixing_unlimited_dimensions,
+            compression_options,
+            shuffling_option,
+            cache_size_option,
+            cache_elements_option,
+            memory_option,
+            input_filepath,
+        ]
+        # Build the command by joining non-empty options
+        command = "nccopy " + " ".join(filter(bool, options))
+
+        # Build the output file path
+        output_filename = f"{Path(input_filepath).stem}"
         output_filename += f"_{time}"
         output_filename += f"_{latitude}"
         output_filename += f"_{longitude}"
@@ -166,7 +172,6 @@ class nccopyBackend(RechunkingBackendBase):
             return command
 
         else:
-            output_directory.mkdir(parents=True, exist_ok=True)
             args = shlex.split(command)
             subprocess.run(args)
 
