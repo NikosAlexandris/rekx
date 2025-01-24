@@ -113,7 +113,8 @@ class nccopyBackend(RechunkingBackendBase):
         [x] [-c chunkspec]  # chunking sizes
         [x] [-u] Convert unlimited size input dimensions to fixed size output dimensions. May speed up variable-at-a-time access, but slow down record-at-a-time access.
         [x] [-w]  # read and process data in-memory, write out in the end
-        [x] [-[v|V] var1,...]
+        [ ] [-[v] var1,...]
+        [x] [-[V] var1,...]
         [ ] [-[g|G] grp1,...]
         [ ] [-m bufsize]
         [x] [-h chunk_cache]  #
@@ -122,7 +123,7 @@ class nccopyBackend(RechunkingBackendBase):
         [x] infile
         [x] outfile
         """
-        variable_option = f"-v {','.join(variables + [XarrayVariableSet.time])}" if variables else "" # 'time' required
+        variable_option = f"-V {','.join(variables)}" if variables else "" # it's a capital V
         chunking_shape = (
             f"-c time/{time},lat/{latitude},lon/{longitude}"
             if all([time, latitude, longitude])
@@ -148,7 +149,7 @@ class nccopyBackend(RechunkingBackendBase):
             input_filepath,
         ]
         # Build the command by joining non-empty options
-        command = "nccopy " + " ".join(filter(bool, options))
+        command = "nccopy " + " ".join(filter(bool, options)) + " "  # space before output filename
 
         # Build the output file path
         output_filename = f"{Path(input_filepath).stem}"
