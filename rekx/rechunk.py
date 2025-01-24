@@ -9,7 +9,6 @@ from abc import ABC, abstractmethod
 import netCDF4 as nc
 import typer
 import xarray as xr
-from devtools import debug
 from rich import print
 from typing_extensions import Annotated
 
@@ -26,7 +25,7 @@ from .typer_parameters import (
     typer_option_filename_pattern,
 )
 
-
+FIX_UNLIMITED_DIMENSIONS_DEFAULT = False
 CACHE_SIZE_DEFAULT = 16777216
 CACHE_ELEMENTS_DEFAULT = 4133
 CACHE_PREEMPTION_DEFAULT = 0.75
@@ -95,13 +94,14 @@ class nccopyBackend(RechunkingBackendBase):
         time: Optional[int] = None,
         latitude: Optional[int] = None,
         longitude: Optional[int] = None,
-        cache_size: Optional[int] = 16777216,
-        cache_elements: Optional[int] = 4133,
-        cache_preemption: Optional[float] = 0.75,
-        compression: str = "zlib",
-        compression_level: int = 4,
-        shuffling: bool = None,
-        memory: bool = False,
+        fix_unlimited_dimensions: bool = False,
+        cache_size: Optional[int] = CACHE_SIZE_DEFAULT,
+        cache_elements: Optional[int] = CACHE_ELEMENTS_DEFAULT,
+        cache_preemption: Optional[float] = CACHE_PREEMPTION_DEFAULT,
+        compression: str = COMPRESSION_FILTER_DEFAULT,
+        compression_level: int = COMPRESSION_LEVEL_DEFAULT,
+        shuffling: bool = SHUFFLING_DEFAULT,
+        memory: bool = RECHUNK_IN_MEMORY_DEFAULT,
         dry_run: bool = False,  # return command as a string ?
     ):  # **kwargs):
         """
@@ -111,7 +111,7 @@ class nccopyBackend(RechunkingBackendBase):
         [x] [-d n]  # deflate
         [x] [-s]  # shuffling
         [x] [-c chunkspec]  # chunking sizes
-        [ ] [-u]
+        [x] [-u] Convert unlimited size input dimensions to fixed size output dimensions. May speed up variable-at-a-time access, but slow down record-at-a-time access.
         [x] [-w]  # read and process data in-memory, write out in the end
         [x] [-[v|V] var1,...]
         [ ] [-[g|G] grp1,...]
@@ -127,6 +127,7 @@ class nccopyBackend(RechunkingBackendBase):
             if all([time, latitude, longitude])
             else ""
         )
+        fixing_unlimited_dimensions = f"-u" if fix_unlimited_dimensions else ""
         compression_options = f"-d {compression_level}" if compression == "zlib" else ""
         shuffling_option = f"-s" if shuffling and compression_level > 0 else ""
         # --------------------------------------------------------------------
@@ -137,16 +138,17 @@ class nccopyBackend(RechunkingBackendBase):
         memory_option = f"-w" if memory else ""
 
         # build the command
-        command = "nccopy "
+        command = "nccopy "  # trailing space is important !
         # if variable_option:
         #     variable_option = f"-v {','.join(variables + [XarrayVariableSet.time])}"  # 'time' required
         #     command += f"{variable_option} "
-        command += f"{chunking_shape} "
-        command += f"{compression_options} "
-        command += f"{shuffling_option} "
-        command += f"{cache_options} "
-        command += f"{memory_option} "
-        command += f"{input} "
+        command += f"{chunking_shape} "  # trailing space is important !
+        command += f"{fixing_unlimited_dimensions} "  # trailing space is important !
+        command += f"{compression_options} "  # trailing space is important !
+        command += f"{shuffling_option} "  # trailing space is important !
+        command += f"{cache_options} "  # trailing space is important !
+        command += f"{memory_option} "  # trailing space is important !
+        command += f"{input} "  # trailing space is important !
         output_filename = f"{input.stem}"
         output_filename += f"_{time}"
         output_filename += f"_{latitude}"
@@ -227,7 +229,6 @@ class NetCDF4Backend(RechunkingBackendBase):
                             x = da.from_array(
                                 variable, chunks=(chunk_size,) * len(variable.shape)
                             )
-                            debug(locals())
                             output_dataset.createVariable(
                                 name,
                                 variable.datatype,
@@ -332,6 +333,9 @@ def rechunk(
     longitude: Annotated[
         int, typer.Option(help="New chunk size for the `lon` dimension.")
     ],
+    fix_unlimited_dimensions: Annotated[
+        bool, typer.Option(help="Convert unlimited size input dimensions to fixed size dimensions in output.")
+    ] = FIX_UNLIMITED_DIMENSIONS_DEFAULT,
     variable_set: Annotated[
         XarrayVariableSet, typer.Option(help="Set of Xarray variables to diagnose")
     ] = XarrayVariableSet.all,
@@ -379,6 +383,7 @@ def rechunk(
             "time": time,
             "latitude": latitude,
             "longitude": longitude,
+            "fix_unlimited_dimensions": fix_unlimited_dimensions,
             "cache_size": cache_size,
             "cache_elements": cache_elements,
             "cache_preemption": cache_preemption,
@@ -479,6 +484,12 @@ def generate_rechunk_commands(
             parser=parse_numerical_option,
         ),
     ],
+    fix_unlimited_dimensions: Annotated[
+        bool,
+        typer.Option(
+            help="Convert unlimited size input dimensions to fixed size dimensions in output."
+        ),
+    ] = FIX_UNLIMITED_DIMENSIONS_DEFAULT,
     spatial_symmetry: Annotated[
         bool,
         typer.Option(
@@ -571,6 +582,7 @@ def generate_rechunk_commands(
                     time=chunking_time,
                     latitude=chunking_latitude,
                     longitude=chunking_longitude,
+                    fix_unlimited_dimensions=fix_unlimited_dimensions,
                     cache_size=caching_size,
                     cache_elements=caching_elements,
                     cache_preemption=caching_preemption,
@@ -624,6 +636,12 @@ def generate_rechunk_commands_for_multiple_netcdf(
             parser=parse_numerical_option,
         ),
     ],
+    fix_unlimited_dimensions: Annotated[
+        bool,
+        typer.Option(
+            help="Convert unlimited size input dimensions to fixed size dimensions in output."
+        ),
+    ] = FIX_UNLIMITED_DIMENSIONS_DEFAULT,
     pattern: Annotated[str, typer_option_filename_pattern] = "*.nc",
     output_directory: Annotated[Path, typer_option_output_directory] = Path('.'),
     spatial_symmetry: Annotated[
@@ -682,10 +700,12 @@ def generate_rechunk_commands_for_multiple_netcdf(
         input_file_paths.append(source_path)
 
     elif source_path.is_dir():
-        input_file_paths = (source_path.glob(pattern))
+        input_file_paths = list(source_path.glob(pattern))
+
     else:
         print(f'Something is wrong with the [code]source_path[/code] input.')
         return
+
     if not list(input_file_paths):
         print(
             f"No files found in [code]{source_path}[/code] matching the pattern [code]{pattern}[/code]!"
@@ -712,6 +732,7 @@ def generate_rechunk_commands_for_multiple_netcdf(
                 time=time,
                 latitude=latitude,
                 longitude=longitude,
+                fix_unlimited_dimensions=fix_unlimited_dimensions,
                 spatial_symmetry=spatial_symmetry,
                 variable_set=variable_set,
                 cache_size=cache_size,
