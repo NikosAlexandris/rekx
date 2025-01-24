@@ -698,6 +698,7 @@ def generate_rechunk_commands_for_multiple_netcdf(
     input_file_paths = []
     if source_path.is_file():
         input_file_paths.append(source_path)
+        print(f"[green]Identified the file in question![/green]")
 
     elif source_path.is_dir():
         input_file_paths = list(source_path.glob(pattern))
@@ -714,9 +715,7 @@ def generate_rechunk_commands_for_multiple_netcdf(
 
     if dry_run:
         print(f"[bold]Dry running operations that would be performed[/bold]:")
-        print(
-            f"> Reading files in [code]{source_path}[/code] matching the pattern [code]{pattern}[/code]"
-        )
+        print(f"> Reading files in [code]{source_path}[/code] matching the pattern [code]{pattern}[/code]")
         print(f"> Number of files matched : {len(list(input_file_paths))}")
         print(f"> Writing rechunking commands in [code]{commands_file}[/code]")
         return  # Exit for a dry run
