@@ -131,13 +131,9 @@ class nccopyBackend(RechunkingBackendBase):
         fixing_unlimited_dimensions = f"-u" if fix_unlimited_dimensions else ""
         compression_options = f"-d {compression_level}" if compression == "zlib" else ""
         shuffling_option = f"-s" if shuffling and compression_level > 0 else ""
-        # --------------------------------------------------------------------
         cache_size_option = f"-h {cache_size} " if cache_size else ""  # cache size in bytes
         cache_elements_option = f"-e {cache_elements}" if cache_elements else ""
-        # cache_preemption = f"-e {cache_preemption}" if cache_preemption else ""
         memory_option = f"-w" if memory else ""
-
-        # build the command
 
         # Collect all non-empty options into a list
         options = [
