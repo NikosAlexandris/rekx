@@ -81,14 +81,14 @@ def modify_chunk_size(
 
 class RechunkingBackendBase(ABC):
     @abstractmethod
-    def rechunk(self, input, output_directory, **kwargs):
+    def rechunk(self, input_filepath, output_directory, **kwargs):
         pass
 
 
 class nccopyBackend(RechunkingBackendBase):
     def rechunk(
         self,
-        input: Path,
+        input_filepath: Path,
         variables: List[str],
         output_directory: Path,
         time: Optional[int] = None,
@@ -157,7 +157,7 @@ class nccopyBackend(RechunkingBackendBase):
         output_filename += f"_{compression_level}"
         if shuffling and compression_level > 0:
             output_filename += f"_shuffled"
-        output_filename += f"{input.suffix}"
+        output_filename += f"{Path(input_filepath).suffix}"
         output_directory.mkdir(parents=True, exist_ok=True)
         output_filepath = output_directory / output_filename
         command += f"{output_filepath}"
@@ -322,7 +322,7 @@ class RechunkingBackend(str, enum.Enum):
 
 
 def rechunk(
-    input: Annotated[Optional[Path], typer.Argument(help="Input NetCDF file.")],
+    input_filepath: Annotated[Path, typer.Argument(help="Input NetCDF file.")],
     output_directory: Annotated[
         Optional[Path], typer.Argument(help="Path to the output NetCDF file.")
     ],
@@ -371,7 +371,7 @@ def rechunk(
     #     client = Client(dask_scheduler)
     #     typer.echo(f"Using Dask scheduler at {dask_scheduler}")
 
-    with xr.open_dataset(input, engine="netcdf4") as dataset:
+    with xr.open_dataset(input_filepath, engine="netcdf4") as dataset:
         # with Dataset(input, 'r') as dataset:
         selected_variables = select_xarray_variable_set_from_dataset(
             XarrayVariableSet, variable_set, dataset
@@ -459,7 +459,7 @@ def callback_compression_filters():
 
 
 def generate_rechunk_commands(
-    input: Annotated[Path | None, typer.Argument(help="Input NetCDF file.")],
+    input_filepath: Annotated[Path, typer.Argument(help="Input NetCDF file.")],
     output: Annotated[
         Path | None, typer.Argument(help="Path to the output NetCDF file.")
     ],
@@ -542,7 +542,7 @@ def generate_rechunk_commands(
         shuffling = [shuffling, False]
     else:
         shuffling = [False]
-    with xr.open_dataset(input, engine="netcdf4") as dataset:
+    with xr.open_dataset(input_filepath, engine="netcdf4") as dataset:
         selected_variables = select_xarray_variable_set_from_dataset(
             XarrayVariableSet, variable_set, dataset
         )
@@ -576,7 +576,7 @@ def generate_rechunk_commands(
                 continue
             else:
                 command = backend.rechunk(
-                    input=input,
+                    input_filepath=input_filepath,
                     variables=list(selected_variables),
                     output_directory=output,
                     time=chunking_time,
@@ -596,7 +596,7 @@ def generate_rechunk_commands(
                     commands.append(command)
 
     commands_file = Path(
-        commands_file.stem + "_for_" + input.stem + commands_file.suffix
+        commands_file.stem + "_for_" + Path(input_filepath).stem + commands_file.suffix
     )
     if verbose:
         print(
@@ -701,7 +701,7 @@ def generate_rechunk_commands_for_multiple_netcdf(
         print(f"[green]Identified the file in question![/green]")
 
     elif source_path.is_dir():
-        input_file_paths = list(source_path.glob(pattern))
+        input_file_paths = list(str(path) for path in source_path.glob(pattern))
 
     else:
         print(f'Something is wrong with the [code]source_path[/code] input.')
