@@ -84,7 +84,7 @@ class nccopyBackend(RechunkingBackendBase):
             input_filepath,
         ]
         # Build the command by joining non-empty options
-        command = "nccopy " + " ".join(filter(bool, options))
+        command = "nccopy " + " ".join(filter(bool, options)) + " "
 
         # Build the output file path
         output_filename = f"{Path(input_filepath).stem}"
