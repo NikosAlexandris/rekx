@@ -17,11 +17,19 @@ class MethodForInexactMatches(str, enum.Enum):
 
 class XarrayVariableSet(str, enum.Enum):
     all = "all"
+    dimensions = "dimensions"
+    dimensions_without_coordinates = "dimensions-without-coordinates"
     coordinates = "coordinates"
-    coordinates_without_data = "coordinates-without-data"
+    time = "time"
+    latitude = "latitude"
+    latitude_boundaries = "latitude-boundaries"
+    longitude = "longitude"
+    longitude_boundaries = "longitude-boundaries"
+    location = "location"
+    location_boundaries= "location-boundaries"
+    data_variables = "data-variables"
     data = "data"
     metadata = "metadata"
-    time = "time"
 
 
 def select_xarray_variable_set_from_dataset(
@@ -58,38 +66,43 @@ def select_xarray_variable_set_from_dataset(
     select_netcdf_variable_set_from_dataset() with differences in terms of the
     names of attributes. See also docstring of other function.
     """
-    # Hardcoded ! ---------------------------------------------
-    metadata_attributes = {"record_status"}
-    coordinates_data_attributes = {"lat_bnds", "lon_bnds"}
-    time_coordinate = {"time"}
-    variables_attributes = set(dataset.variables)
-    coordinates_attributes = set(dataset.coords)
-    data_attributes = (
-        set(dataset.data_vars) - coordinates_data_attributes - metadata_attributes
-    )
-    # --------------------------------------------- Hardcoded !
+    variables = set(dataset.variables)
+    dimensions = set(dataset.dims)
+    coordinates = set(dataset.coords)
+    dimensions_without_coordinates = dimensions.difference(coordinates) 
+    time_coordinate = {dataset.time.name}
+    latitude_coordinate = {dataset.lat.name}
+    longitude_coordinate = {dataset.lon.name}
+    location_coordinates = latitude_coordinate.union(longitude_coordinate)
+    data_variables = set(dataset.data_vars)
+    data_variables_latitude_boundaries = {dataset.lat_bnds.name}
+    data_variables_longitude_boundaries = {dataset.lon_bnds.name}
+    data_variables_location_boundaries = data_variables_latitude_boundaries.union(data_variables_longitude_boundaries)
+    data_variables_metadata = {"record_status"}  # Hardcoded !
+    data = data_variables - data_variables_location_boundaries - data_variables_metadata
+    selection_map = {
+        xarray_variable_set.all: variables,
+        xarray_variable_set.dimensions: dimensions,
+        xarray_variable_set.dimensions_without_coordinates: dimensions_without_coordinates,
+        xarray_variable_set.coordinates: coordinates,
+        xarray_variable_set.time: time_coordinate,
+        xarray_variable_set.latitude: latitude_coordinate,
+        xarray_variable_set.longitude: longitude_coordinate,
+        xarray_variable_set.location: location_coordinates,
+        xarray_variable_set.data_variables: data_variables,
+        xarray_variable_set.latitude_boundaries: data_variables_latitude_boundaries,
+        xarray_variable_set.longitude_boundaries: data_variables_longitude_boundaries,
+        xarray_variable_set.location_boundaries: data_variables_location_boundaries,
+        xarray_variable_set.data: data,
+        xarray_variable_set.metadata: data_variables_metadata,
+    }
+    selected_variables = set()
 
-    if variable_set == xarray_variable_set.all:
-        return variables_attributes
+    for variable in xarray_variable_set:
+        if variable in variable_set:
+            selected_variables.update(selection_map[variable])
 
-    elif variable_set == xarray_variable_set.coordinates:
-        return coordinates_attributes
-
-    elif variable_set == xarray_variable_set.coordinates_without_data:
-        return coordinates_attributes - coordinates_data_attributes
-
-    elif variable_set == xarray_variable_set.data:
-        # return data - coordinates_data - metadata
-        return data_attributes - coordinates_data_attributes - metadata_attributes
-
-    elif variable_set == xarray_variable_set.metadata:
-        return metadata_attributes.intersection(variables_attributes)
-
-    elif variable_set == xarray_variable_set.time:
-        return time_coordinate
-
-    else:
-        raise ValueError("Invalid category")
+    return selected_variables
 
 
 def select_netcdf_variable_set_from_dataset(

@@ -122,7 +122,7 @@ class nccopyBackend(RechunkingBackendBase):
         [x] infile
         [x] outfile
         """
-        variable_option = f"-v {','.join(variables + [XarrayVariableSet.time])}" if variables else "" # 'time' required
+        variable_option = f"-v {','.join(variables)}" if variables else "" # 'time' required
         chunking_shape = (
             f"-c time/{time},lat/{latitude},lon/{longitude}"
             if all([time, latitude, longitude])
@@ -338,8 +338,8 @@ def rechunk(
         bool, typer.Option(help="Convert unlimited size input dimensions to fixed size dimensions in output.")
     ] = FIX_UNLIMITED_DIMENSIONS_DEFAULT,
     variable_set: Annotated[
-        XarrayVariableSet, typer.Option(help="Set of Xarray variables to diagnose")
-    ] = XarrayVariableSet.all,
+        List[XarrayVariableSet], typer.Option(help="Set of Xarray variables to diagnose")
+    ] = List[XarrayVariableSet.all],
     cache_size: Optional[int] = CACHE_SIZE_DEFAULT,
     cache_elements: Optional[int] = CACHE_ELEMENTS_DEFAULT,
     cache_preemption: Optional[float] = CACHE_PREEMPTION_DEFAULT,
@@ -374,6 +374,13 @@ def rechunk(
 
     with xr.open_dataset(input_filepath, engine="netcdf4") as dataset:
         # with Dataset(input, 'r') as dataset:
+        def validate_variable_set(variable_set_input: str) -> XarrayVariableSet:
+            if variable_set_input in XarrayVariableSet.__members__:
+                return XarrayVariableSet[variable_set_input]
+            else:
+                raise ValueError(f"Invalid variable set: {variable_set_input}")
+
+        variable_set = validate_variable_set(variable_set)
         selected_variables = select_xarray_variable_set_from_dataset(
             XarrayVariableSet, variable_set, dataset
         )
@@ -652,8 +659,8 @@ def generate_rechunk_commands_for_multiple_netcdf(
         ),
     ] = SPATIAL_SYMMETRY_DEFAULT,
     variable_set: Annotated[
-        XarrayVariableSet, typer.Option(help="Set of Xarray variables to diagnose")
-    ] = XarrayVariableSet.all,
+        List[XarrayVariableSet], typer.Option(help="Set of Xarray variables to diagnose")
+    ] = List[XarrayVariableSet.all],
     cache_size: Annotated[
         int,
         typer.Option(
