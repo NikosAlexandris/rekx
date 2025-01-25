@@ -49,7 +49,8 @@ class nccopyBackend(RechunkingBackendBase):
         [x] [-c chunkspec]  # chunking sizes
         [x] [-u] Convert unlimited size input dimensions to fixed size output dimensions. May speed up variable-at-a-time access, but slow down record-at-a-time access.
         [x] [-w]  # read and process data in-memory, write out in the end
-        [x] [-[v|V] var1,...]
+        [ ] [-[v] var1,...]
+        [x] [-[V] var1,...]
         [ ] [-[g|G] grp1,...]
         [ ] [-m bufsize]
         [x] [-h chunk_cache]  #
@@ -58,7 +59,7 @@ class nccopyBackend(RechunkingBackendBase):
         [x] infile
         [x] outfile
         """
-        variable_option = f"-v {','.join(variables)}" if variables else "" # 'time' required
+        variable_option = f"-V {','.join(variables)}" if variables else "" # it's a capital V
         chunking_shape = (
             f"-c time/{time},lat/{latitude},lon/{longitude}"
             if all([time, latitude, longitude])
@@ -67,8 +68,8 @@ class nccopyBackend(RechunkingBackendBase):
         fixing_unlimited_dimensions = f"-u" if fix_unlimited_dimensions else ""
         compression_options = f"-d {compression_level}" if compression == "zlib" else ""
         shuffling_option = f"-s" if shuffling and compression_level > 0 else ""
-        cache_size_option = f"-h {cache_size} " if cache_size else ""  # cache size in bytes
-        cache_elements_option = f"-e {cache_elements}" if cache_elements else ""
+        cache_size_option = f"-h {cache_size} " if cache_size != CACHE_SIZE_DEFAULT else False  # cache size in bytes
+        cache_elements_option = f"-e {cache_elements}" if cache_elements != CACHE_ELEMENTS_DEFAULT else False
         memory_option = f"-w" if memory else ""
 
         # Collect all non-empty options into a list
@@ -84,7 +85,7 @@ class nccopyBackend(RechunkingBackendBase):
             input_filepath,
         ]
         # Build the command by joining non-empty options
-        command = "nccopy " + " ".join(filter(bool, options)) + " "
+        command = "nccopy " + " ".join(filter(bool, options)) + " "  # space before output filename
 
         # Build the output file path
         output_filename = f"{Path(input_filepath).stem}"
