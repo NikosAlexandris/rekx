@@ -68,3 +68,12 @@ with specific reference to netCDF4/HDF5 files.[^funded-by-nasa]
     }
   }
   ```
+!!! seealso
+
+    - [References specification](https://fsspec.github.io/kerchunk/spec.html)
+
+
+## Real world examples
+
+- [Using Kerchunk with uncompressed NetCDF 64-bit offset files: Cloud-optimized access to HYCOM Ocean Model output on AWS Open Data](https://medium.com/pangeo/using-kerchunk-with-uncompressed-netcdf-64-bit-offset-files-cloud-optimized-access-to-hycom-ocean-9008ba6d0d67)
+- [Generate references for HYCOM using kerchunk (Notebook)](https://nbviewer.org/gist/rsignell/932ead1fbf143061bd620e7cf764cbb0)
