@@ -225,6 +225,8 @@ It is a good idea to:
 
 <!-- - [Chunking in HDF5][Chunking in HDF5] -->
 - [Chunking Data: Choosing Shapes][Chunking Data: Choosing Shapes]
+- [Choosing good chunk sizes in Dask, By Genevieve Buckley][Choosing good chunk sizes in Dask, By Genevieve Buckley]
+- [Specifying chunks in a zarr store][Specifying chunks in a zarr store]
 
 - [Parallel I/O using netCDF, National Supercomputing Service (CSCS)][Parallel I/O using netCDF, CSCS]
 - [Chunking and Deflating Data with NetCDF-4 - 2012 Unidata NetCDF Workshop][Unidata NetCDF Workshop 2012]
@@ -248,6 +250,7 @@ It is a good idea to:
 <!-- [Chunking in HDF5]: https://portal.hdfgroup.org/display/HDF5/Chunking+in+HDF5 -->
 
 [Chunking Data: Choosing Shapes]: https://www.unidata.ucar.edu/blogs/developer/en/entry/chunking_data_choosing_shapes
+[14.1 Choosing Chunksizes]: https://www.unidata.ucar.edu/software/netcdf/workshops/2011/nc4chunking/ChoosingChunksizes.html
 
 [Parallel I/O using netCDF, CSCS]: https://www.cscs.ch/fileadmin/user_upload/contents_publications/tutorials/fast_parallel_IO/IntroToParallelnetCDF_MC.pdf
 
@@ -258,3 +261,6 @@ It is a good idea to:
 [Support on Chunking in HDF5]: https://support.hdfgroup.org/HDF5/doc/Advanced/Chunking/
 
 [Caching in HDF5]: https://support.hdfgroup.org/HDF5/doc/RM/RM_H5P.html#Property-SetChunkCache
+
+[Choosing good chunk sizes in Dask, By Genevieve Buckley]: https://blog.dask.org/2021/11/02/choosing-dask-chunk-sizes
+[Specifying chunks in a zarr store]: https://docs.xarray.dev/en/stable/user-guide/io.html#specifying-chunks-in-a-zarr-store
