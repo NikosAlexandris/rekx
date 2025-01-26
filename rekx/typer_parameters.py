@@ -265,7 +265,7 @@ typer_option_tolerance = typer.Option(
     # default_factory=0.1,
 )
 repetitions_typer_help = (
-    "Times to repeat the read operation to calculate the average read time."
+    "Times to repeat the read operation to calculate the median read time."
 )
 # repetitions_typer_help = "Number of repetitions for read operation"
 repetitions_help = repetitions_typer_help
