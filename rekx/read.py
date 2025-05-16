@@ -22,15 +22,13 @@ from statistics import median
 
 
 def read_performance(
-    time_series: Annotated[Path, typer_argument_time_series],
-    variable: Annotated[str, typer_argument_variable],
-    longitude: Annotated[float, typer_argument_longitude_in_degrees],
-    latitude: Annotated[float, typer_argument_latitude_in_degrees],
+    time_series: str,
+    variable: str,
+    longitude: float,
+    latitude: float,
     # window: Annotated[int, typer_option_spatial_window_in_degrees] = None,
-    tolerance: Annotated[
-        Optional[float], typer_option_tolerance
-    ] = DATASET_SELECT_TOLERANCE_DEFAULT,
-    repetitions: Annotated[int, typer_option_repetitions] = REPETITIONS_DEFAULT,
+    tolerance: float = DATASET_SELECT_TOLERANCE_DEFAULT,
+    repetitions: int = REPETITIONS_DEFAULT,
 ) -> str:
     """
     Count the median time of repeated read and load operations of the time
@@ -72,6 +70,9 @@ def read_performance(
     open_dataset_options = file_format.open_dataset_options()
     dataset_select_options = file_format.dataset_select_options(tolerance)
 
+    dataset = xr.open_dataset(time_series.as_posix())
+    print(f"{dataset}")
+
     # indexers = set_location_indexers(
     #     data_array=time_series,
     #     longitude=longitude,
@@ -82,7 +83,7 @@ def read_performance(
         timings = []
         for _ in range(repetitions):
             data_retrieval_start_time = timer.perf_counter()
-            with xr.open_dataset(str(time_series), **open_dataset_options) as dataset:
+            with xr.open_dataset(time_series.as_posix(), **open_dataset_options) as dataset:
                 _ = (
                     dataset[variable]
                     .sel(
