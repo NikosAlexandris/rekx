@@ -37,6 +37,7 @@ from .rich_help_panel_names import (
     rich_help_panel_select_references,
     rich_help_panel_suggest,
 )
+from .convert import convert_parquet_to_zarr_store
 from .read import read_performance_cli, read_performance_area_cli
 from .select import (
     select_fast,
@@ -184,11 +185,18 @@ app.command(
     rich_help_panel=rich_help_panel_combine,
 )(combine_parquet_stores_to_parquet)
 
+app.command(
+    "parquet-to-zarr",
+    help=f"Convert Parquet to local Zarr store",
+    no_args_is_help=True,
+    rich_help_panel=rich_help_panel_combine,
+)(convert_parquet_to_zarr_store)
+
 # select
 
 app.command(
     name="clip",
-    help="%< Select time series over a location",
+    help="%< Clip time series data",
     no_args_is_help=True,
     rich_help_panel=rich_help_panel_select,
 )(clip_netcdf_file_cli)
