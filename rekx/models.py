@@ -131,8 +131,8 @@ def select_netcdf_variable_set_from_dataset(
     elif variable_set == netcdf4_variable_set.coordinates:
         return dimensions_attributes  # Same as next one ?
 
-    elif variable_set == netcdf4_variable_set.coordinates_without_data:
-        return dimensions_attributes
+    # elif variable_set == netcdf4_variable_set.coordinates_without_data:
+    #     return dimensions_attributes
 
     elif variable_set == netcdf4_variable_set.data:
         return data_attributes
@@ -151,6 +151,7 @@ class FileFormat(enum.Enum):
     NETCDF = ".nc"
     PARQUET = ".parquet"
     JSON = ".json"
+    ZARR = ".zarr"  # or directory ?
 
     def open_dataset_options(self) -> dict:
         if self == FileFormat.NETCDF:
@@ -173,10 +174,17 @@ class FileFormat(enum.Enum):
                     "remote_protocol": "file",
                 },
             }
+        if self == FileFormat.ZARR:
+            return {}
 
     def dataset_select_options(self, tolerance) -> dict:
+        
         if self == FileFormat.PARQUET:
             return {"tolerance": tolerance}
+
+        if self == FileFormat.ZARR:
+            return {"tolerance": tolerance}
+        
         else:
             # Default or no additional options for other formats
             return {}
