@@ -97,6 +97,13 @@ def clip_netcdf_file(
                     ),
             }
             if output_filename:
+                if output_filename.exists():
+                    if not overwrite:
+                        warnings.warn(f"The output file '{output_filename}' already exists. It will not be overwritten.")
+                        logger.warning(f"The output file '{output_filename}' already exists. It will not be overwritten.")
+                        return  # Exit the function without writing the file
+                    else:
+                        logger.info(f"Overwriting the existing file '{output_filename}'.")
                 extension = output_filename.suffix.lower()
                 if extension in output_handlers:
                     output_handlers[extension](area_time_series, output_filename)
