@@ -69,6 +69,31 @@ CHUNKING_SHAPES = [
 GREEN_DASH = f"[green]-[/green]"
 
 
+# Add this before generating the Zarr store
+def apply_safe_chunking(dataset, main_variable, time_chunks, lat_chunks, lon_chunks):
+    for var in dataset.variables:
+        # Skip primary variable (handled separately)
+        if var == main_variable:
+            continue
+            
+        # Clear problematic encoding
+        if 'chunks' in dataset[var].encoding:
+            del dataset[var].encoding['chunks']
+        if 'compressor' in dataset[var].encoding:
+            del dataset[var].encoding['compressor']
+            
+        # Apply safe chunking to auxiliary variables
+        if var in ['lat_bnds', 'lon_bnds']:
+            dataset[var] = dataset[var].chunk({
+                'time': time_chunks,
+                'lat': lat_chunks,
+                'lon': lon_chunks,
+                'bnds': 2  # Explicit chunk for bounds dimension
+            })
+    
+    return dataset
+
+
 def read_parquet_via_zarr(
     time_series: Annotated[Path, typer_argument_time_series],
     variable: Annotated[str, typer_argument_variable],
@@ -187,6 +212,7 @@ def generate_zarr_store(
             "lon": {"compressors": compressor},
         },
         mode=mode,
+        safe_chunks=False,
     )
 
 
@@ -249,10 +275,42 @@ def convert_parquet_to_zarr_store(
         # latitude=latitude,
         # tolerance=tolerance,
     )
+    
+    # Remove bounds variables if present
+    drop_vars = [v for v in ['lat_bnds', 'lon_bnds'] if v in dataset.variables]
+    if drop_vars:
+        dataset = dataset.drop_vars(drop_vars)
 
-    # Rechunk
+    # Remove the 'bnds' dimension if now unused
+    if 'bnds' in dataset.dims and all('bnds' not in var.dims for var in dataset.variables):
+        dataset = dataset.drop_dims('bnds')
 
-    dataset = dataset.chunk({'time': time, 'lat': latitude, 'lon': longitude})
+   # Remove 'bounds' attributes from lat/lon coordinates
+    for coord in ['lat', 'lon']:
+        if coord in dataset.coords and 'bounds' in dataset[coord].attrs:
+            del dataset[coord].attrs['bounds']
+
+    print(f"{dataset=}")
+
+
+    # In your conversion function:
+    dataset = apply_safe_chunking(
+        dataset,
+        main_variable=variable,
+        time_chunks=time,
+        lat_chunks=latitude,
+        lon_chunks=longitude
+    )
+
+    # # Before generating Zarr store
+    # for var in dataset.variables:
+    #     if var != variable:  # main_variable='SIS'
+    #         # Clear conflicting encoding for non-primary variables
+    #         dataset[var].encoding.pop('chunks', None)
+    #         dataset[var].encoding.pop('compressor', None)
+
+    # # Rechunk
+    # dataset = dataset.chunk({'time': time, 'lat': latitude, 'lon': longitude})
 
     # Generate Zarr store -- Build the Dask task graph
     
